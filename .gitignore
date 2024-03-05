@@ -1,0 +1,7 @@
+**/.vs
+**/obj/
+*.vsconfig
+**/bin/
+*.log
+*.csproj.user
+
