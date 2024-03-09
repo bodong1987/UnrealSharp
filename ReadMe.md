@@ -50,9 +50,7 @@ C# binding code and C++ interaction APIs will be automatically generated during 
 10. The next thing you have to do is [learn how to](#turtorials) add C# code in C# according to the specifications to implement Unreal Class, Unreal Struct, Unreal Enums, etc.  
 
 ## YouTube Turtorials
-[![How to Add UnrealSharp To UnrealEngine 5](https://img.youtube.com/vi/70CmysenDOM/0.jpg)](https://www.youtube.com/watch?v=70CmysenDOM)  
-
-[Full playlist](https://www.youtube.com/watch?v=70CmysenDOM&list=PL-bgMFxHDR7beg5BE_4MwqkpwqFsbsc4c)
+[Full playlist](https://www.youtube.com/playlist?list=PL-bgMFxHDR7beg5BE_4MwqkpwqFsbsc4c)
 
 ## Turtorials
 ### Setup
