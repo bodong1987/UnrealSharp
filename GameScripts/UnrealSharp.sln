@@ -1,0 +1,144 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34601.278
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnrealSharp.UnrealEngine", "Game\UnrealSharp.UnrealEngine\UnrealSharp.UnrealEngine.csproj", "{2E84BC04-A73B-474F-8CB2-F40140A60267}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Engine", "Engine", "{5CEEE517-01EA-45F1-A409-700B12BC8665}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Game", "Game", "{0261DB50-7BAE-44DE-9755-6F493E50991C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnrealSharp.GameScripts", "Game\UnrealSharp.GameScripts\UnrealSharp.GameScripts.csproj", "{77CA6DBF-1172-40CD-B595-8323A471F839}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnrealSharp.GameContent", "Game\UnrealSharp.GameContent\UnrealSharp.GameContent.csproj", "{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug-Android-Game|Any CPU = Debug-Android-Game|Any CPU
+		Debug-IOS-Game|Any CPU = Debug-IOS-Game|Any CPU
+		Debug-Linux-Editor|Any CPU = Debug-Linux-Editor|Any CPU
+		Debug-Linux-Game|Any CPU = Debug-Linux-Game|Any CPU
+		Debug-Mac-Editor|Any CPU = Debug-Mac-Editor|Any CPU
+		Debug-Mac-Game|Any CPU = Debug-Mac-Game|Any CPU
+		Debug-Windows-Editor|Any CPU = Debug-Windows-Editor|Any CPU
+		Debug-Windows-Game|Any CPU = Debug-Windows-Game|Any CPU
+		Release-Android-Game|Any CPU = Release-Android-Game|Any CPU
+		Release-IOS-Game|Any CPU = Release-IOS-Game|Any CPU
+		Release-Linux-Editor|Any CPU = Release-Linux-Editor|Any CPU
+		Release-Linux-Game|Any CPU = Release-Linux-Game|Any CPU
+		Release-Mac-Editor|Any CPU = Release-Mac-Editor|Any CPU
+		Release-Mac-Game|Any CPU = Release-Mac-Game|Any CPU
+		Release-Windows-Editor|Any CPU = Release-Windows-Editor|Any CPU
+		Release-Windows-Game|Any CPU = Release-Windows-Game|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Debug-Android-Game|Any CPU.ActiveCfg = Debug-Android-Game|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Debug-Android-Game|Any CPU.Build.0 = Debug-Android-Game|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Debug-IOS-Game|Any CPU.ActiveCfg = Debug-IOS-Game|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Debug-IOS-Game|Any CPU.Build.0 = Debug-IOS-Game|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Debug-Linux-Editor|Any CPU.ActiveCfg = Debug-Linux-Editor|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Debug-Linux-Editor|Any CPU.Build.0 = Debug-Linux-Editor|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Debug-Linux-Game|Any CPU.ActiveCfg = Debug-Linux-Game|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Debug-Linux-Game|Any CPU.Build.0 = Debug-Linux-Game|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Debug-Mac-Editor|Any CPU.ActiveCfg = Debug-Mac-Editor|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Debug-Mac-Editor|Any CPU.Build.0 = Debug-Mac-Editor|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Debug-Mac-Game|Any CPU.ActiveCfg = Debug-Mac-Game|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Debug-Mac-Game|Any CPU.Build.0 = Debug-Mac-Game|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Debug-Windows-Editor|Any CPU.ActiveCfg = Debug-Windows-Editor|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Debug-Windows-Editor|Any CPU.Build.0 = Debug-Windows-Editor|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Debug-Windows-Game|Any CPU.ActiveCfg = Debug-Windows-Game|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Debug-Windows-Game|Any CPU.Build.0 = Debug-Windows-Game|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Release-Android-Game|Any CPU.ActiveCfg = Release-Android-Game|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Release-Android-Game|Any CPU.Build.0 = Release-Android-Game|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Release-IOS-Game|Any CPU.ActiveCfg = Release-IOS-Game|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Release-IOS-Game|Any CPU.Build.0 = Release-IOS-Game|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Release-Linux-Editor|Any CPU.ActiveCfg = Release-Linux-Editor|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Release-Linux-Editor|Any CPU.Build.0 = Release-Linux-Editor|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Release-Linux-Game|Any CPU.ActiveCfg = Release-Linux-Game|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Release-Linux-Game|Any CPU.Build.0 = Release-Linux-Game|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Release-Mac-Editor|Any CPU.ActiveCfg = Release-Mac-Editor|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Release-Mac-Editor|Any CPU.Build.0 = Release-Mac-Editor|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Release-Mac-Game|Any CPU.ActiveCfg = Release-Mac-Game|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Release-Mac-Game|Any CPU.Build.0 = Release-Mac-Game|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Release-Windows-Editor|Any CPU.ActiveCfg = Release-Windows-Editor|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Release-Windows-Editor|Any CPU.Build.0 = Release-Windows-Editor|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Release-Windows-Game|Any CPU.ActiveCfg = Release-Windows-Game|Any CPU
+		{2E84BC04-A73B-474F-8CB2-F40140A60267}.Release-Windows-Game|Any CPU.Build.0 = Release-Windows-Game|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Debug-Android-Game|Any CPU.ActiveCfg = Debug-Android-Game|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Debug-Android-Game|Any CPU.Build.0 = Debug-Android-Game|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Debug-IOS-Game|Any CPU.ActiveCfg = Debug-IOS-Game|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Debug-IOS-Game|Any CPU.Build.0 = Debug-IOS-Game|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Debug-Linux-Editor|Any CPU.ActiveCfg = Debug-Linux-Editor|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Debug-Linux-Editor|Any CPU.Build.0 = Debug-Linux-Editor|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Debug-Linux-Game|Any CPU.ActiveCfg = Debug-Linux-Game|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Debug-Linux-Game|Any CPU.Build.0 = Debug-Linux-Game|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Debug-Mac-Editor|Any CPU.ActiveCfg = Debug-Mac-Editor|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Debug-Mac-Editor|Any CPU.Build.0 = Debug-Mac-Editor|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Debug-Mac-Game|Any CPU.ActiveCfg = Debug-Mac-Game|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Debug-Mac-Game|Any CPU.Build.0 = Debug-Mac-Game|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Debug-Windows-Editor|Any CPU.ActiveCfg = Debug-Windows-Editor|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Debug-Windows-Editor|Any CPU.Build.0 = Debug-Windows-Editor|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Debug-Windows-Game|Any CPU.ActiveCfg = Debug-Windows-Game|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Debug-Windows-Game|Any CPU.Build.0 = Debug-Windows-Game|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Release-Android-Game|Any CPU.ActiveCfg = Release-Android-Game|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Release-Android-Game|Any CPU.Build.0 = Release-Android-Game|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Release-IOS-Game|Any CPU.ActiveCfg = Release-IOS-Game|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Release-IOS-Game|Any CPU.Build.0 = Release-IOS-Game|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Release-Linux-Editor|Any CPU.ActiveCfg = Release-Linux-Editor|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Release-Linux-Editor|Any CPU.Build.0 = Release-Linux-Editor|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Release-Linux-Game|Any CPU.ActiveCfg = Release-Linux-Game|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Release-Linux-Game|Any CPU.Build.0 = Release-Linux-Game|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Release-Mac-Editor|Any CPU.ActiveCfg = Release-Mac-Editor|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Release-Mac-Editor|Any CPU.Build.0 = Release-Mac-Editor|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Release-Mac-Game|Any CPU.ActiveCfg = Release-Mac-Game|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Release-Mac-Game|Any CPU.Build.0 = Release-Mac-Game|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Release-Windows-Editor|Any CPU.ActiveCfg = Release-Windows-Editor|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Release-Windows-Editor|Any CPU.Build.0 = Release-Windows-Editor|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Release-Windows-Game|Any CPU.ActiveCfg = Release-Windows-Game|Any CPU
+		{77CA6DBF-1172-40CD-B595-8323A471F839}.Release-Windows-Game|Any CPU.Build.0 = Release-Windows-Game|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Debug-Android-Game|Any CPU.ActiveCfg = Debug-Android-Game|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Debug-Android-Game|Any CPU.Build.0 = Debug-Android-Game|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Debug-IOS-Game|Any CPU.ActiveCfg = Debug-IOS-Game|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Debug-IOS-Game|Any CPU.Build.0 = Debug-IOS-Game|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Debug-Linux-Editor|Any CPU.ActiveCfg = Debug-Linux-Editor|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Debug-Linux-Editor|Any CPU.Build.0 = Debug-Linux-Editor|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Debug-Linux-Game|Any CPU.ActiveCfg = Debug-Linux-Game|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Debug-Linux-Game|Any CPU.Build.0 = Debug-Linux-Game|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Debug-Mac-Editor|Any CPU.ActiveCfg = Debug-Mac-Editor|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Debug-Mac-Editor|Any CPU.Build.0 = Debug-Mac-Editor|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Debug-Mac-Game|Any CPU.ActiveCfg = Debug-Mac-Game|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Debug-Mac-Game|Any CPU.Build.0 = Debug-Mac-Game|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Debug-Windows-Editor|Any CPU.ActiveCfg = Debug-Windows-Editor|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Debug-Windows-Editor|Any CPU.Build.0 = Debug-Windows-Editor|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Debug-Windows-Game|Any CPU.ActiveCfg = Debug-Windows-Game|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Debug-Windows-Game|Any CPU.Build.0 = Debug-Windows-Game|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Release-Android-Game|Any CPU.ActiveCfg = Release-Android-Game|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Release-Android-Game|Any CPU.Build.0 = Release-Android-Game|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Release-IOS-Game|Any CPU.ActiveCfg = Release-IOS-Game|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Release-IOS-Game|Any CPU.Build.0 = Release-IOS-Game|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Release-Linux-Editor|Any CPU.ActiveCfg = Release-Linux-Editor|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Release-Linux-Editor|Any CPU.Build.0 = Release-Linux-Editor|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Release-Linux-Game|Any CPU.ActiveCfg = Release-Linux-Game|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Release-Linux-Game|Any CPU.Build.0 = Release-Linux-Game|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Release-Mac-Editor|Any CPU.ActiveCfg = Release-Mac-Editor|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Release-Mac-Editor|Any CPU.Build.0 = Release-Mac-Editor|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Release-Mac-Game|Any CPU.ActiveCfg = Release-Mac-Game|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Release-Mac-Game|Any CPU.Build.0 = Release-Mac-Game|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Release-Windows-Editor|Any CPU.ActiveCfg = Release-Windows-Editor|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Release-Windows-Editor|Any CPU.Build.0 = Release-Windows-Editor|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Release-Windows-Game|Any CPU.ActiveCfg = Release-Windows-Game|Any CPU
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3}.Release-Windows-Game|Any CPU.Build.0 = Release-Windows-Game|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2E84BC04-A73B-474F-8CB2-F40140A60267} = {5CEEE517-01EA-45F1-A409-700B12BC8665}
+		{77CA6DBF-1172-40CD-B595-8323A471F839} = {0261DB50-7BAE-44DE-9755-6F493E50991C}
+		{75E0B1D9-21DE-485D-9E98-A347FE1CCAE3} = {0261DB50-7BAE-44DE-9755-6F493E50991C}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D3CD944C-92D4-4062-86A4-7F6C8DD0022F}
+	EndGlobalSection
+EndGlobal

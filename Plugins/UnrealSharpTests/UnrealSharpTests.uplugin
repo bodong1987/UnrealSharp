@@ -1,0 +1,24 @@
+﻿{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "1.0.0.12",
+  "FriendlyName": "UnrealSharpTests",
+  "Description": "Plugin for UnrealSharp testing",
+  "Category": "Programming",
+  "CreatedBy": "bodong",
+  "CreatedByURL": "https://github.com/bodong1987/UnrealSharp",
+  "DocsURL": "https://github.com/bodong1987/UnrealSharp",
+  "MarketplaceURL": "",
+  "SupportURL": "https://github.com/bodong1987/UnrealSharp/issues",
+  "CanContainContent": false,
+  "IsBetaVersion": false,
+  "IsExperimentalVersion": false,
+  "Installed": false,
+  "Modules": [
+	{
+	  "Name": "UnrealSharpTests",
+	  "Type": "Runtime",
+	  "LoadingPhase": "Default"
+	}
+  ]
+}

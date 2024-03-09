@@ -1,0 +1,59 @@
+/*
+    MIT License
+
+    Copyright (c) 2024 UnrealSharp
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+    Project URL: https://github.com/bodong1987/UnrealSharp
+*/
+#pragma once
+
+namespace UnrealSharp
+{
+    class ICSharpType;
+    class ICSharpMethod;
+    class ICSharpMethodInvocation;
+    class ICSharpRuntime;
+
+    /*
+    * Cache the read-write interface of a C# interface, 
+    * which can easily allow a C# structure to read data from Unreal, 
+    * and can also conveniently write data from C# to Unreal
+    */
+    class UNREALSHARP_API FCSharpStructFactory
+    {
+    public:
+        FCSharpStructFactory(ICSharpRuntime* InRuntime, const FString& InAssemblyName, const FString& InFullName);
+
+        // invoke C# Structure.FromNative
+        void*                               FromNative(const void* InUnrealStructPtr);
+
+        // invoke C# Structure.ToNative
+        void                                ToNative(const void* InUnrealStructPtr, const void* InCSharpStructPtr);
+
+    private:
+        // C# struct FullName
+        FString                             FullName;
+
+        TSharedPtr<ICSharpMethodInvocation> ToNativeInvocation;
+        TSharedPtr<ICSharpMethodInvocation> FromNativeInvocation;
+    };
+}
+

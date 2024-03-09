@@ -1,0 +1,7 @@
+**/Bindings/
+**/Bindings.Placeholders/
+**/.vs
+**/obj/
+*.csproj.user
+**/.idea/
+*.nupkg
