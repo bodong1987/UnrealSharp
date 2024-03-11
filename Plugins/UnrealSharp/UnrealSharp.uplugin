@@ -1,7 +1,7 @@
 ﻿{
   "FileVersion": 3,
   "Version": 1,
-  "VersionName": "1.0.0.12",
+  "VersionName": "1.0.0.15",
   "FriendlyName": "UnrealSharp",
   "Description": "A plug-in that allows you to develop in Unreal Engine 5 with C# 12 and .NET 8.0",
   "Category": "Programming",
