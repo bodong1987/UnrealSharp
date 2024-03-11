@@ -37,6 +37,7 @@
 #include "TypeValidation.h"
 #include "Classes/UnrealSharpSettings.h"
 #include "SharpBindingGenSettings.h"
+#include "ICSharpRuntime.h"
 
 IMPLEMENT_MODULE(FUnrealSharpEditorModule, UnrealSharpEditor)
 
@@ -324,6 +325,12 @@ int FUnrealSharpEditorModule::LaunchExternalProcess(const FString& InExecutableP
 
 void FUnrealSharpEditorModule::RefreshCSharpImportBlueprintAssets(bool bForceRecreate)
 {	
+	if (UnrealSharp::FCSharpRuntimeFactory::IsGlobalCSharpRuntimeValid())
+	{
+		US_LOG_WARN(TEXT("Not allowed to update C# imported assets during game play"));
+		return;
+	}
+	
 	FString ManagedDirectory = UnrealSharp::FUnrealSharpPaths::GetUnrealSharpManagedLibraryDir();
 
 	TSharedPtr<UnrealSharp::FCSharpBlueprintImportDatabase> NewDatabase = MakeShared<UnrealSharp::FCSharpBlueprintImportDatabase>();
@@ -401,6 +408,11 @@ void FUnrealSharpEditorModule::OnMainFrameCreationFinished(TSharedPtr<SWindow> I
 
 void FUnrealSharpEditorModule::OnMainFrameWindowActivated()
 {
+	if (UnrealSharp::FCSharpRuntimeFactory::IsGlobalCSharpRuntimeValid())
+	{
+		return;
+	}
+
 	RefreshCSharpImportBlueprintAssets();	
 }
 

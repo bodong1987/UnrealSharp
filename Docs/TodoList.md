@@ -147,7 +147,11 @@ struct alignas( TAlignOfTransform<T>::Value ) TTransform
 ## Performance testing and optimization
 * Difficulty: &#9733;&#9733;&#9733;  
 You can test all functions, compare with plug-ins in other languages, and try to optimize points where there may be performance problems.  
-Before starting the test, be sure to go to the project settings and turn on the `PerformanceMode` option of UnrealSharp so that you can obtain more accurate data.
+Before starting the test, be sure to go to the project settings and turn on the `PerformanceMode` option of UnrealSharp so that you can obtain more accurate data.  
+
+## Add more sample programs  
+* Difficulty: &#9733;&#9733;&#9733;   
+Port some existing sample programs using UnrealSharp and C#
 
 ## Test iOS compatibility and issues
 * Difficulty: &#9733;&#9733;&#9733;  
