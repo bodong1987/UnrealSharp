@@ -19,19 +19,19 @@ namespace UnrealSharp.GameScripts.Bindings.Defs.UnrealSharpTests
         [UPROPERTY(Category = "Scalar")]
         public bool bBoolValue = false;
 
-		[UPROPERTY(Category = "Scalar")]
-		public bool bBoolValueDefByProperty { get; set; } = true;
+        [UPROPERTY(Category = "Scalar")]
+        public bool bBoolValueDefByProperty { get; set; } = true;
 
-		[UPROPERTY(Category = "Scalar")]
+        [UPROPERTY(Category = "Scalar")]
         public byte u8Value = 255;
 
         [UPROPERTY(Category = "Scalar")]
         public int i32Value = 100;
 
-		[UPROPERTY(Category = "Scalar")]
-		public int i32ValueDefByProperty { get; set; } = 1024;
+        [UPROPERTY(Category = "Scalar")]
+        public int i32ValueDefByProperty { get; set; } = 1024;
 
-		[UPROPERTY(Category = "Scalar")]
+        [UPROPERTY(Category = "Scalar")]
         public float fValue = 3.1415926f;
 
         [UPROPERTY(Category = "Scalar")]

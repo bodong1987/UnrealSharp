@@ -197,8 +197,8 @@ namespace UnrealSharp
 
         ReadStringCollection(JsonObject, FastAccessStructTypes, TEXT("FastAccessStructTypes"));
         ReadStringCollection(JsonObject, FastFunctionInvokeModuleNames, TEXT("FastFunctionInvokeModuleNames"));
-		ReadStringCollection(JsonObject, FastFunctionInvokeIgnoreClassNames, TEXT("FastFunctionInvokeIgnoreClassNames"));
-		ReadStringCollection(JsonObject, FastFunctionInvokeIgnoreNames, TEXT("FastFunctionInvokeIgnoreNames"));
+        ReadStringCollection(JsonObject, FastFunctionInvokeIgnoreClassNames, TEXT("FastFunctionInvokeIgnoreClassNames"));
+        ReadStringCollection(JsonObject, FastFunctionInvokeIgnoreNames, TEXT("FastFunctionInvokeIgnoreNames"));
 
         return true;
     }

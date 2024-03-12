@@ -1,27 +1,27 @@
 ﻿/*
-	MIT License
+    MIT License
 
-	Copyright (c) 2024 UnrealSharp
+    Copyright (c) 2024 UnrealSharp
 
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
 
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
 
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
 
-	Project URL: https://github.com/bodong1987/UnrealSharp
+    Project URL: https://github.com/bodong1987/UnrealSharp
 */
 using System.Diagnostics;
 using System.Reflection;
@@ -405,46 +405,46 @@ namespace UnrealSharp.UnrealEngine
         /// </summary>
         private TDelegate<T>? DelegateCache;
 
-		/// <summary>
-		/// Delegate ConstructorDelegateType
-		/// </summary>
-		/// <param name="owner">The owner.</param>
-		/// <param name="propertyPtr">The property PTR.</param>
-		/// <param name="addressPtr">The address PTR.</param>
-		/// <returns>TDelegate&lt;T&gt;.</returns>
-		public delegate TDelegate<T> ConstructorDelegateType(UObject owner, IntPtr propertyPtr, IntPtr addressPtr);
+        /// <summary>
+        /// Delegate ConstructorDelegateType
+        /// </summary>
+        /// <param name="owner">The owner.</param>
+        /// <param name="propertyPtr">The property PTR.</param>
+        /// <param name="addressPtr">The address PTR.</param>
+        /// <returns>TDelegate&lt;T&gt;.</returns>
+        public delegate TDelegate<T> ConstructorDelegateType(UObject owner, IntPtr propertyPtr, IntPtr addressPtr);
 
-		/// <summary>
-		/// The constructor
-		/// </summary>
-		private ConstructorDelegateType? Constructor;
+        /// <summary>
+        /// The constructor
+        /// </summary>
+        private ConstructorDelegateType? Constructor;
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="TDelegatePropertyCache{T}"/> struct.
-		/// </summary>
-		public TDelegatePropertyCache()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TDelegatePropertyCache{T}"/> struct.
+        /// </summary>
+        public TDelegatePropertyCache()
         {
 
         }
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="TDelegatePropertyCache{T}"/> struct.
-		/// </summary>
-		/// <param name="customConstructor">The custom constructor.</param>
-		public TDelegatePropertyCache(ConstructorDelegateType customConstructor)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TDelegatePropertyCache{T}"/> struct.
+        /// </summary>
+        /// <param name="customConstructor">The custom constructor.</param>
+        public TDelegatePropertyCache(ConstructorDelegateType customConstructor)
         {
             Constructor = customConstructor;
-		}
+        }
 
-		/// <summary>
-		/// Gets the specified owner.
-		/// </summary>
-		/// <param name="owner">The owner.</param>
-		/// <param name="addressPtr">The address PTR.</param>
-		/// <param name="offset">The offset.</param>
-		/// <param name="propertyPtr">The property PTR.</param>
-		/// <returns>System.Nullable&lt;TDelegate&lt;T&gt;&gt;.</returns>
-		public TDelegate<T>? Get(UObject owner, IntPtr addressPtr, int offset, IntPtr propertyPtr)
+        /// <summary>
+        /// Gets the specified owner.
+        /// </summary>
+        /// <param name="owner">The owner.</param>
+        /// <param name="addressPtr">The address PTR.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="propertyPtr">The property PTR.</param>
+        /// <returns>System.Nullable&lt;TDelegate&lt;T&gt;&gt;.</returns>
+        public TDelegate<T>? Get(UObject owner, IntPtr addressPtr, int offset, IntPtr propertyPtr)
         {
             if (addressPtr == IntPtr.Zero)
             {
@@ -504,23 +504,23 @@ namespace UnrealSharp.UnrealEngine
         /// <returns>TMulticastDelegate&lt;T&gt;.</returns>
         public delegate TMulticastDelegate<T> ConstructorDelegateType(UObject owner, IntPtr propertyPtr, IntPtr addressPtr);
 
-		/// <summary>
-		/// The constructor
-		/// </summary>
-		private ConstructorDelegateType? Constructor;
+        /// <summary>
+        /// The constructor
+        /// </summary>
+        private ConstructorDelegateType? Constructor;
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="TMulticastDelegatePropertyCache{T}"/> struct.
-		/// </summary>
-		public TMulticastDelegatePropertyCache()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TMulticastDelegatePropertyCache{T}"/> struct.
+        /// </summary>
+        public TMulticastDelegatePropertyCache()
         {
         }
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="TMulticastDelegatePropertyCache{T}"/> struct.
-		/// </summary>
-		/// <param name="customConstructor">The custom constructor.</param>
-		public TMulticastDelegatePropertyCache(ConstructorDelegateType customConstructor)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TMulticastDelegatePropertyCache{T}"/> struct.
+        /// </summary>
+        /// <param name="customConstructor">The custom constructor.</param>
+        public TMulticastDelegatePropertyCache(ConstructorDelegateType customConstructor)
         {
             Constructor = customConstructor;
         }

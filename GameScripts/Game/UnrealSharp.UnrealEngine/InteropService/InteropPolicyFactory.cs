@@ -1,27 +1,27 @@
 ﻿/*
-	MIT License
+    MIT License
 
-	Copyright (c) 2024 UnrealSharp
+    Copyright (c) 2024 UnrealSharp
 
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
 
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
 
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
 
-	Project URL: https://github.com/bodong1987/UnrealSharp
+    Project URL: https://github.com/bodong1987/UnrealSharp
 */
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -91,7 +91,7 @@ namespace UnrealSharp.UnrealEngine.InteropService
     class TNumericInteropPolicy<T> : IInteropPolicy<T>
         where T : struct
 #if NET7_0_OR_GREATER
-		, System.Numerics.INumber<T>
+        , System.Numerics.INumber<T>
 #endif
     {
         /// <summary>
@@ -345,12 +345,12 @@ namespace UnrealSharp.UnrealEngine.InteropService
         where T : class, IUObjectInterface
     {
 #pragma warning disable CS8766 // Nullability of reference types in return type of doesn't match implicitly implemented member (possibly because of nullability attributes).
-		/// <summary>
-		/// Reads the specified address.
-		/// </summary>
-		/// <param name="address">The address.</param>
-		/// <returns>System.Nullable&lt;T&gt;.</returns>
-		public T? Read(IntPtr address)
+        /// <summary>
+        /// Reads the specified address.
+        /// </summary>
+        /// <param name="address">The address.</param>
+        /// <returns>System.Nullable&lt;T&gt;.</returns>
+        public T? Read(IntPtr address)
 #pragma warning restore CS8766 
         {
             return InteropUtils.GetObject<T>(address, 0);
@@ -443,18 +443,18 @@ namespace UnrealSharp.UnrealEngine.InteropService
 
             string InteropPolicyTypeName = $"{type.Namespace}.{type.Name}InteropPolicy";
 
-			// We use other methods to ensure that this type will not be trimmed
+            // We use other methods to ensure that this type will not be trimmed
 #pragma warning disable IL2026 // Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
-			var InteropType = type.Assembly.GetType(InteropPolicyTypeName);
+            var InteropType = type.Assembly.GetType(InteropPolicyTypeName);
 #pragma warning restore IL2026 // Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
 
-			Logger.EnsureNotNull(InteropType, $"Failed find interop policy type {InteropPolicyTypeName} for {type.FullName}");
+            Logger.EnsureNotNull(InteropType, $"Failed find interop policy type {InteropPolicyTypeName} for {type.FullName}");
 
 #pragma warning disable IL2072 // Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.
-			policy = Activator.CreateInstance(InteropType);
+            policy = Activator.CreateInstance(InteropType);
 #pragma warning restore IL2072 // Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.
 
-			Logger.EnsureNotNull(InteropType, $"Failed create interop policy type {InteropPolicyTypeName} for {type.FullName}");
+            Logger.EnsureNotNull(InteropType, $"Failed create interop policy type {InteropPolicyTypeName} for {type.FullName}");
 
             InteropPolicies.Add(type, policy!);
 

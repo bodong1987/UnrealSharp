@@ -1,27 +1,27 @@
 ﻿/*
-	MIT License
+    MIT License
 
-	Copyright (c) 2024 UnrealSharp
+    Copyright (c) 2024 UnrealSharp
 
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
 
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
 
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
 
-	Project URL: https://github.com/bodong1987/UnrealSharp
+    Project URL: https://github.com/bodong1987/UnrealSharp
 */
 #pragma once
 
@@ -29,46 +29,46 @@
 
 namespace UnrealSharp
 {
-	enum class ECSharpObjectHandleState
-	{
-		Reset,
-		Referenced,
-		WeakReferenced
-	};
+    enum class ECSharpObjectHandleState
+    {
+        Reset,
+        Referenced,
+        WeakReferenced
+    };
 
-	class ICSharpRuntime;
+    class ICSharpRuntime;
 
-	/*
-	* Save a C# UObject handle, which internally stores GCHandle instances and reference rules
-	*/
-	class UNREALSHARP_API FCSharpObjectHandle
-	{
-	public:
-		FCSharpObjectHandle();
-		FCSharpObjectHandle(ICSharpRuntime* InRuntime, void* InCSharpObject, bool bInWeakReference);
+    /*
+    * Save a C# UObject handle, which internally stores GCHandle instances and reference rules
+    */
+    class UNREALSHARP_API FCSharpObjectHandle
+    {
+    public:
+        FCSharpObjectHandle();
+        FCSharpObjectHandle(ICSharpRuntime* InRuntime, void* InCSharpObject, bool bInWeakReference);
 
-		FCSharpObjectHandle(FCSharpObjectHandle&& InHandle) = default;
-		FCSharpObjectHandle(const FCSharpObjectHandle& InHandle) = default;
+        FCSharpObjectHandle(FCSharpObjectHandle&& InHandle) = default;
+        FCSharpObjectHandle(const FCSharpObjectHandle& InHandle) = default;
 
-		~FCSharpObjectHandle();
+        ~FCSharpObjectHandle();
 
-		FCSharpObjectHandle& operator = (FCSharpObjectHandle&& InHandle) = default;
-		FCSharpObjectHandle& operator = (const FCSharpObjectHandle& InHandle) = default;
+        FCSharpObjectHandle& operator = (FCSharpObjectHandle&& InHandle) = default;
+        FCSharpObjectHandle& operator = (const FCSharpObjectHandle& InHandle) = default;
 
-		inline ECSharpObjectHandleState GetState() const{ return State; }
-		inline bool						IsWeakReferenced() const{ return State == ECSharpObjectHandleState::WeakReferenced; }
-		inline bool						IsReferenced() const{ return State == ECSharpObjectHandleState::Referenced; }
+        inline ECSharpObjectHandleState GetState() const{ return State; }
+        inline bool                     IsWeakReferenced() const{ return State == ECSharpObjectHandleState::WeakReferenced; }
+        inline bool                     IsReferenced() const{ return State == ECSharpObjectHandleState::Referenced; }
 
-		bool							IsValid() const;
-		void*							GetObject() const;
-		void							Reset();
+        bool                            IsValid() const;
+        void*                           GetObject() const;
+        void                            Reset();
 
-		void							SetState(ECSharpObjectHandleState InState);
+        void                            SetState(ECSharpObjectHandleState InState);
 
-	private:
-		ICSharpRuntime*                 Runtime;
-		ECSharpObjectHandleState        State;
-		TSharedPtr<ICSharpGCHandle>     Handle;
-	};
+    private:
+        ICSharpRuntime*                 Runtime;
+        ECSharpObjectHandleState        State;
+        TSharedPtr<ICSharpGCHandle>     Handle;
+    };
 }
 

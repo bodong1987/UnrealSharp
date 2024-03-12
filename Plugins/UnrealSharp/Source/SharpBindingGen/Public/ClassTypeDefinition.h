@@ -31,25 +31,25 @@
 namespace UnrealSharp
 {
     // definition of UClass
-	class SHARPBINDINGGEN_API FClassTypeDefinition : public FStructTypeDefinition
-	{
-	public:
-		typedef FStructTypeDefinition Super;
+    class SHARPBINDINGGEN_API FClassTypeDefinition : public FStructTypeDefinition
+    {
+    public:
+        typedef FStructTypeDefinition Super;
 
-		FClassTypeDefinition();
-		FClassTypeDefinition(UClass* InClass, FTypeValidation* InTypeValidation);
+        FClassTypeDefinition();
+        FClassTypeDefinition(UClass* InClass, FTypeValidation* InTypeValidation);
 
-		virtual void                        Read(FJsonObject& InObject) override;
-		virtual void                        Write(FJsonObject& InObject) override;
+        virtual void                        Read(FJsonObject& InObject) override;
+        virtual void                        Write(FJsonObject& InObject) override;
 
-	private:
-		void                                LoadInterfaces(UClass* InClass);
-		void                                LoadFunctions(UClass* InClass, FTypeValidation* InTypeValidation);	
-		void                                AddDependNamespace(const UFunction* InFunction);
-	public:
+    private:
+        void                                LoadInterfaces(UClass* InClass);
+        void                                LoadFunctions(UClass* InClass, FTypeValidation* InTypeValidation);    
+        void                                AddDependNamespace(const UFunction* InFunction);
+    public:
         FString                             SuperName;
         FString                             ConfigName;
         TArray<FFunctionTypeDefinition>     Functions;
         TArray<FString>                     Interfaces;
-	};
+    };
 }

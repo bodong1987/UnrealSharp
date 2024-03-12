@@ -1,6 +1,6 @@
 ﻿namespace UnrealSharp.GameScripts.SharpGame
 {
-	public partial class ASharpGameMode
+    public partial class ASharpGameMode
     {
     }
 }

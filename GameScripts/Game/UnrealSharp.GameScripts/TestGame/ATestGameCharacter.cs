@@ -27,11 +27,11 @@ namespace UnrealSharp.GameScripts.TestGame
 
         }
 
-		[UFUNCTION]
-		public void TestThisIsAUFunction(int a)
-		{
+        [UFUNCTION]
+        public void TestThisIsAUFunction(int a)
+        {
 
-		}
+        }
 #endif
-	}
+    }
 }

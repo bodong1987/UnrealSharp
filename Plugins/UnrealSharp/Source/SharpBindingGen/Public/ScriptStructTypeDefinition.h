@@ -30,16 +30,16 @@
 namespace UnrealSharp
 {
     // definition of UScriptStruct
-	class SHARPBINDINGGEN_API FScriptStructTypeDefinition : public FStructTypeDefinition
-	{
-	public:
-		typedef FStructTypeDefinition Super;
+    class SHARPBINDINGGEN_API FScriptStructTypeDefinition : public FStructTypeDefinition
+    {
+    public:
+        typedef FStructTypeDefinition Super;
 
-		FScriptStructTypeDefinition();
-		FScriptStructTypeDefinition(UScriptStruct* InStruct, FTypeValidation* InTypeValidation);
+        FScriptStructTypeDefinition();
+        FScriptStructTypeDefinition(UScriptStruct* InStruct, FTypeValidation* InTypeValidation);
 
-	public:
-		virtual void                    Write(FJsonObject& InObject) override;
-	};
+    public:
+        virtual void                    Write(FJsonObject& InObject) override;
+    };
 }
 

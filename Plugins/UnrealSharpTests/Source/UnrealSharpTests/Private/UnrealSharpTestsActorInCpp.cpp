@@ -28,22 +28,22 @@
 // Sets default values
 AUnrealSharpTestsActorInCpp::AUnrealSharpTestsActorInCpp()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+     // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+    PrimaryActorTick.bCanEverTick = true;
 
 }
 
 // Called when the game starts or when spawned
 void AUnrealSharpTestsActorInCpp::BeginPlay()
 {
-	Super::BeginPlay();
-	
+    Super::BeginPlay();
+    
 }
 
 // Called every frame
 void AUnrealSharpTestsActorInCpp::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+    Super::Tick(DeltaTime);
 
 }
 

@@ -23,24 +23,22 @@
 
     Project URL: https://github.com/bodong1987/UnrealSharp
 */
-#pragma once
-
-#include "Subsystems/GameInstanceSubsystem.h"
+#include "Classes/CSharpRuntimeGameInstanceSubsystem.h"
 #include "ICSharpRuntime.h"
-#include "SharpRuntimeGameInstanceSubsystem.generated.h"
 
-/*
-* The existence of this Subsystem will allow you to use UnrealSharp without writing separate code to start and exit CSharpRuntime.
-*/
-UCLASS()
-class UNREALSHARP_API USharpRuntimeGameInstanceSubsystem : public UGameInstanceSubsystem
+void UCSharpRuntimeGameInstanceSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
-    GENERATED_BODY()
+    Super::Initialize(Collection);
 
-public:
-    virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-    virtual void Deinitialize() override;
+    RuntimePtr = UnrealSharp::FCSharpRuntimeFactory::RetainCSharpRuntime();
+}
 
-public:
-    TRefCountPtr<UnrealSharp::ICSharpRuntime>    RuntimePtr;
-};
+void UCSharpRuntimeGameInstanceSubsystem::Deinitialize()
+{
+    if (RuntimePtr)
+    {
+        UnrealSharp::FCSharpRuntimeFactory::ReleaseCSharpRuntime(MoveTemp(RuntimePtr));
+    }
+
+    Super::Deinitialize();
+}

@@ -25,36 +25,22 @@
 */
 #pragma once
 
-#if WITH_MONO
-#include "ICSharpMethodInvocation.h"
+#include "Subsystems/GameInstanceSubsystem.h"
+#include "ICSharpRuntime.h"
+#include "CSharpRuntimeGameInstanceSubsystem.generated.h"
 
-namespace UnrealSharp::Mono
+/*
+* The existence of this Subsystem will allow you to use UnrealSharp without writing separate code to start and exit CSharpRuntime.
+*/
+UCLASS()
+class UNREALSHARP_API UCSharpRuntimeGameInstanceSubsystem : public UGameInstanceSubsystem
 {
-    class FMonoMethodInvokeFrame;
-    class FMonoMethod;
+    GENERATED_BODY()
 
-    class FMonoMethodInvocation : public ICSharpMethodInvocation
-    {
-    public: 
-        FMonoMethodInvocation(TSharedPtr<FMonoMethod> InMethod);
-        ~FMonoMethodInvocation();
+public:
+    virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+    virtual void Deinitialize() override;
 
-    public:
-        virtual ICSharpMethod* GetMethod() const override;
-        virtual void  BeginInvoke(const FStackMemory& InParameterBuffer) override;
-        virtual void* Invoke(void* InInstance) override;
-        virtual void* Invoke(void* InInstance, TUniquePtr<ICSharpMethodInvocationException>& OutException) override;
-        virtual void  EndInvoke() override;
-
-        virtual void AddArgument(void* InArgumentPtr) override;
-        virtual int GetCSharpFunctionParameterCount() const override;
-
-    private:                
-        TSharedPtr<FMonoMethod>                                Method;
-        const FStackMemory*                                    ParameterBuffer = nullptr;
-        int                                                    ParamCount = 0;
-    };
-}
-
-#endif
-
+public:
+    TRefCountPtr<UnrealSharp::ICSharpRuntime>    RuntimePtr;
+};

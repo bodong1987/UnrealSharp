@@ -32,17 +32,17 @@
 
 namespace UnrealSharp::Mono
 {
-	class FMonoType : public ICSharpType
-	{
-	public:
-		FMonoType(MonoClass* InClass);
+    class FMonoType : public ICSharpType
+    {
+    public:
+        FMonoType(MonoClass* InClass);
 
-		inline MonoClass*       GetClass() const{ return TypeClass; }
+        inline MonoClass*         GetClass() const{ return TypeClass; }
 
-		virtual void*           NewObject() override;
+        virtual void*             NewObject() override;
 
-	private:
-		MonoClass*		        TypeClass;
-	};
+    private:
+        MonoClass*                TypeClass;
+    };
 }
 #endif

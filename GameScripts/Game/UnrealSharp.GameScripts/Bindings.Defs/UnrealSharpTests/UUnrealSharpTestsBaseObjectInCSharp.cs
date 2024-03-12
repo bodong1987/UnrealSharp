@@ -12,7 +12,7 @@ namespace UnrealSharp.GameScripts.Bindings.Defs.UnrealSharpTests
         public UClass? ClassType0; // unsupported error.
 #endif
 
-		[UPROPERTY(Category = "Scalar")]
+        [UPROPERTY(Category = "Scalar")]
         public bool bBoolValueInObject = true;
 
         [UPROPERTY(Category = "Scalar")]

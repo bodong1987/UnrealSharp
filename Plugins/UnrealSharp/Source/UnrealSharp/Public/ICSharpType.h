@@ -28,16 +28,16 @@
 namespace UnrealSharp
 {
     // indicate a C# type
-	class UNREALSHARP_API ICSharpType
-	{
-	public:
-		virtual ~ICSharpType() = default;
+    class UNREALSHARP_API ICSharpType
+    {
+    public:
+        virtual ~ICSharpType() = default;
 
         /*
         * Please note that this interface is equivalent to Malloc rather than C++'s new, 
         * that is, it only creates the corresponding memory and does not actively call the constructor. 
         * The constructor needs to be called by yourself.
         */
-		virtual void*                   NewObject() = 0;
-	};
+        virtual void*                   NewObject() = 0;
+    };
 }

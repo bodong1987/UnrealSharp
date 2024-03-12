@@ -1,27 +1,27 @@
 ﻿/*
-	MIT License
+    MIT License
 
-	Copyright (c) 2024 UnrealSharp
+    Copyright (c) 2024 UnrealSharp
 
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
 
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
 
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
 
-	Project URL: https://github.com/bodong1987/UnrealSharp
+    Project URL: https://github.com/bodong1987/UnrealSharp
 */
 using System.Collections;
 using System.Diagnostics;
@@ -43,7 +43,7 @@ namespace UnrealSharp.UnrealEngine.Collections
     [DebuggerDisplay("Count = {Count}")]
     [DebuggerTypeProxy(typeof(TSetDebugView<>))]
     public class TSet<T> : ISet<T>, IUnrealCollectionDataView<T>
-	{
+    {
         #region Properties
         /// <summary>
         /// Gets the address PTR.
@@ -88,8 +88,8 @@ namespace UnrealSharp.UnrealEngine.Collections
 
             Logger.Ensure<Exception>(ElementPropertyPtr != IntPtr.Zero);
 
-			ElementPropertySize = PropertyInteropUtils.GetPropertySize(ElementPropertyPtr);
-			Logger.Ensure<Exception>(ElementPropertySize > 0, "Get property element size of {0} is {1}", GetType().FullName!, ElementPropertySize);
+            ElementPropertySize = PropertyInteropUtils.GetPropertySize(ElementPropertyPtr);
+            Logger.Ensure<Exception>(ElementPropertySize > 0, "Get property element size of {0} is {1}", GetType().FullName!, ElementPropertySize);
         }
 
         /// <summary>
@@ -99,9 +99,9 @@ namespace UnrealSharp.UnrealEngine.Collections
         /// <param name="offset">The offset.</param>
         /// <param name="propertyPtr">The property PTR.</param>
         public TSet(IntPtr address, int offset, IntPtr propertyPtr) :
-			this(IntPtr.Add(address, offset), propertyPtr)
-		{
-		}
+            this(IntPtr.Add(address, offset), propertyPtr)
+        {
+        }
         #endregion
 
         #region Base Interfaces
@@ -195,9 +195,9 @@ namespace UnrealSharp.UnrealEngine.Collections
         /// <param name="item">The item.</param>
         /// <returns><c>true</c> if [contains] [the specified item]; otherwise, <c>false</c>.</returns>
         public bool Contains(T item)
-		{
-			unsafe
-			{
+        {
+            unsafe
+            {
                 byte* bytes = stackalloc byte[ElementPropertySize];
 
                 using ScopedPropertyTempVariable TempVariable = new ScopedPropertyTempVariable(ElementPropertyPtr, bytes);
@@ -214,9 +214,9 @@ namespace UnrealSharp.UnrealEngine.Collections
         /// <param name="item">The item.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         public bool Add(T item)
-		{
-			unsafe
-			{
+        {
+            unsafe
+            {
                 byte* bytes = stackalloc byte[ElementPropertySize];
 
                 using ScopedPropertyTempVariable TempVariable = new ScopedPropertyTempVariable(ElementPropertyPtr, bytes);
@@ -245,11 +245,11 @@ namespace UnrealSharp.UnrealEngine.Collections
         /// <param name="item">The item.</param>
         /// <returns><see langword="true" /> if <paramref name="item" /> was successfully removed from the <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, <see langword="false" />. This method also returns <see langword="false" /> if <paramref name="item" /> is not found in the original <see cref="T:System.Collections.Generic.ICollection`1" />.</returns>
         public bool Remove(T item)
-		{
-			int OldLength = Count;
+        {
+            int OldLength = Count;
 
             unsafe
-			{
+            {
                 byte* bytes = stackalloc byte[ElementPropertySize];
                 using ScopedPropertyTempVariable TempVariable = new ScopedPropertyTempVariable(ElementPropertyPtr, bytes);
 
@@ -259,15 +259,15 @@ namespace UnrealSharp.UnrealEngine.Collections
 
                 return OldLength != Count;
             }            
-		}
+        }
 
         /// <summary>
         /// Clears this instance.
         /// </summary>
         public void Clear()
-		{
-			SetInteropUtils.ClearSet(AddressPtr, PropertyPtr);
-		}
+        {
+            SetInteropUtils.ClearSet(AddressPtr, PropertyPtr);
+        }
         #endregion
 
         #region Interop
@@ -332,58 +332,58 @@ namespace UnrealSharp.UnrealEngine.Collections
         /// </summary>
         /// <param name="other">The collection of items to remove from the set.</param>
         public void ExceptWith(IEnumerable<T> other)
-		{
-			Logger.EnsureNotNull(other);
+        {
+            Logger.EnsureNotNull(other);
 
-			// This is already the empty set; return.
-			if (Count == 0)
-			{
-				return;
-			}
+            // This is already the empty set; return.
+            if (Count == 0)
+            {
+                return;
+            }
 
-			// Special case if other is this; a set minus itself is the empty set.
-			if (other == this)
-			{
-				Clear();
-				return;
-			}
+            // Special case if other is this; a set minus itself is the empty set.
+            if (other == this)
+            {
+                Clear();
+                return;
+            }
 
-			// Remove every element in other from this.
-			foreach (T element in other)
-			{
-				Remove(element);
-			}
-		}
+            // Remove every element in other from this.
+            foreach (T element in other)
+            {
+                Remove(element);
+            }
+        }
 
         /// <summary>
         /// Modifies the current set so that it contains only elements that are also in a specified collection.
         /// </summary>
         /// <param name="other">The collection to compare to the current set.</param>
         public void IntersectWith(IEnumerable<T> other)
-		{
-			Logger.EnsureNotNull(other);
+        {
+            Logger.EnsureNotNull(other);
 
-			// Intersection of anything with empty set is empty set, so return if count is 0.
-			// Same if the set intersecting with itself is the same set.
-			if (Count == 0 || other == this)
-			{
-				return;
-			}
+            // Intersection of anything with empty set is empty set, so return if count is 0.
+            // Same if the set intersecting with itself is the same set.
+            if (Count == 0 || other == this)
+            {
+                return;
+            }
 
-			if(other.Count() == 0)
-			{
-				Clear();
-				return;
-			}
+            if(other.Count() == 0)
+            {
+                Clear();
+                return;
+            }
 
-			foreach(var item in this.ToArray())
-			{
-				if(!other.Contains(item))
-				{
-					Remove(item);
-				}
-			}
-		}
+            foreach(var item in this.ToArray())
+            {
+                if(!other.Contains(item))
+                {
+                    Remove(item);
+                }
+            }
+        }
 
         /// <summary>
         /// Determines whether the current set is a proper (strict) subset of a specified collection.
@@ -391,10 +391,10 @@ namespace UnrealSharp.UnrealEngine.Collections
         /// <param name="other">The collection to compare to the current set.</param>
         /// <returns><see langword="true" /> if the current set is a proper subset of <paramref name="other" />; otherwise, <see langword="false" />.</returns>
         public bool IsProperSubsetOf(IEnumerable<T> other)
-		{
-			Logger.EnsureNotNull(other);
-			return Count != other.Count() && IsSubsetOf(other);
-		}
+        {
+            Logger.EnsureNotNull(other);
+            return Count != other.Count() && IsSubsetOf(other);
+        }
 
         /// <summary>
         /// Determines whether the current set is a proper (strict) superset of a specified collection.
@@ -402,11 +402,11 @@ namespace UnrealSharp.UnrealEngine.Collections
         /// <param name="other">The collection to compare to the current set.</param>
         /// <returns><see langword="true" /> if the current set is a proper superset of <paramref name="other" />; otherwise, <see langword="false" />.</returns>
         public bool IsProperSupersetOf(IEnumerable<T> other)
-		{
-			Logger.EnsureNotNull(other);
+        {
+            Logger.EnsureNotNull(other);
 
-			return Count != other.Count() && IsSupersetOf(other);
-		}
+            return Count != other.Count() && IsSupersetOf(other);
+        }
 
         /// <summary>
         /// Determines whether a set is a subset of a specified collection.
@@ -414,19 +414,19 @@ namespace UnrealSharp.UnrealEngine.Collections
         /// <param name="other">The collection to compare to the current set.</param>
         /// <returns><see langword="true" /> if the current set is a subset of <paramref name="other" />; otherwise, <see langword="false" />.</returns>
         public bool IsSubsetOf(IEnumerable<T> other)
-		{
-			Logger.EnsureNotNull(other);
+        {
+            Logger.EnsureNotNull(other);
 
-			foreach(var item in this)
-			{
-				if(!other.Contains(item))
-				{
-					return false;
-				}
-			}
+            foreach(var item in this)
+            {
+                if(!other.Contains(item))
+                {
+                    return false;
+                }
+            }
 
-			return true;
-		}
+            return true;
+        }
 
         /// <summary>
         /// Determines whether the current set is a superset of a specified collection.
@@ -434,19 +434,19 @@ namespace UnrealSharp.UnrealEngine.Collections
         /// <param name="other">The collection to compare to the current set.</param>
         /// <returns><see langword="true" /> if the current set is a superset of <paramref name="other" />; otherwise, <see langword="false" />.</returns>
         public bool IsSupersetOf(IEnumerable<T> other)
-		{
-			Logger.EnsureNotNull(other);
+        {
+            Logger.EnsureNotNull(other);
 
-			foreach (var item in other)
-			{
-				if(!Contains(item))
-				{
-					return false;
-				}
-			}
+            foreach (var item in other)
+            {
+                if(!Contains(item))
+                {
+                    return false;
+                }
+            }
 
-			return true;
-		}
+            return true;
+        }
 
         /// <summary>
         /// Determines whether the current set overlaps with the specified collection.
@@ -454,24 +454,24 @@ namespace UnrealSharp.UnrealEngine.Collections
         /// <param name="other">The collection to compare to the current set.</param>
         /// <returns><see langword="true" /> if the current set and <paramref name="other" /> share at least one common element; otherwise, <see langword="false" />.</returns>
         public bool Overlaps(IEnumerable<T> other)
-		{
-			Logger.EnsureNotNull(other);
+        {
+            Logger.EnsureNotNull(other);
 
-			if(other == this)
-			{
-				return true;
-			}
+            if(other == this)
+            {
+                return true;
+            }
 
-			foreach (var item in other)
-			{
-				if (Contains(item))
-				{
-					return true;
-				}
-			}
+            foreach (var item in other)
+            {
+                if (Contains(item))
+                {
+                    return true;
+                }
+            }
 
-			return false;
-		}
+            return false;
+        }
 
         /// <summary>
         /// Determines whether the current set and the specified collection contain the same elements.
@@ -479,73 +479,73 @@ namespace UnrealSharp.UnrealEngine.Collections
         /// <param name="other">The collection to compare to the current set.</param>
         /// <returns><see langword="true" /> if the current set is equal to <paramref name="other" />; otherwise, <see langword="false" />.</returns>
         public bool SetEquals(IEnumerable<T> other)
-		{
-			Logger.EnsureNotNull(other);
+        {
+            Logger.EnsureNotNull(other);
 
-			if (other == this)
-			{
-				return true;
-			}
+            if (other == this)
+            {
+                return true;
+            }
 
-			if(Count != other.Count())
-			{
-				return false;
-			}
+            if(Count != other.Count())
+            {
+                return false;
+            }
 
-			foreach(var item in other)
-			{
-				if(!Contains(item))
-				{
-					return false;
-				}
-			}
+            foreach(var item in other)
+            {
+                if(!Contains(item))
+                {
+                    return false;
+                }
+            }
 
-			return true;
-		}
+            return true;
+        }
 
         /// <summary>
         /// Modifies the current set so that it contains only elements that are present either in the current set or in the specified collection, but not both.
         /// </summary>
         /// <param name="other">The collection to compare to the current set.</param>
         public void SymmetricExceptWith(IEnumerable<T> other)
-		{
-			Logger.EnsureNotNull(other);
+        {
+            Logger.EnsureNotNull(other);
 
-			List<T> list = new List<T>();
-			foreach(var item in other)
-			{
-				if(!Contains(item))
-				{
-					list.Add(item);
-				}
-				else
-				{
-					Remove(item);
-				}
-			}
+            List<T> list = new List<T>();
+            foreach(var item in other)
+            {
+                if(!Contains(item))
+                {
+                    list.Add(item);
+                }
+                else
+                {
+                    Remove(item);
+                }
+            }
 
-			foreach(var item in list)
-			{
-				Add(item);
-			}
-		}
+            foreach(var item in list)
+            {
+                Add(item);
+            }
+        }
 
         /// <summary>
         /// Modifies the current set so that it contains all elements that are present in the current set, in the specified collection, or in both.
         /// </summary>
         /// <param name="other">The collection to compare to the current set.</param>
         public void UnionWith(IEnumerable<T> other)
-		{
-			Logger.EnsureNotNull(other);
-			
-			foreach(var item in other)
-			{
-				if(!Contains(item))
-				{
-					Add(item);
-				}
-			}
-		}
+        {
+            Logger.EnsureNotNull(other);
+            
+            foreach(var item in other)
+            {
+                if(!Contains(item))
+                {
+                    Add(item);
+                }
+            }
+        }
 
         /// <summary>
         /// Copies the elements of the <see cref="T:System.Collections.Generic.ICollection`1" /> to an <see cref="T:System.Array" />, starting at a particular <see cref="T:System.Array" /> index.
@@ -556,46 +556,46 @@ namespace UnrealSharp.UnrealEngine.Collections
         /// <exception cref="System.ArgumentOutOfRangeException">arrayIndex</exception>
         /// <exception cref="System.ArgumentException">The number of elements in the source collection is greater than the available space from arrayIndex to the end of the destination array.</exception>
         public void CopyTo(T[] array, int arrayIndex)
-		{
-			if (array == null)
-			{
-				throw new ArgumentNullException(nameof(array));
-			}
+        {
+            if (array == null)
+            {
+                throw new ArgumentNullException(nameof(array));
+            }
 
-			if (arrayIndex < 0 || arrayIndex > array.Length)
-			{
-				throw new ArgumentOutOfRangeException(nameof(arrayIndex));
-			}
+            if (arrayIndex < 0 || arrayIndex > array.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(arrayIndex));
+            }
 
-			if (array.Length - arrayIndex < Count)
-			{
-				throw new ArgumentException("The number of elements in the source collection is greater than the available space from arrayIndex to the end of the destination array.");
-			}
+            if (array.Length - arrayIndex < Count)
+            {
+                throw new ArgumentException("The number of elements in the source collection is greater than the available space from arrayIndex to the end of the destination array.");
+            }
 
-			int i = 0;
-			foreach(var item in this)
-			{
-				array[arrayIndex + i] = item;
-				++i;
-			}
-		}
+            int i = 0;
+            foreach(var item in this)
+            {
+                array[arrayIndex + i] = item;
+                ++i;
+            }
+        }
 
         /// <summary>
         /// Gets the native PTR.
         /// </summary>
         /// <returns>IntPtr.</returns>
         public nint GetNativePtr()
-		{
-			return AddressPtr;
-		}
+        {
+            return AddressPtr;
+        }
 
         /// <summary>
         /// Disconnects from native.
         /// </summary>
         public void DisconnectFromNative()
-		{
-			AddressPtr = IntPtr.Zero;
-		}
+        {
+            AddressPtr = IntPtr.Zero;
+        }
 
         /// <summary>
         /// Retains this instance.
@@ -613,7 +613,7 @@ namespace UnrealSharp.UnrealEngine.Collections
         IEnumerable IUnrealCollectionDataView.Retain()
         {
             return this.ToHashSet<T>();
-		}
+        }
 
         #endregion
 
@@ -626,11 +626,11 @@ namespace UnrealSharp.UnrealEngine.Collections
         /// <param name="propertyPtr">The property PTR.</param>
         /// <returns>HashSet&lt;T&gt;.</returns>
         public static HashSet<T> FromNative(IntPtr address, int offset, IntPtr propertyPtr)
-		{
-			TSet<T> TempSet = new TSet<T>(IntPtr.Add(address, offset), propertyPtr);
+        {
+            TSet<T> TempSet = new TSet<T>(IntPtr.Add(address, offset), propertyPtr);
 
-			return TempSet.ToHashSet();
-		}
+            return TempSet.ToHashSet();
+        }
 
         /// <summary>
         /// Converts to native.
@@ -640,10 +640,10 @@ namespace UnrealSharp.UnrealEngine.Collections
         /// <param name="propertyPtr">The property PTR.</param>
         /// <param name="values">The values.</param>
         public static void ToNative(IntPtr address, int offset, IntPtr propertyPtr, IEnumerable<T>? values)
-		{
+        {
             TSet<T> TempSet = new TSet<T>(IntPtr.Add(address, offset), propertyPtr);
 
-			TempSet.CopyFrom(values);
+            TempSet.CopyFrom(values);
         }
         #endregion
     }
@@ -686,7 +686,7 @@ namespace UnrealSharp.UnrealEngine.Collections
     /// Class TSetExtensions.
     /// </summary>
     public static class TSetExtensions
-	{
+    {
         /// <summary>
         /// Retains the specified set.
         /// </summary>
@@ -694,24 +694,24 @@ namespace UnrealSharp.UnrealEngine.Collections
         /// <param name="set">The set.</param>
         /// <returns>System.Nullable&lt;HashSet&lt;T&gt;&gt;.</returns>
         public static HashSet<T>? Retain<T>(this ISet<T>? set)
-		{
-			if(set == null)
-			{
-				return null;
-			}
+        {
+            if(set == null)
+            {
+                return null;
+            }
 
-			if(set is HashSet<T> hashSet)
-			{
-				return hashSet;
-			}
-			else if(set is TSet<T> thashSet)
-			{
-				return thashSet.ToHashSet();
-			}
+            if(set is HashSet<T> hashSet)
+            {
+                return hashSet;
+            }
+            else if(set is TSet<T> thashSet)
+            {
+                return thashSet.ToHashSet();
+            }
 
-			return set.ToHashSet();
-		}
-	}
+            return set.ToHashSet();
+        }
+    }
     #endregion
 
     #region Property Cache

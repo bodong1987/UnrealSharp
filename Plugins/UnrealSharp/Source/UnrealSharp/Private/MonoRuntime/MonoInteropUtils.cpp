@@ -110,10 +110,10 @@ namespace UnrealSharp::Mono
 #define __PP_TEXT(name) #name
 #define PP_TEXT(name) __PP_TEXT(name)
 #define REGISTER_FALLBACK_API(name) \
-		FallbackApis.Add(CalcHashFast("UnrealSharp_" PP_TEXT(name), strlen("UnrealSharp_" PP_TEXT(name))), MakeTuple<FString, void*>(TEXT("UnrealSharp_") TEXT(PP_TEXT(name)), (void*)&FMonoInteropUtils::name))
+        FallbackApis.Add(CalcHashFast("UnrealSharp_" PP_TEXT(name), strlen("UnrealSharp_" PP_TEXT(name))), MakeTuple<FString, void*>(TEXT("UnrealSharp_") TEXT(PP_TEXT(name)), (void*)&FMonoInteropUtils::name))
 
 #define DECLARE_UNREAL_SHARP_INTEROP_API(returnType, name, parameters) \
-			REGISTER_FALLBACK_API(name)
+            REGISTER_FALLBACK_API(name)
 
         // use interop function instead.
         // REGISTER_FALLBACK_API(LogMessage);

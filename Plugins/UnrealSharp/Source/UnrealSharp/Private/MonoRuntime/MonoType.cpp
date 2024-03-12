@@ -31,16 +31,16 @@
 
 namespace UnrealSharp::Mono
 {
-	FMonoType::FMonoType(MonoClass* InClass) :
-		TypeClass(InClass)
-	{
-	}
+    FMonoType::FMonoType(MonoClass* InClass) :
+        TypeClass(InClass)
+    {
+    }
 
-	void* FMonoType::NewObject()
-	{
-		FMonoRuntime* MonoRuntime = (FMonoRuntime*)FCSharpRuntimeFactory::GetInstance();
-		return mono_object_new(MonoRuntime->GetDomain(), TypeClass);
-	}
+    void* FMonoType::NewObject()
+    {
+        FMonoRuntime* MonoRuntime = (FMonoRuntime*)FCSharpRuntimeFactory::GetInstance();
+        return mono_object_new(MonoRuntime->GetDomain(), TypeClass);
+    }
 
 }
 #endif

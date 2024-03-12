@@ -31,8 +31,8 @@
 UCLASS(Blueprintable)
 class UNREALSHARPTESTS_API UUnrealSharpTestsObjectInCpp : public UUnrealSharpTestsBaseObjectInCpp
 {
-	GENERATED_UCLASS_BODY()
-	
+    GENERATED_UCLASS_BODY()
+    
 public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Cpp_Internal Structures")
     FVector VecValueInCpp = FVector(1,2,3);

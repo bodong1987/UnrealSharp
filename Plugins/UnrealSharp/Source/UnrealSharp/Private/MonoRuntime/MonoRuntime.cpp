@@ -1,27 +1,27 @@
 /*
-	MIT License
+    MIT License
 
-	Copyright (c) 2024 UnrealSharp
+    Copyright (c) 2024 UnrealSharp
 
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
 
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
 
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
 
-	Project URL: https://github.com/bodong1987/UnrealSharp
+    Project URL: https://github.com/bodong1987/UnrealSharp
 */
 #include "MonoRuntime/MonoRuntime.h"
 #include "MonoRuntime/MonoInteropUtils.h"
@@ -48,216 +48,146 @@
 
 namespace UnrealSharp::Mono
 {
-	FString FMonoRuntime::NativeLibraryPath;
+    FString FMonoRuntime::NativeLibraryPath;
     FString FMonoRuntime::ManagedLibraryPath;
-	TArray<FString> FMonoRuntime::LibrarySearchPaths;
+    TArray<FString> FMonoRuntime::LibrarySearchPaths;
+    bool FMonoRuntime::bIsDebuggerAvaialble = false;
 
-	void FMonoRuntime::InitLibrarySearchPaths()
-	{
-		FString NativePath = FPaths::ConvertRelativePathToFull(
-			FPaths::Combine(
-				FPaths::ProjectDir(),
-				TEXT("Plugins/UnrealSharp/") TEXT(UNREALSHARP_NATIVE_LIBDIRECTORY_RELATIVE_PATH)
-			)
-		);
-		check(FPaths::DirectoryExists(*NativePath));
+    void FMonoRuntime::InitLibrarySearchPaths()
+    {
+        FString NativePath = FPaths::ConvertRelativePathToFull(
+            FPaths::Combine(
+                FPaths::ProjectDir(),
+                TEXT("Plugins/UnrealSharp/") TEXT(UNREALSHARP_NATIVE_LIBDIRECTORY_RELATIVE_PATH)
+            )
+        );
+        check(FPaths::DirectoryExists(*NativePath));
 
-		US_LOG(TEXT("Native mono directory:%s"), *NativePath);
+        US_LOG(TEXT("Native mono directory:%s"), *NativePath);
 
-		NativeLibraryPath = NativePath;
+        NativeLibraryPath = NativePath;
 
-		FString LibraryPath = FPaths::ConvertRelativePathToFull(
-			FPaths::Combine(
-				FPaths::ProjectDir(),
-				TEXT("Plugins/UnrealSharp/") TEXT(UNREALSHARP_SYSTEM_MANAGED_LIBDIRECTORY_RELATIVE_PATH)
-			)
-		);
+        FString LibraryPath = FPaths::ConvertRelativePathToFull(
+            FPaths::Combine(
+                FPaths::ProjectDir(),
+                TEXT("Plugins/UnrealSharp/") TEXT(UNREALSHARP_SYSTEM_MANAGED_LIBDIRECTORY_RELATIVE_PATH)
+            )
+        );
 
-		US_LOG(TEXT("System managed libary directory:%s"), *LibraryPath);
+        US_LOG(TEXT("System managed libary directory:%s"), *LibraryPath);
 
-		check(FPaths::DirectoryExists(*LibraryPath));
+        check(FPaths::DirectoryExists(*LibraryPath));
         
         ManagedLibraryPath = LibraryPath;
 
-		FString UserPath = FPaths::ConvertRelativePathToFull(FPaths::Combine(FPaths::ProjectDir(), TEXT("Managed/")));
-		check(FPaths::DirectoryExists(UserPath));
+        FString UserPath = FPaths::ConvertRelativePathToFull(FPaths::Combine(FPaths::ProjectDir(), TEXT("Managed/")));
+        check(FPaths::DirectoryExists(UserPath));
 
-		LibrarySearchPaths.Add(UserPath);
-		LibrarySearchPaths.Add(LibraryPath);
-		LibrarySearchPaths.Add(NativePath);
-	}
+        LibrarySearchPaths.Add(UserPath);
+        LibrarySearchPaths.Add(LibraryPath);
+        LibrarySearchPaths.Add(NativePath);
+    }
 
-	FString FMonoRuntime::SearchLibrary(const FString& InName)
-	{
-		for (const auto& SearchPath : LibrarySearchPaths)
-		{
-			auto AsmPath = FPaths::Combine(*SearchPath, *InName);
-			if (FPaths::FileExists(AsmPath))
-			{
-				return AsmPath;
-			}
-		}
+    FString FMonoRuntime::SearchLibrary(const FString& InName)
+    {
+        for (const auto& SearchPath : LibrarySearchPaths)
+        {
+            auto AsmPath = FPaths::Combine(*SearchPath, *InName);
+            if (FPaths::FileExists(AsmPath))
+            {
+                return AsmPath;
+            }
+        }
 
-		return FString();
-	}
+        return FString();
+    }
 
-	MonoAssembly* FMonoRuntime::OnAssemblyLoaded(MonoAssemblyName* aname, char** InAssemblies, void* InUserData)
-	{
-		const char* name = mono_assembly_name_get_name(aname);
-		const char* culture = mono_assembly_name_get_culture(aname);
-		FString AsmName = FString(ANSI_TO_TCHAR(name));
-		FString AsmCulture = FString(ANSI_TO_TCHAR(culture));
-
-		if (!AsmName.EndsWith(TEXT(".dll"), ESearchCase::IgnoreCase))
-		{
-			AsmName = AsmName + TEXT(".dll");
-		}
-
-		for (const auto& SearchPath : LibrarySearchPaths)
-		{
-			auto AsmPath = FPaths::Combine(*SearchPath, *AsmName);
-			if (!FPaths::FileExists(AsmPath))
-			{
-				AsmPath = FPaths::Combine(*SearchPath, *AsmCulture, *AsmName);
-				if (!FPaths::FileExists(AsmPath))
-				{
-					continue;
-				}
-			}
-
-			US_LOG(TEXT("Found assembly %s at path '%s'."), *AsmName, *AsmPath);
-
-			FString AbsoluteAssemblyPath = IFileManager::Get().ConvertToAbsolutePathForExternalAppForRead(*AsmPath);
-
-			MonoImageOpenStatus status;
-			MonoAssembly* LoadedAssembly = mono_assembly_open(TCHAR_TO_ANSI(*AbsoluteAssemblyPath), &status);
-			if (LoadedAssembly)
-			{
-				US_LOG(TEXT("Loaded assembly from path '%s'."), *AbsoluteAssemblyPath);
-				return LoadedAssembly;
-			}
-
-			auto Reader = IFileManager::Get().CreateFileReader(*AsmPath);
-			if (!Reader)
-			{
-				US_LOG_ERROR(TEXT("Failed to read assembly from UFS path '%s'."), *AsmPath);
-				continue;
-			}
-
-			uint32 Size = Reader->TotalSize();
-			void* Data = FMemory::Malloc(Size);
-			Reader->Serialize(Data, Size);
-
-			MonoImage* LoadedImage = mono_image_open_from_data_with_name((char*)Data, Size, true, &status, false, name);
-
-			FMemory::Free(Data);
-
-			if (!LoadedImage)
-			{
-				US_LOG_ERROR(TEXT("Failed to load image from UFS path '%s'."), *AsmPath);
-				continue;
-			}
-
-			LoadedAssembly = mono_assembly_load_from_full(LoadedImage, name, &status, 0);
-			if (!LoadedAssembly)
-			{
-				US_LOG_ERROR(TEXT("Failed to load image from UFS path '%s'."), *AsmPath);
-				continue;
-			}
-
-			US_LOG(TEXT("Loaded assembly from UFS path '%s'."), *AsmPath);
-
-			return LoadedAssembly;
-		}
-
-		US_LOG_ERROR(TEXT("Could not find assembly %s."), *AsmName);
-
-		return nullptr;
-	}
-
-#if WITH_EDITOR	
-	static void DeleteCoreClrDlls(const FString& Directory)
-	{
-		IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
-				
-		TArray<FString> Files;
-		PlatformFile.FindFiles(Files, *Directory, FPlatformProcess::GetModuleExtension());
-				
-		for (FString& File : Files)
-		{			
-			FString FileName = FPaths::GetCleanFilename(File);
-			if (FileName.Contains(TEXT("coreclr_"), ESearchCase::IgnoreCase))
-			{				
-				PlatformFile.DeleteFile(*File);
-			}
-		}
-	}
+#if WITH_EDITOR    
+    static const FString UnrealSharpTempFilePrefix = TEXT("__unrealsharp_temp.");
+    static void DeleteIntermediateTempFiles(const FString& Directory)
+    {
+        IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+                
+        TArray<FString> Files;
+        PlatformFile.FindFiles(Files, *Directory, TEXT(""));
+                
+        for (FString& File : Files)
+        {            
+            FString FileName = FPaths::GetCleanFilename(File);
+            if (FileName.StartsWith(UnrealSharpTempFilePrefix, ESearchCase::IgnoreCase))
+            {                
+                // try delete it.
+                PlatformFile.DeleteFile(*File);
+            }
+        }
+    }
 #endif
 
 #if PLATFORM_WINDOWS
-	// check here
-	// https://www.cnblogs.com/bodong/p/17962564
-	static void EnableVisualStudioToolsForUnitySupport()
-	{
-		IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+    // check here
+    // https://www.cnblogs.com/bodong/p/17962564
+    static void EnableVisualStudioToolsForUnitySupport()
+    {
+        IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
 
-		FString ProcessPath = FPlatformProcess::ExecutableName();				
-		FString ProcessDirectory = FPaths::GetPath(ProcessPath);
+        FString ProcessPath = FPlatformProcess::ExecutableName();                
+        FString ProcessDirectory = FPaths::GetPath(ProcessPath);
 
-		FString ProcessName = FPaths::GetBaseFilename(ProcessPath);				
-		FString DataDirectoryPath = ProcessDirectory / (ProcessName + TEXT("_Data"));
-		if (!PlatformFile.DirectoryExists(*DataDirectoryPath))
-		{
-			PlatformFile.CreateDirectory(*DataDirectoryPath);
-		}
-				
-		FString DllFilePath = ProcessDirectory / TEXT("UnityPlayer.dll");
-				
-		if (!PlatformFile.FileExists(*DllFilePath))
-		{
-			FFileHelper::SaveStringToFile(TEXT(""), *DllFilePath);
-		}
-	}
+        FString ProcessName = FPaths::GetBaseFilename(ProcessPath);                
+        FString DataDirectoryPath = ProcessDirectory / (ProcessName + TEXT("_Data"));
+        if (!PlatformFile.DirectoryExists(*DataDirectoryPath))
+        {
+            PlatformFile.CreateDirectory(*DataDirectoryPath);
+        }
+                
+        FString DllFilePath = ProcessDirectory / TEXT("UnityPlayer.dll");
+                
+        if (!PlatformFile.FileExists(*DllFilePath))
+        {
+            FFileHelper::SaveStringToFile(TEXT(""), *DllFilePath);
+        }
+    }
 #endif
 
-	FMonoRuntime::FMonoRuntime() :
-		MarshallerCollectionPtr(MakeUnique<FPropertyMarshallerCollection>())
-	{
+    FMonoRuntime::FMonoRuntime() :
+        MarshallerCollectionPtr(MakeUnique<FPropertyMarshallerCollection>())
+    {
 #if WITH_EDITOR
-		bUseTempCoreCLRLibrary = true;
+        bUseTempCoreCLRLibrary = true;
 #endif
+        bIsDebuggerAvaialble = false;
 
-		if (LibrarySearchPaths.IsEmpty())
-		{
-			InitLibrarySearchPaths();
-		}
+        if (LibrarySearchPaths.IsEmpty())
+        {
+            InitLibrarySearchPaths();
+        }
 
-		FString CoreClrRuntimePath = FPaths::Combine(NativeLibraryPath, TEXT(UNREALSHARP_CORECLR_LIBNAME));
-		check(FPaths::FileExists(CoreClrRuntimePath));
+        FString CoreClrRuntimePath = FPaths::Combine(NativeLibraryPath, TEXT(UNREALSHARP_CORECLR_LIBNAME));
+        check(FPaths::FileExists(CoreClrRuntimePath));
 
-#if WITH_EDITOR		
-		if(bUseTempCoreCLRLibrary)
-		{
-			auto UnrealSharpTempDirectory = FUnrealSharpPaths::GetUnrealSharpIntermediateDir();
+        auto UnrealSharpTempDirectory = FUnrealSharpPaths::GetUnrealSharpIntermediateDir();
 
-			DeleteCoreClrDlls(UnrealSharpTempDirectory);
+        DeleteIntermediateTempFiles(UnrealSharpTempDirectory);
 
-			FString TempDllName = FPaths::Combine(UnrealSharpTempDirectory, FString("coreclr_") + FGuid::NewGuid().ToString() + TEXT(".") + FPlatformProcess::GetModuleExtension());
+#if WITH_EDITOR        
+        if(bUseTempCoreCLRLibrary)
+        {
+            FString TempDllName = FPaths::Combine(UnrealSharpTempDirectory, UnrealSharpTempFilePrefix + TEXT("coreclr.") + FGuid::NewGuid().ToString() + TEXT(".") + FPlatformProcess::GetModuleExtension());
 
-			IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
-			PlatformFile.CopyFile(*TempDllName, *CoreClrRuntimePath);
+            IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+            PlatformFile.CopyFile(*TempDllName, *CoreClrRuntimePath);
 
-			check(FPaths::FileExists(TempDllName));
+            check(FPaths::FileExists(TempDllName));
 
-			CoreClrRuntimePath = TempDllName;
-		}
-#endif		
+            CoreClrRuntimePath = TempDllName;
+        }
+#endif        
 
-		LibraryHandle = FPlatformProcess::GetDllHandle(*CoreClrRuntimePath);
+        LibraryHandle = FPlatformProcess::GetDllHandle(*CoreClrRuntimePath);
 
-		checkf(LibraryHandle, TEXT("Failed load corelib from:%s"), *CoreClrRuntimePath);
+        checkf(LibraryHandle, TEXT("Failed load corelib from:%s"), *CoreClrRuntimePath);
 
-		FMonoApis::Import(LibraryHandle);
+        FMonoApis::Import(LibraryHandle);
         
 #if PLATFORM_MAC
         // load managed require dylibs here
@@ -286,21 +216,21 @@ namespace UnrealSharp::Mono
         }
 
 #endif
-	}
+    }
 
-	FMonoRuntime::~FMonoRuntime()
-	{
-		FMonoApis::UnImport();
+    FMonoRuntime::~FMonoRuntime()
+    {
+        FMonoApis::UnImport();
 
-		if(LibraryHandle != nullptr)
-		{
-			if(!bUseTempCoreCLRLibrary)
-			{
-				FPlatformProcess::FreeDllHandle(LibraryHandle);
-			}
-			
-			LibraryHandle = nullptr;
-		}		
+        if(LibraryHandle != nullptr)
+        {
+            if(!bUseTempCoreCLRLibrary)
+            {
+                FPlatformProcess::FreeDllHandle(LibraryHandle);
+            }
+            
+            LibraryHandle = nullptr;
+        }        
         
 #if PLATFORM_MAC
         for(auto& handle : ExtraLibraryHandles)
@@ -310,508 +240,615 @@ namespace UnrealSharp::Mono
         
         ExtraLibraryHandles.Empty();
 #endif
-	}
 
-	const FName& FMonoRuntime::GetRuntimeType() const
-	{
-		static const FName Z_Type = "Mono";
+        bIsDebuggerAvaialble = false;
+    }
 
-		return Z_Type;
-	}
+    const FName& FMonoRuntime::GetRuntimeType() const
+    {
+        static const FName Z_Type = "Mono";
 
-	bool FMonoRuntime::InitializeInternal()
-	{	
-		mono_install_assembly_preload_hook(OnAssemblyLoaded, nullptr);
+        return Z_Type;
+    }
 
-		InitLogger();
+    bool FMonoRuntime::InitializeInternal()
+    {    
+        mono_install_assembly_preload_hook(OnAssemblyLoaded, nullptr);
 
-		if(!GetDefault<UUnrealSharpSettings>()->bPerformanceMode)
-		{
-			InitDebugger();
-		}
+        InitLogger();
 
-		if (!InitDomain())
-		{
-			return false;
-		}
+        if(!GetDefault<UUnrealSharpSettings>()->bPerformanceMode)
+        {
+            InitDebugger();
+        }
 
-		/*
-		* Try Fix: mono_coop_mutex_lock Cannot transition thread 000000??0000???? from STATE_BLOCKING with DO_BLOCKING
-		* https://www.cnblogs.com/bodong/p/18027808
-		*/
-		if(bIsDebuggerAvaialble && GetDefault<UUnrealSharpSettings>()->bWaitDebugger)
-		{
-			//
-			const float SleepTime = GetDefault<UUnrealSharpSettings>()->DelayMonoStartTimeWhenWaitDebugger;
-			US_LOG(TEXT("Sleep %f seconds, wait debugger refresh source infos."), SleepTime);
-			FPlatformProcess::Sleep(SleepTime);
-		}
-				
-		return true;
-	}
+        if (!InitDomain())
+        {
+            return false;
+        }
 
-	void FMonoRuntime::InitDebugger()
-	{
-		const UUnrealSharpSettings* Settings = GetDefault<UUnrealSharpSettings>();
+        /*
+        * Try Fix: mono_coop_mutex_lock Cannot transition thread 000000??0000???? from STATE_BLOCKING with DO_BLOCKING
+        * https://www.cnblogs.com/bodong/p/18027808
+        */
+        if(bIsDebuggerAvaialble && GetDefault<UUnrealSharpSettings>()->bWaitDebugger)
+        {
+            //
+            const float SleepTime = GetDefault<UUnrealSharpSettings>()->DelayMonoStartTimeWhenWaitDebugger;
+            US_LOG(TEXT("Sleep %f seconds, wait debugger refresh source infos."), SleepTime);
+            FPlatformProcess::Sleep(SleepTime);
+        }
+                
+        return true;
+    }
+
+    void FMonoRuntime::InitDebugger()
+    {
+        const UUnrealSharpSettings* Settings = GetDefault<UUnrealSharpSettings>();
 
 #if !WITH_EDITOR
-		if (Settings->bEnableDebugger)
+        if (Settings->bEnableDebugger)
 #endif
-		{
+        {
 #if PLATFORM_WINDOWS
-			// allow you debug mono C# code with Visual Studio Tools for unity
-			EnableVisualStudioToolsForUnitySupport();
+            // allow you debug mono C# code with Visual Studio Tools for unity
+            EnableVisualStudioToolsForUnitySupport();
 #endif
 
-			// hack for Visual Studio Tools for unity
-			int DebuggerPort = Settings->bEnableRiderDebuggerSupport ? Settings->RiderDebuggerDefaultPort : (56000 + FPlatformProcess::GetCurrentProcessId() % 1000);
-			int logLevel = 0;
-			FString LogFileArguments;
-			FString LogLevelArguments;
+            // hack for Visual Studio Tools for unity
+            int DebuggerPort = Settings->bEnableRiderDebuggerSupport ? Settings->RiderDebuggerDefaultPort : (56000 + FPlatformProcess::GetCurrentProcessId() % 1000);
+            int logLevel = 0;
+            FString LogFileArguments;
+            FString LogLevelArguments;
 
-			// if we use log file, it will not send to debugger
-			if(Settings->bUseMonoLogFile)
-			{
-				logLevel = Settings->MonoLogLevel;
-				LogLevelArguments = FString::Printf(TEXT(",loglevel=%d"), logLevel);
+            // if we use log file, it will not send to debugger
+            if(Settings->bUseMonoLogFile)
+            {
+                logLevel = Settings->MonoLogLevel;
+                LogLevelArguments = FString::Printf(TEXT(",loglevel=%d"), logLevel);
 
-				auto UnrealSharpTempDirectory = FUnrealSharpPaths::GetUnrealSharpIntermediateDir();
-				FString MonoLogFile = FPaths::Combine(UnrealSharpTempDirectory, TEXT("mono.log"));
-				LogFileArguments = FString::Printf(TEXT(",logfile=%s"), *MonoLogFile);
-			}			
+                auto UnrealSharpTempDirectory = FUnrealSharpPaths::GetUnrealSharpIntermediateDir();
+                FString MonoLogFile = FPaths::Combine(UnrealSharpTempDirectory, TEXT("mono.log"));
+                LogFileArguments = FString::Printf(TEXT(",logfile=%s"), *MonoLogFile);
+            }            
 
-			FString Arguments = FString::Printf(TEXT("--debugger-agent=transport=dt_socket,embedding=%s,server=y,suspend=%s%s%s,address=127.0.0.1:%d"), 
-				Settings->bWaitDebugger ? TEXT("n") : TEXT("y"),
-				Settings->bWaitDebugger ? TEXT("y") : TEXT("n"),
-				*LogLevelArguments,
-				*LogFileArguments,
-				DebuggerPort				
-			);			
+            FString Arguments = FString::Printf(TEXT("--debugger-agent=transport=dt_socket,embedding=%s,server=y,suspend=%s%s%s,address=127.0.0.1:%d"), 
+                Settings->bWaitDebugger ? TEXT("n") : TEXT("y"),
+                Settings->bWaitDebugger ? TEXT("y") : TEXT("n"),
+                *LogLevelArguments,
+                *LogFileArguments,
+                DebuggerPort                
+            );            
 
-			std::string argument = TCHAR_TO_ANSI(*Arguments);
+            std::string argument = TCHAR_TO_ANSI(*Arguments);
 
-			const char* options[] = 
-			{
-			   argument.c_str()
-			};
+            const char* options[] = 
+            {
+               argument.c_str()
+            };
 
-			// in debug support mode, we need force use interop mode
-			// because jit mode will cause crash.
-			// comment this code, you will cause the crash
-			mono_jit_set_aot_mode(MONO_AOT_MODE_INTERP_ONLY);
+            // in debug support mode, we need force use interop mode
+            // because jit mode will cause crash.
+            // comment this code, you will cause the crash
+            mono_jit_set_aot_mode(MONO_AOT_MODE_INTERP_ONLY);
 
-			mono_jit_parse_options(sizeof(options)/sizeof(options[0]), (char**)options);
-			mono_debug_init(MONO_DEBUG_FORMAT_MONO);
+            mono_jit_parse_options(sizeof(options)/sizeof(options[0]), (char**)options);
+            mono_debug_init(MONO_DEBUG_FORMAT_MONO);
 
-			bIsDebuggerAvaialble = true;
-		}
-	}
+            bIsDebuggerAvaialble = true;
+        }
+    }
 
-	void FMonoRuntime::MonoLog(const char* InDomainName, const char* InLogLevel, const char* InMessage, mono_bool InFatal, void* InUserData)
-	{		
-		if (InFatal || 0 == FCStringAnsi::Strncmp("error", InLogLevel, 5))
-		{
-			// fatal error
-			UE_LOG(UnrealSharpLog, Fatal, TEXT("[Mono]%s%s%s"), InDomainName != nullptr ? ANSI_TO_TCHAR(InDomainName) : TEXT(""), InDomainName != nullptr ? TEXT(": ") : TEXT(""), ANSI_TO_TCHAR(InMessage));
-		}
+    void FMonoRuntime::MonoLog(const char* InDomainName, const char* InLogLevel, const char* InMessage, mono_bool InFatal, void* InUserData)
+    {        
+        if (InFatal || 0 == FCStringAnsi::Strncmp("error", InLogLevel, 5))
+        {
+            // fatal error
+            UE_LOG(UnrealSharpLog, Fatal, TEXT("[Mono]%s%s%s"), InDomainName != nullptr ? ANSI_TO_TCHAR(InDomainName) : TEXT(""), InDomainName != nullptr ? TEXT(": ") : TEXT(""), ANSI_TO_TCHAR(InMessage));
+        }
 #if NO_LOGGING
 #else
-		else if (0 == FCStringAnsi::Strncmp("warning", InLogLevel, 7))
-		{
-			US_LOG_WARN(TEXT("[Mono]%s%s%s"), InDomainName != nullptr ? ANSI_TO_TCHAR(InDomainName) : TEXT(""), InDomainName != nullptr ? TEXT(": ") : TEXT(""), ANSI_TO_TCHAR(InMessage));
-		}
-		else if (0 == FCStringAnsi::Strncmp("critical", InLogLevel, 8))
-		{
-			US_LOG_ERROR(TEXT("[Mono]%s%s%s"), InDomainName != nullptr ? ANSI_TO_TCHAR(InDomainName) : TEXT(""), InDomainName != nullptr ? TEXT(": ") : TEXT(""), ANSI_TO_TCHAR(InMessage));
-		}
-		else
-		{
-			US_LOG(TEXT("[Mono]%s%s%s"), InDomainName != nullptr ? ANSI_TO_TCHAR(InDomainName) : TEXT(""), InDomainName != nullptr ? TEXT(": ") : TEXT(""), ANSI_TO_TCHAR(InMessage));
-		}
+        else if (0 == FCStringAnsi::Strncmp("warning", InLogLevel, 7))
+        {
+            US_LOG_WARN(TEXT("[Mono]%s%s%s"), InDomainName != nullptr ? ANSI_TO_TCHAR(InDomainName) : TEXT(""), InDomainName != nullptr ? TEXT(": ") : TEXT(""), ANSI_TO_TCHAR(InMessage));
+        }
+        else if (0 == FCStringAnsi::Strncmp("critical", InLogLevel, 8))
+        {
+            US_LOG_ERROR(TEXT("[Mono]%s%s%s"), InDomainName != nullptr ? ANSI_TO_TCHAR(InDomainName) : TEXT(""), InDomainName != nullptr ? TEXT(": ") : TEXT(""), ANSI_TO_TCHAR(InMessage));
+        }
+        else
+        {
+            US_LOG(TEXT("[Mono]%s%s%s"), InDomainName != nullptr ? ANSI_TO_TCHAR(InDomainName) : TEXT(""), InDomainName != nullptr ? TEXT(": ") : TEXT(""), ANSI_TO_TCHAR(InMessage));
+        }
 #endif
-	}
+    }
 
-	void FMonoRuntime::MonoPrintf(const char* InString, mono_bool bIsStdout)
-	{
+    void FMonoRuntime::MonoPrintf(const char* InString, mono_bool bIsStdout)
+    {
 #if !NO_LOGGING
-		US_LOG(TEXT("[Mono]%s"), ANSI_TO_TCHAR(InString));
+        US_LOG(TEXT("[Mono]%s"), ANSI_TO_TCHAR(InString));
 #endif
-	}
+    }
 
-	void FMonoRuntime::InitLogger()
-	{
-		mono_trace_set_log_handler(MonoLog, nullptr);
-		mono_trace_set_print_handler(MonoPrintf);
-		mono_trace_set_printerr_handler(MonoPrintf);
-	}
+    void FMonoRuntime::InitLogger()
+    {
+        mono_trace_set_log_handler(MonoLog, nullptr);
+        mono_trace_set_print_handler(MonoPrintf);
+        mono_trace_set_printerr_handler(MonoPrintf);
+    }
 
-	bool FMonoRuntime::InitDomain()
-	{
-		Domain = mono_jit_init_version(TCHAR_TO_ANSI(FApp::GetProjectName()), DOTNET_VERSION);
-		
-		check(Domain != nullptr);
+    bool FMonoRuntime::InitDomain()
+    {
+        Domain = mono_jit_init_version(TCHAR_TO_ANSI(FApp::GetProjectName()), DOTNET_VERSION);
+        
+        check(Domain != nullptr);
 
-		if (Domain == nullptr)
-		{
-			US_LOG_ERROR(TEXT("Failed init Mono runtime"));
-			return false;
-		}
+        if (Domain == nullptr)
+        {
+            US_LOG_ERROR(TEXT("Failed init Mono runtime"));
+            return false;
+        }
 
-		FMonoInteropUtils::Initialize(this);
+        FMonoInteropUtils::Initialize(this);
 
-		char* mono_version = mono_get_runtime_build_info();
-		auto MonoVersion = FString(ANSI_TO_TCHAR(mono_version));
-		mono_free(mono_version);
+        char* mono_version = mono_get_runtime_build_info();
+        auto MonoVersion = FString(ANSI_TO_TCHAR(mono_version));
+        mono_free(mono_version);
 
-		US_LOG(TEXT("Loaded Mono runtime %s"), *MonoVersion);
+        US_LOG(TEXT("Loaded Mono runtime %s"), *MonoVersion);
 
-		return true;
-	}
+        return true;
+    }
 
-	void FMonoRuntime::ShutdownInternal()
-	{
-		FMonoInteropUtils::Uninitialize();
-		
-		if (!bUseTempCoreCLRLibrary)
-		{
-			mono_domain_finalize(Domain, -1);
-		}		
+    void FMonoRuntime::ShutdownInternal()
+    {
+        FMonoInteropUtils::Uninitialize();
+        
+        if (!bUseTempCoreCLRLibrary)
+        {
+            mono_domain_finalize(Domain, -1);
+        }        
 
-		mono_jit_cleanup(Domain);
-	}
+        mono_jit_cleanup(Domain);
+    }
 
-	void FMonoRuntime::MonoStringToFString(FString& Result, MonoString* InString)
-	{
-		auto* utf16Text = mono_string_to_utf16(InString);
-		Result = utf16Text;
+    void FMonoRuntime::MonoStringToFString(FString& Result, MonoString* InString)
+    {
+        auto* utf16Text = mono_string_to_utf16(InString);
+        Result = utf16Text;
 
-		mono_free(utf16Text);
-	}
+        mono_free(utf16Text);
+    }
 
-	FName FMonoRuntime::MonoStringToFName(MonoString* InString)
-	{
-		FString TempString;
-		MonoStringToFString(TempString, InString);
-		return FName(*TempString);
-	}
+    FName FMonoRuntime::MonoStringToFName(MonoString* InString)
+    {
+        FString TempString;
+        MonoStringToFString(TempString, InString);
+        return FName(*TempString);
+    }
 
-	void FMonoRuntime::LogException(MonoObject* InException)
-	{
-		FText ExceptionError;
-		MonoObject* ExceptionInStringConversion = nullptr;
-		MonoString* MonoExceptionString = mono_object_to_string(InException, &ExceptionInStringConversion);
-		if (nullptr != MonoExceptionString)
-		{
-			FString ExceptionString;
-			MonoStringToFString(ExceptionString, MonoExceptionString);
-			FFormatNamedArguments Args;
-			Args.Add(TEXT("ExceptionMessage"), FText::FromString(ExceptionString));
-			ExceptionError = FText::Format(LOCTEXT("ExceptionError", "Managed exception: {ExceptionMessage}"), Args);
-		}
-		else
-		{
-			check(ExceptionInStringConversion);
-			// Can't really get much out of the original exception with the public API, so just note that two exceptions were thrown
-			FString ExceptionString;
-			MonoExceptionString = mono_object_to_string(ExceptionInStringConversion, nullptr);
-			check(MonoExceptionString);
-			MonoStringToFString(ExceptionString, MonoExceptionString);
-			FFormatNamedArguments Args;
-			MonoClass* ExceptionClass = mono_object_get_class(InException);
-			Args.Add(TEXT("OriginalExceptionType"), FText::FromString(mono_class_get_name(ExceptionClass)));
-			Args.Add(TEXT("NestedExceptionMessage"), FText::FromString(ExceptionString));
-			ExceptionError = FText::Format(LOCTEXT("NestedExceptionError", "Nested exception! Original exception was of type '{OriginalExceptionType}'. Nested Exception: {NestedExceptionMessage}"), Args);
-		}
+    void FMonoRuntime::LogException(MonoObject* InException)
+    {
+        FText ExceptionError;
+        MonoObject* ExceptionInStringConversion = nullptr;
+        MonoString* MonoExceptionString = mono_object_to_string(InException, &ExceptionInStringConversion);
+        if (nullptr != MonoExceptionString)
+        {
+            FString ExceptionString;
+            MonoStringToFString(ExceptionString, MonoExceptionString);
+            FFormatNamedArguments Args;
+            Args.Add(TEXT("ExceptionMessage"), FText::FromString(ExceptionString));
+            ExceptionError = FText::Format(LOCTEXT("ExceptionError", "Managed exception: {ExceptionMessage}"), Args);
+        }
+        else
+        {
+            check(ExceptionInStringConversion);
+            // Can't really get much out of the original exception with the public API, so just note that two exceptions were thrown
+            FString ExceptionString;
+            MonoExceptionString = mono_object_to_string(ExceptionInStringConversion, nullptr);
+            check(MonoExceptionString);
+            MonoStringToFString(ExceptionString, MonoExceptionString);
+            FFormatNamedArguments Args;
+            MonoClass* ExceptionClass = mono_object_get_class(InException);
+            Args.Add(TEXT("OriginalExceptionType"), FText::FromString(mono_class_get_name(ExceptionClass)));
+            Args.Add(TEXT("NestedExceptionMessage"), FText::FromString(ExceptionString));
+            ExceptionError = FText::Format(LOCTEXT("NestedExceptionError", "Nested exception! Original exception was of type '{OriginalExceptionType}'. Nested Exception: {NestedExceptionMessage}"), Args);
+        }
 
-		if (IsInGameThread())
-		{
-			SendErrorToMessageLog(ExceptionError);
-		}
-		else
-		{
-			// dispatch to game thread
-			FSimpleDelegateGraphTask::CreateAndDispatchWhenReady(
-				FSimpleDelegateGraphTask::FDelegate::CreateStatic(SendErrorToMessageLog, ExceptionError)
-				, NULL
-				, NULL
-				, ENamedThreads::GameThread
-			);
-		}
-	}
+        if (IsInGameThread())
+        {
+            SendErrorToMessageLog(ExceptionError);
+        }
+        else
+        {
+            // dispatch to game thread
+            FSimpleDelegateGraphTask::CreateAndDispatchWhenReady(
+                FSimpleDelegateGraphTask::FDelegate::CreateStatic(SendErrorToMessageLog, ExceptionError)
+                , NULL
+                , NULL
+                , ENamedThreads::GameThread
+            );
+        }
+    }
 
-	void FMonoRuntime::SendErrorToMessageLog(FText InError)
-	{
-		static const FName NAME_MonoErrors("MonoErrors");
+    void FMonoRuntime::SendErrorToMessageLog(FText InError)
+    {
+        static const FName NAME_MonoErrors("MonoErrors");
 
-		FMessageLog(NAME_MonoErrors).Error(InError);
-	}
+        FMessageLog(NAME_MonoErrors).Error(InError);
+    }
 
-	FMonoRuntime::FMonoAssemblyCache FMonoRuntime::LoadAssembly(const FString& InAssemblyName)
-	{
-		const FString* AssemblyNamePtr = &InAssemblyName;
-		FString TempAssemblyPath;
+    MonoAssembly* FMonoRuntime::OnAssemblyLoaded(MonoAssemblyName* aname, char** InAssemblies, void* InUserData)
+    {
+        const char* name = mono_assembly_name_get_name(aname);
+        const char* culture = mono_assembly_name_get_culture(aname);
+        FString AsmName = FString(ANSI_TO_TCHAR(name));
+        FString AsmCulture = FString(ANSI_TO_TCHAR(culture));
 
-		if (!InAssemblyName.EndsWith(TEXT(".dll"), ESearchCase::IgnoreCase))
-		{
-			TempAssemblyPath = InAssemblyName + TEXT(".dll");
-			AssemblyNamePtr = &TempAssemblyPath;
-		}
+        if (!AsmName.EndsWith(TEXT(".dll"), ESearchCase::IgnoreCase))
+        {
+            AsmName = AsmName + TEXT(".dll");
+        }
 
-		auto* Ptr = AssemblyCaches.Find(*AssemblyNamePtr);
+        FString AsmPath;
+        for (const auto& SearchPath : LibrarySearchPaths)
+        {
+            AsmPath = FPaths::Combine(*SearchPath, *AsmName);
 
-		if (Ptr != nullptr)
-		{
-			return *Ptr;
-		}
+            if (!FPaths::FileExists(AsmPath))
+            {
+                AsmPath = FPaths::Combine(*SearchPath, *AsmCulture, *AsmName);
+                if (!FPaths::FileExists(AsmPath))
+                {
+                    continue;
+                }
+            }
 
-		FString TargetPath = SearchLibrary(*AssemblyNamePtr);
+            US_LOG(TEXT("Found assembly %s at path '%s'."), *AsmName, *AsmPath);
 
-		if (!FPaths::FileExists(*TargetPath))
-		{
-			US_LOG_ERROR(TEXT("Failed find assembly:%s"), **AssemblyNamePtr);
-			return FMonoAssemblyCache();
-		}
+            auto cache = StaticLoadAssembly(AsmPath);
 
-		MonoAssembly* Assembly = mono_domain_assembly_open(Domain, TCHAR_TO_ANSI(*TargetPath));
+            return cache.Assembly;
+        }
 
-		if (Assembly == nullptr)
-		{
-			US_LOG_ERROR(TEXT("[Mono]Failed open assembly [%s]"), *TargetPath);
-			return FMonoAssemblyCache();
-		}
+        US_LOG_ERROR(TEXT("Could not find assembly %s."), *AsmName);
 
-#if UE_BUILD_DEBUG
-		// FMonoInteropUtils::DumpAssemblyClasses(Assembly);
-#endif
-		
-		MonoImage* Image = mono_assembly_get_image(Assembly);
-		check(Image);
+        return nullptr;
+    }
 
-		FMonoAssemblyCache Cache = {Assembly, Image};
+    FMonoRuntime::FMonoAssemblyCache FMonoRuntime::StaticLoadAssembly(const FString& InAssemblyPath)
+    {
+        FString AbsoluteAssemblyPath = IFileManager::Get().ConvertToAbsolutePathForExternalAppForRead(*InAssemblyPath);
+        FString AsmName = FPaths::GetBaseFilename(InAssemblyPath);
 
-		AssemblyCaches.Add(*AssemblyNamePtr, Cache);
+        MonoImageOpenStatus status;
+        MonoAssembly* LoadedAssembly = nullptr;
 
-		return Cache;
-	}
-		
-	MonoMethod* FMonoRuntime::LoadMethod(MonoImage* InImage, const char* InFullyQualifiedMethodName)
-	{
-		check(InImage);
-		check(InFullyQualifiedMethodName);
+        // direct load library by file
+        if (!AsmName.StartsWith(TEXT("UnrealSharp.")))
+        {
+            LoadedAssembly = mono_assembly_open(TCHAR_TO_ANSI(*AbsoluteAssemblyPath), &status);
+            if (LoadedAssembly)
+            {
+                US_LOG(TEXT("Loaded assembly from path '%s'."), *AbsoluteAssemblyPath);
 
-		MonoMethodDesc* MethodDesc = mono_method_desc_new(InFullyQualifiedMethodName, true);
-		check(MethodDesc);
+                return { LoadedAssembly, mono_assembly_get_image(LoadedAssembly)};
+            }
+        }
+        else if(bIsDebuggerAvaialble)
+        {
+            // create temp files for them
+            FString SourceAssemblyPath = AbsoluteAssemblyPath;
+            FString SourcePdbPath = FPaths::ChangeExtension(AbsoluteAssemblyPath, TEXT("pdb"));
 
-		UNREALSHARP_SCOPED_EXIT(mono_method_desc_free(MethodDesc));
+            FString TempFileName = FString::Printf(TEXT("%s%s.%s"), *UnrealSharpTempFilePrefix, *AsmName, *FGuid::NewGuid().ToString());
+            FString IntermediateDirectory = FUnrealSharpPaths::GetUnrealSharpIntermediateDir();
 
-		MonoMethod* Method = mono_method_desc_search_in_image(MethodDesc, InImage);
+            FString IntermediateDllPath = FPaths::Combine(IntermediateDirectory, TempFileName + TEXT(".dll"));
+            FString IntermediatePdbPath = FPaths::Combine(IntermediateDirectory, TempFileName + TEXT(".pdb"));
+
+            IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+
+            PlatformFile.CopyFile(*IntermediateDllPath, *SourceAssemblyPath);
+            PlatformFile.CopyFile(*IntermediatePdbPath, *SourcePdbPath);
+
+            LoadedAssembly = mono_assembly_open(TCHAR_TO_ANSI(*IntermediateDllPath), &status);
+            if (LoadedAssembly)
+            {
+                US_LOG(TEXT("Loaded assembly from path temp path '%s'."), *IntermediateDllPath);
+
+                return { LoadedAssembly, mono_assembly_get_image(LoadedAssembly) };
+            }
+        }
+
+        TUniquePtr<FArchive> Reader(IFileManager::Get().CreateFileReader(*AbsoluteAssemblyPath));
+        if (!Reader)
+        {
+            US_LOG_ERROR(TEXT("Failed to read assembly from path '%s'."), *AbsoluteAssemblyPath);
+            
+            return {};
+        }
+
+        uint32 Size = Reader->TotalSize();
+        void* Data = FMemory::Malloc(Size);
+
+        UNREALSHARP_SCOPED_EXIT(FMemory::Free(Data););
+
+        Reader->Serialize(Data, Size);
+
+        MonoImage* LoadedImage = mono_image_open_from_data_with_name((char*)Data, Size, true, &status, false, TCHAR_TO_UTF8(*AsmName));
+
+        if (!LoadedImage)
+        {
+            US_LOG_ERROR(TEXT("Failed to load image from path '%s'."), *AbsoluteAssemblyPath);
+            
+            return {};
+        }
+
+        LoadedAssembly = mono_assembly_load_from_full(LoadedImage, TCHAR_TO_UTF8(*AsmName), &status, 0);
+        if (!LoadedAssembly)
+        {
+            US_LOG_ERROR(TEXT("Failed to load image from path '%s'."), *AbsoluteAssemblyPath);
+            
+            return {};
+        }
+
+        US_LOG(TEXT("Loaded assembly from path '%s'."), *AbsoluteAssemblyPath);
+
+        return { LoadedAssembly, mono_assembly_get_image(LoadedAssembly) };
+    }
+
+    FMonoRuntime::FMonoAssemblyCache FMonoRuntime::LoadAssembly(const FString& InAssemblyName)
+    {
+        const FString* AssemblyNamePtr = &InAssemblyName;
+        FString TempAssemblyPath;
+
+        if (!InAssemblyName.EndsWith(TEXT(".dll"), ESearchCase::IgnoreCase))
+        {
+            TempAssemblyPath = InAssemblyName + TEXT(".dll");
+            AssemblyNamePtr = &TempAssemblyPath;
+        }
+
+        auto* Ptr = AssemblyCaches.Find(*AssemblyNamePtr);
+
+        if (Ptr != nullptr)
+        {
+            return *Ptr;
+        }
+
+        FString TargetPath = SearchLibrary(*AssemblyNamePtr);
+
+        if (!FPaths::FileExists(*TargetPath))
+        {
+            US_LOG_ERROR(TEXT("Failed find assembly:%s"), **AssemblyNamePtr);
+            return FMonoAssemblyCache();
+        }
+
+        auto Cache = StaticLoadAssembly(TargetPath);
+
+        AssemblyCaches.Add(*AssemblyNamePtr, Cache);
+
+        return Cache;
+    }
+        
+    MonoMethod* FMonoRuntime::LoadMethod(MonoImage* InImage, const char* InFullyQualifiedMethodName)
+    {
+        check(InImage);
+        check(InFullyQualifiedMethodName);
+
+        MonoMethodDesc* MethodDesc = mono_method_desc_new(InFullyQualifiedMethodName, true);
+        check(MethodDesc);
+
+        UNREALSHARP_SCOPED_EXIT(mono_method_desc_free(MethodDesc));
+
+        MonoMethod* Method = mono_method_desc_search_in_image(MethodDesc, InImage);
 
 #if !UE_BUILD_SHIPPING
-		if (Method == nullptr)
-		{
-			US_LOG_WARN(TEXT("Failed Find method by signature:%s"), ANSI_TO_TCHAR(InFullyQualifiedMethodName));
-			FMonoInteropUtils::DumpAssemblyClasses(mono_image_get_assembly(InImage));
-		}
+        if (Method == nullptr)
+        {
+            US_LOG_WARN(TEXT("Failed Find method by signature:%s"), ANSI_TO_TCHAR(InFullyQualifiedMethodName));
+            FMonoInteropUtils::DumpAssemblyClasses(mono_image_get_assembly(InImage));
+        }
 #endif
 
-		return Method;
-	}
+        return Method;
+    }
 
-	MonoMethod* FMonoRuntime::LoadMethod(MonoClass* InClass, const char* InFullyQualifiedMethodName)
-	{
-		MonoMethodDesc* MethodDesc = mono_method_desc_new(InFullyQualifiedMethodName, true);
-		check(MethodDesc);
+    MonoMethod* FMonoRuntime::LoadMethod(MonoClass* InClass, const char* InFullyQualifiedMethodName)
+    {
+        MonoMethodDesc* MethodDesc = mono_method_desc_new(InFullyQualifiedMethodName, true);
+        check(MethodDesc);
 
-		UNREALSHARP_SCOPED_EXIT(mono_method_desc_free(MethodDesc));
+        UNREALSHARP_SCOPED_EXIT(mono_method_desc_free(MethodDesc));
 
-		MonoMethod* Method = mono_method_desc_search_in_class(MethodDesc, InClass);
+        MonoMethod* Method = mono_method_desc_search_in_class(MethodDesc, InClass);
 
 #if !UE_BUILD_SHIPPING
-		if (Method == nullptr)
-		{
-			US_LOG_WARN(TEXT("Failed Find method by signature:%s"), ANSI_TO_TCHAR(InFullyQualifiedMethodName));
-			FMonoInteropUtils::DumpClassInfomration(InClass);
-		}
+        if (Method == nullptr)
+        {
+            US_LOG_WARN(TEXT("Failed Find method by signature:%s"), ANSI_TO_TCHAR(InFullyQualifiedMethodName));
+            FMonoInteropUtils::DumpClassInfomration(InClass);
+        }
 #endif
 
-		return Method;
-	}
+        return Method;
+    }
 
-	MonoMethod* FMonoRuntime::LoadMethod(const TCHAR* AssemblyName, const char* InFullyQualifiedMethodName)
-	{
-		auto AssemblyCache = LoadAssembly(AssemblyName);
+    MonoMethod* FMonoRuntime::LoadMethod(const TCHAR* AssemblyName, const char* InFullyQualifiedMethodName)
+    {
+        auto AssemblyCache = LoadAssembly(AssemblyName);
 
-		if (!AssemblyCache.IsValid())
-		{
-			return nullptr;
-		}
+        if (!AssemblyCache.IsValid())
+        {
+            return nullptr;
+        }
 
-		MonoMethodDesc* MethodDesc = mono_method_desc_new(InFullyQualifiedMethodName, true);
-		check(MethodDesc);
+        MonoMethodDesc* MethodDesc = mono_method_desc_new(InFullyQualifiedMethodName, true);
+        check(MethodDesc);
 
-		UNREALSHARP_SCOPED_EXIT(mono_method_desc_free(MethodDesc));
+        UNREALSHARP_SCOPED_EXIT(mono_method_desc_free(MethodDesc));
 
-		MonoMethod* Method = mono_method_desc_search_in_image(MethodDesc, AssemblyCache.Image);
+        MonoMethod* Method = mono_method_desc_search_in_image(MethodDesc, AssemblyCache.Image);
 
 #if !UE_BUILD_SHIPPING
-		if (Method == nullptr)
-		{
-			US_LOG_WARN(TEXT("Failed Find method by signature:%s in assembly:%s"), ANSI_TO_TCHAR(InFullyQualifiedMethodName), AssemblyName);
+        if (Method == nullptr)
+        {
+            US_LOG_WARN(TEXT("Failed Find method by signature:%s in assembly:%s"), ANSI_TO_TCHAR(InFullyQualifiedMethodName), AssemblyName);
 
-			FMonoInteropUtils::DumpAssemblyClasses(AssemblyCache.Assembly);
-		}
+            FMonoInteropUtils::DumpAssemblyClasses(AssemblyCache.Assembly);
+        }
 #endif
 
-		return Method;
-	}
+        return Method;
+    }
 
-	MonoObject* FMonoRuntime::Invoke(MonoMethod* InMethod, MonoObject* Object, void** InArguments, MonoObject** OutException)
-	{
-		check(InMethod);
+    MonoObject* FMonoRuntime::Invoke(MonoMethod* InMethod, MonoObject* Object, void** InArguments, MonoObject** OutException)
+    {
+        check(InMethod);
 
-		MonoObject* Exception = nullptr;
-		MonoObject* ReturnValue = mono_runtime_invoke(InMethod, Object, InArguments, &Exception);
+        MonoObject* Exception = nullptr;
+        MonoObject* ReturnValue = mono_runtime_invoke(InMethod, Object, InArguments, &Exception);
 
-		if (OutException != nullptr)
-		{
-			*OutException = Exception;
-		}
+        if (OutException != nullptr)
+        {
+            *OutException = Exception;
+        }
 
-		if (Exception == nullptr)
-		{
-			return ReturnValue;
-		}
-		else
-		{
-			LogException(Exception);
+        if (Exception == nullptr)
+        {
+            return ReturnValue;
+        }
+        else
+        {
+            LogException(Exception);
 
-			return nullptr;
-		}
-	}
+            return nullptr;
+        }
+    }
 
-	MonoObject* FMonoRuntime::InvokeDelegate(MonoObject* InDelegate, void** InArguments, MonoObject** OutException)
-	{
-		check(InDelegate);
+    MonoObject* FMonoRuntime::InvokeDelegate(MonoObject* InDelegate, void** InArguments, MonoObject** OutException)
+    {
+        check(InDelegate);
 
-		MonoObject* Exception = nullptr;
-		MonoObject* ReturnValue = mono_runtime_delegate_invoke(InDelegate, InArguments, &Exception);
+        MonoObject* Exception = nullptr;
+        MonoObject* ReturnValue = mono_runtime_delegate_invoke(InDelegate, InArguments, &Exception);
 
-		if (OutException != nullptr)
-		{
-			*OutException = Exception;
-		}
+        if (OutException != nullptr)
+        {
+            *OutException = Exception;
+        }
 
-		if (Exception == nullptr)
-		{
-			return ReturnValue;
-		}
-		else
-		{
-			LogException(Exception);
+        if (Exception == nullptr)
+        {
+            return ReturnValue;
+        }
+        else
+        {
+            LogException(Exception);
 
-			return nullptr;
-		}
-	}
+            return nullptr;
+        }
+    }
 
-	TSharedPtr<ICSharpMethod> FMonoRuntime::LookupMethod(const FString& InAssemblyName, const FString& InFullyQualifiedMethodName)
-	{
-		MonoMethod* Method = LoadMethod(*InAssemblyName, TCHAR_TO_ANSI(*InFullyQualifiedMethodName));
+    TSharedPtr<ICSharpMethod> FMonoRuntime::LookupMethod(const FString& InAssemblyName, const FString& InFullyQualifiedMethodName)
+    {
+        MonoMethod* Method = LoadMethod(*InAssemblyName, TCHAR_TO_ANSI(*InFullyQualifiedMethodName));
 
-		if (Method == nullptr)
-		{
-			return TSharedPtr<ICSharpMethod>();
-		}
+        if (Method == nullptr)
+        {
+            return TSharedPtr<ICSharpMethod>();
+        }
 
-		TSharedPtr<FMonoMethod> MethodPtr = MakeShared<FMonoMethod>(Method);
+        TSharedPtr<FMonoMethod> MethodPtr = MakeShared<FMonoMethod>(Method);
 
-		return MethodPtr;
-	}
+        return MethodPtr;
+    }
 
-	TSharedPtr<ICSharpMethod> FMonoRuntime::LookupMethod(ICSharpType* InType, const FString& InFullyQualifiedMethodName)
-	{
-		check(InType);
+    TSharedPtr<ICSharpMethod> FMonoRuntime::LookupMethod(ICSharpType* InType, const FString& InFullyQualifiedMethodName)
+    {
+        check(InType);
 
-		MonoMethod* Method = LoadMethod(((FMonoType*)InType)->GetClass(), TCHAR_TO_ANSI(*InFullyQualifiedMethodName));
+        MonoMethod* Method = LoadMethod(((FMonoType*)InType)->GetClass(), TCHAR_TO_ANSI(*InFullyQualifiedMethodName));
 
-		if (Method == nullptr)
-		{
-			US_LOG_WARN(TEXT("Failed find method %s"), *InFullyQualifiedMethodName);
-			return TSharedPtr<ICSharpMethod>();
-		}
+        if (Method == nullptr)
+        {
+            US_LOG_WARN(TEXT("Failed find method %s"), *InFullyQualifiedMethodName);
+            return TSharedPtr<ICSharpMethod>();
+        }
 
-		TSharedPtr<FMonoMethod> MethodPtr = MakeShared<FMonoMethod>(Method);
+        TSharedPtr<FMonoMethod> MethodPtr = MakeShared<FMonoMethod>(Method);
 
-		return MethodPtr;
-	}
+        return MethodPtr;
+    }
 
-	TSharedPtr<ICSharpType> FMonoRuntime::LookupType(const FString& InAssemblyName, const FString& InNamespace, const FString& InName)
-	{
-		auto AssemblyCache = LoadAssembly(InAssemblyName);
+    TSharedPtr<ICSharpType> FMonoRuntime::LookupType(const FString& InAssemblyName, const FString& InNamespace, const FString& InName)
+    {
+        auto AssemblyCache = LoadAssembly(InAssemblyName);
 
-		if (!AssemblyCache.IsValid())
-		{
-			return TSharedPtr<ICSharpType>();
-		}
+        if (!AssemblyCache.IsValid())
+        {
+            return TSharedPtr<ICSharpType>();
+        }
 
-		MonoClass* Class = mono_class_from_name(AssemblyCache.Image, TCHAR_TO_ANSI(*InNamespace), TCHAR_TO_ANSI(*InName));
+        MonoClass* Class = mono_class_from_name(AssemblyCache.Image, TCHAR_TO_ANSI(*InNamespace), TCHAR_TO_ANSI(*InName));
 
-		if (Class == nullptr)
-		{
-			return TSharedPtr<ICSharpType>();
-		}
+        if (Class == nullptr)
+        {
+            return TSharedPtr<ICSharpType>();
+        }
 
-		TSharedPtr<FMonoType> TypePtr = MakeShared<FMonoType>(Class);
+        TSharedPtr<FMonoType> TypePtr = MakeShared<FMonoType>(Class);
 
-		return TypePtr;
-	}
+        return TypePtr;
+    }
 
-	TSharedPtr<ICSharpMethodInvocation> FMonoRuntime::CreateCSharpMethodInvocation(TSharedPtr<ICSharpMethod> InMethod)
-	{
-		TSharedPtr<FMonoMethodInvocation> Invocation = MakeShared<FMonoMethodInvocation>(StaticCastSharedPtr<FMonoMethod>(InMethod));
+    TSharedPtr<ICSharpMethodInvocation> FMonoRuntime::CreateCSharpMethodInvocation(TSharedPtr<ICSharpMethod> InMethod)
+    {
+        TSharedPtr<FMonoMethodInvocation> Invocation = MakeShared<FMonoMethodInvocation>(StaticCastSharedPtr<FMonoMethod>(InMethod));
 
-		return Invocation;
-	}
+        return Invocation;
+    }
 
-	TSharedPtr<ICSharpMethodInvocation>	FMonoRuntime::CreateCSharpMethodInvocation(const FString& InAssemblyName, const FString& InFullyQualifiedMethodName)
-	{
-		auto Method = LookupMethod(InAssemblyName, InFullyQualifiedMethodName);
+    TSharedPtr<ICSharpMethodInvocation>    FMonoRuntime::CreateCSharpMethodInvocation(const FString& InAssemblyName, const FString& InFullyQualifiedMethodName)
+    {
+        auto Method = LookupMethod(InAssemblyName, InFullyQualifiedMethodName);
 
-		if (Method)
-		{
-			return CreateCSharpMethodInvocation(Method);
-		}
+        if (Method)
+        {
+            return CreateCSharpMethodInvocation(Method);
+        }
 
-		return TSharedPtr<ICSharpMethodInvocation>();
-	}
+        return TSharedPtr<ICSharpMethodInvocation>();
+    }
 
-	const IPropertyMarshaller* FMonoRuntime::GetPropertyMarshaller(FProperty* InProperty) const
-	{		
-		return MarshallerCollectionPtr->GetMarshaller(InProperty);
-	}
+    const IPropertyMarshaller* FMonoRuntime::GetPropertyMarshaller(FProperty* InProperty) const
+    {        
+        return MarshallerCollectionPtr->GetMarshaller(InProperty);
+    }
 
-	TSharedPtr<ICSharpGCHandle> FMonoRuntime::CreateCSharpGCHandle(void* InCSharpObject, bool bInWeakReference)
-	{
-		TSharedPtr<ICSharpGCHandle> Result = MakeShared<FMonoGCHandle>(InCSharpObject, bInWeakReference);
+    TSharedPtr<ICSharpGCHandle> FMonoRuntime::CreateCSharpGCHandle(void* InCSharpObject, bool bInWeakReference)
+    {
+        TSharedPtr<ICSharpGCHandle> Result = MakeShared<FMonoGCHandle>(InCSharpObject, bInWeakReference);
 
-		return Result;
-	}
+        return Result;
+    }
 
-	void FMonoRuntime::ExecuteGarbageCollect(bool bFully)
-	{
-		if (bFully)
-		{
-			mono_gc_collect(mono_gc_max_generation());
-		}
-		else
-		{
-			mono_gc_collect(0);
-		}
-	}
+    void FMonoRuntime::ExecuteGarbageCollect(bool bFully)
+    {
+        if (bFully)
+        {
+            mono_gc_collect(mono_gc_max_generation());
+        }
+        else
+        {
+            mono_gc_collect(0);
+        }
+    }
 
-	TSharedPtr<ICSharpLibraryAccessor> FMonoRuntime::CreateCSharpLibraryAccessor()
-	{
-		return MakeShared<FMonoLibraryAccessor>(this);
-	}
+    TSharedPtr<ICSharpLibraryAccessor> FMonoRuntime::CreateCSharpLibraryAccessor()
+    {
+        return MakeShared<FMonoLibraryAccessor>(this);
+    }
 }
 
 #endif

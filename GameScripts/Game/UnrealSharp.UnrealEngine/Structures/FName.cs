@@ -1,27 +1,27 @@
 ﻿/*
-	MIT License
+    MIT License
 
-	Copyright (c) 2024 UnrealSharp
+    Copyright (c) 2024 UnrealSharp
 
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
 
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
 
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
 
-	Project URL: https://github.com/bodong1987/UnrealSharp
+    Project URL: https://github.com/bodong1987/UnrealSharp
 */
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -38,7 +38,7 @@ namespace UnrealSharp.UnrealEngine
     [StructLayout(LayoutKind.Sequential)]
     [FastAccessable(FName.SturctureSize)]
     [UnrealBuiltin]
-	public struct FName
+    public struct FName
     {
         /// <summary>
         /// The comparison index
@@ -62,38 +62,38 @@ namespace UnrealSharp.UnrealEngine
         /// </summary>
         public static readonly FName NAME_None = new FName();
 
-		/// <summary>
-		/// The sturcture size
-		/// </summary>
+        /// <summary>
+        /// The sturcture size
+        /// </summary>
 #if WITH_EDITOR
         public const int SturctureSize = 12;
 #else
-		public const int SturctureSize = 8;
+        public const int SturctureSize = 8;
 #endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FName"/> struct.
         /// </summary>
         public FName()
-		{
+        {
             unsafe
             {
-				Logger.Assert(sizeof(FName) == SturctureSize);
-			}			
-		}
+                Logger.Assert(sizeof(FName) == SturctureSize);
+            }            
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FName"/> struct.
         /// </summary>
         /// <param name="text">The text.</param>
         public FName(string text)
-		{
-			unsafe
-			{
-				Logger.Assert(sizeof(FName) == SturctureSize);
-			}
+        {
+            unsafe
+            {
+                Logger.Assert(sizeof(FName) == SturctureSize);
+            }
 
-			this = NameInteropUtils.GetNameOfString(text);
+            this = NameInteropUtils.GetNameOfString(text);
         }
 
         /// <summary>
@@ -101,9 +101,9 @@ namespace UnrealSharp.UnrealEngine
         /// </summary>
         /// <returns>UInt64.</returns>
         public UInt64 ToUnstableInt()
-		{
-			return ((UInt64)ComparisonIndex << 32) | (UInt64)(uint)Number;
-		}
+        {
+            return ((UInt64)ComparisonIndex << 32) | (UInt64)(uint)Number;
+        }
 
         /// <summary>
         /// Implements the == operator.
@@ -127,20 +127,20 @@ namespace UnrealSharp.UnrealEngine
             return left.ToUnstableInt() != right.ToUnstableInt();
         }
 
-		/// <summary>
-		/// Returns true if ... is valid.
-		/// </summary>
-		/// <returns><c>true</c> if this instance is valid; otherwise, <c>false</c>.</returns>
-		public bool IsValid()
+        /// <summary>
+        /// Returns true if ... is valid.
+        /// </summary>
+        /// <returns><c>true</c> if this instance is valid; otherwise, <c>false</c>.</returns>
+        public bool IsValid()
         {
             return !IsNone();
         }
 
-		/// <summary>
-		/// Determines whether this instance is none.
-		/// </summary>
-		/// <returns><c>true</c> if this instance is none; otherwise, <c>false</c>.</returns>
-		public bool IsNone()
+        /// <summary>
+        /// Determines whether this instance is none.
+        /// </summary>
+        /// <returns><c>true</c> if this instance is none; otherwise, <c>false</c>.</returns>
+        public bool IsNone()
         {
             return ComparisonIndex == 0 && Number == 0;
         }
@@ -151,7 +151,7 @@ namespace UnrealSharp.UnrealEngine
         /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
         public override int GetHashCode()
         {
-			return ToUnstableInt().GetHashCode();
+            return ToUnstableInt().GetHashCode();
         }
 
         /// <summary>
@@ -162,11 +162,11 @@ namespace UnrealSharp.UnrealEngine
         public override bool Equals([NotNullWhen(true)] object? obj)
         {
             if(obj is FName fn)
-			{
-				return this == fn;
-			}
+            {
+                return this == fn;
+            }
 
-			return false;
+            return false;
         }
 
         /// <summary>
@@ -188,28 +188,28 @@ namespace UnrealSharp.UnrealEngine
             return text != null ? new FName(text) : FName.NAME_None;
         }
 
-		/// <summary>
-		/// Froms the native.
-		/// </summary>
-		/// <param name="address">The address.</param>
-		/// <param name="offset">The offset.</param>
-		/// <returns>FName.</returns>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FName FromNative(IntPtr address, int offset)
-		{
-			return InteropUtils.GetStructUnsafe<FName>(address, offset);
-		}
+        /// <summary>
+        /// Froms the native.
+        /// </summary>
+        /// <param name="address">The address.</param>
+        /// <param name="offset">The offset.</param>
+        /// <returns>FName.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static FName FromNative(IntPtr address, int offset)
+        {
+            return InteropUtils.GetStructUnsafe<FName>(address, offset);
+        }
 
-		/// <summary>
-		/// Converts to native.
-		/// </summary>
-		/// <param name="address">The address.</param>
-		/// <param name="offset">The offset.</param>
-		/// <param name="value">The value.</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void ToNative(IntPtr address, int offset, ref FName value)
-		{
+        /// <summary>
+        /// Converts to native.
+        /// </summary>
+        /// <param name="address">The address.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="value">The value.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ToNative(IntPtr address, int offset, ref FName value)
+        {
             InteropUtils.SetStructUnsafe(address, offset, ref value);
         }
-	}
+    }
 }

@@ -60,6 +60,7 @@ public:
     int                         LaunchExternalProcess(const FString& InExecutablePath, const FString& InCommandArgument);
     
     void                        RefreshCSharpImportBlueprintAssets(bool bForceRecreate = false);
+    bool                        IsReimportRequired(TSharedPtr<UnrealSharp::FCSharpBlueprintImportDatabase>& OutImportDatabase, TSharedPtr<UnrealSharp::FCSharpBlueprintImportDatabase>& OutNewDataBase) const;
 
     bool                        ForceReloadCSharpTypes();
     void                        ExportDatabase(UnrealSharp::EUnrealTypeDatabaseExportFlags InFlags, bool bInStrongReminder);
@@ -74,9 +75,10 @@ private:
     void                        OnEndPIE(bool bIsSimulating);
     void                        OnMainFrameCreationFinished(TSharedPtr<SWindow> InRootWindow, bool bIsRunningStartupDialog);
     void                        OnMainFrameWindowActivated();
-
+    void                        OnHandleDelayReimport();
 private:
     FDelegateHandle             PreBeginPIEHandle, EndPIEHandle;
     FString                     ImportDatabasePath;    
+    bool                        bNeedReimportWhenPlaying = false;
 };
 

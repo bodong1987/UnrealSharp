@@ -3,7 +3,20 @@ using UnrealSharp.UnrealEngine.Bindings.Placeholders;
 
 namespace UnrealSharp.GameScripts.Bindings.Defs.TestGame
 {
-	[UCLASS()]
+    [USTRUCT(ExportFlags = EBindingExportFlags.WithStructView)]
+    public struct FTestGameValue
+    {
+        [UPROPERTY]
+        public int XValue;
+
+        [UPROPERTY]
+        public string? SValue;
+
+        [UPROPERTY]
+        public FVector VecValue;
+    }
+
+    [UCLASS()]
     public class ATestGameCharacter : ACharacter
     {
         [UPROPERTY(EPropertyFlags.Net, ReplicatedUsing = nameof(OnRep_DoubleJump), ReplicationCondition = LifetimeCondition.InitialOrOwner)]
@@ -33,7 +46,7 @@ namespace UnrealSharp.GameScripts.Bindings.Defs.TestGame
         [UPROPERTY]
         public int IntValueTest;
 
-		// Compile Error Tests...
+        // Compile Error Tests...
 #if false
         [UPROPERTY]
         public DateTime DateValueTest;
@@ -45,13 +58,13 @@ namespace UnrealSharp.GameScripts.Bindings.Defs.TestGame
         public void TestGenericFunction<T>() { }
 
 #endif
-	}
+    }
 
 #if false // error tests
     [UCLASS]
-	public class ATestCharacter<T> : ACharacter
-	{
+    public class ATestCharacter<T> : ACharacter
+    {
 
-	}
+    }
 #endif
 }

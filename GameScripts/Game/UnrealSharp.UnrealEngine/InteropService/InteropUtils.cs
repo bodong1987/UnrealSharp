@@ -1,27 +1,27 @@
 ﻿/*
-	MIT License
+    MIT License
 
-	Copyright (c) 2024 UnrealSharp
+    Copyright (c) 2024 UnrealSharp
 
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
 
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
 
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
 
-	Project URL: https://github.com/bodong1987/UnrealSharp
+    Project URL: https://github.com/bodong1987/UnrealSharp
 */
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -33,7 +33,7 @@ namespace UnrealSharp.UnrealEngine.InteropService
     /// Class InteropUtils.
     /// </summary>
     public static partial class InteropUtils
-	{
+    {
         #region Shared Constants Name
         /// <summary>
         /// The unreal sharp name
@@ -99,19 +99,19 @@ namespace UnrealSharp.UnrealEngine.InteropService
             )
             where T : struct
 #if NET7_0_OR_GREATER
-			, System.Numerics.INumber<T>
+            , System.Numerics.INumber<T>
 #endif
         {
             Logger.Assert(address != IntPtr.Zero);
 
             unsafe
             {
-				// T is value type, so this is safe				
+                // T is value type, so this is safe                
 #pragma warning disable CS8500 // This gets the address of a managed type, gets its size, or declares a pointer to it
-				T* ptr = (T*)IntPtr.Add(address, offset);
-#pragma warning restore CS8500 // This gets the address of a managed type, gets its size, or declares a pointer to it				
+                T* ptr = (T*)IntPtr.Add(address, offset);
+#pragma warning restore CS8500 // This gets the address of a managed type, gets its size, or declares a pointer to it                
 
-				return *ptr;
+                return *ptr;
             }
         }
 #endregion
@@ -220,7 +220,7 @@ namespace UnrealSharp.UnrealEngine.InteropService
         /// <param name="offset">The offset.</param>
         /// <returns>FName.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FName GetName(
+        public static FName GetName(
             IntPtr address, 
             int offset
             )
@@ -228,7 +228,7 @@ namespace UnrealSharp.UnrealEngine.InteropService
             Logger.Assert(address != IntPtr.Zero);
 
             return FName.FromNative(address, offset);
-		}
+        }
         #endregion
 
         #region Text
@@ -239,7 +239,7 @@ namespace UnrealSharp.UnrealEngine.InteropService
         /// <param name="offset">The offset.</param>
         /// <returns>FText.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FText GetText(
+        public static FText GetText(
             IntPtr address,
             int offset
             )
@@ -247,7 +247,7 @@ namespace UnrealSharp.UnrealEngine.InteropService
             Logger.Assert(address != IntPtr.Zero);
 
             return FText.FromNative(address, offset);
-		}
+        }
         #endregion
 
         #region Object
@@ -358,24 +358,24 @@ namespace UnrealSharp.UnrealEngine.InteropService
         /// <param name="offset">The offset.</param>
         /// <returns>System.Nullable&lt;TSoftObjectPtr&lt;T&gt;&gt;.</returns>
         public static TSoftObjectPtr<T>? GetSoftObjectPtr<T>(
-			IntPtr address,
-			int offset
-			) where T : UObject
+            IntPtr address,
+            int offset
+            ) where T : UObject
         {
-			Logger.Assert(address != IntPtr.Zero);
+            Logger.Assert(address != IntPtr.Zero);
 
-			if (address == IntPtr.Zero)
-			{
-				return null;
-			}
+            if (address == IntPtr.Zero)
+            {
+                return null;
+            }
 
-			IntPtr objectPointer = IntPtr.Zero;
+            IntPtr objectPointer = IntPtr.Zero;
 
-			unsafe
-			{
-				IntPtr* ptr = (IntPtr*)IntPtr.Add(address, offset);
-				objectPointer = *ptr;
-			}
+            unsafe
+            {
+                IntPtr* ptr = (IntPtr*)IntPtr.Add(address, offset);
+                objectPointer = *ptr;
+            }
 
             if(objectPointer == IntPtr.Zero)
             {
@@ -383,7 +383,7 @@ namespace UnrealSharp.UnrealEngine.InteropService
             }
 
             return new TSoftObjectPtr<T>(objectPointer);
-		}
+        }
         #endregion
 
         #region Soft Class
@@ -395,58 +395,58 @@ namespace UnrealSharp.UnrealEngine.InteropService
         /// <param name="offset">The offset.</param>
         /// <returns>System.Nullable&lt;TSoftClassPtr&lt;T&gt;&gt;.</returns>
         public static TSoftClassPtr<T>? GetSoftClassPtr<T>(
-			IntPtr address,
-			int offset
-			) where T : UObject
+            IntPtr address,
+            int offset
+            ) where T : UObject
         {
-			Logger.Assert(address != IntPtr.Zero);
+            Logger.Assert(address != IntPtr.Zero);
 
-			if (address == IntPtr.Zero)
-			{
-				return null;
-			}
+            if (address == IntPtr.Zero)
+            {
+                return null;
+            }
 
-			IntPtr objectPointer = IntPtr.Zero;
+            IntPtr objectPointer = IntPtr.Zero;
 
-			unsafe
-			{
-				IntPtr* ptr = (IntPtr*)IntPtr.Add(address, offset);
-				objectPointer = *ptr;
-			}
+            unsafe
+            {
+                IntPtr* ptr = (IntPtr*)IntPtr.Add(address, offset);
+                objectPointer = *ptr;
+            }
 
-			if (objectPointer == IntPtr.Zero)
-			{
-				return null;
-			}
+            if (objectPointer == IntPtr.Zero)
+            {
+                return null;
+            }
 
-			return new TSoftClassPtr<T>(objectPointer);
-		}
+            return new TSoftClassPtr<T>(objectPointer);
+        }
         #endregion
 
         #region Struct
-		/// <summary>
-		/// Gets the structure un safe.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="address">The address.</param>
-		/// <param name="offset">The offset.</param>
-		/// <returns>T.</returns>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <summary>
+        /// Gets the structure un safe.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="address">The address.</param>
+        /// <param name="offset">The offset.</param>
+        /// <returns>T.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T GetStructUnsafe<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields)] T>(IntPtr address, int offset) where T : struct
         {
-			Logger.Assert(address != IntPtr.Zero);
+            Logger.Assert(address != IntPtr.Zero);
 
-			MetaInteropUtils.CheckStructFastAccessSafety<T>();
+            MetaInteropUtils.CheckStructFastAccessSafety<T>();
 
-			unsafe
+            unsafe
             {
-				// T must be struct value, so it is safe here
+                // T must be struct value, so it is safe here
 #pragma warning disable CS8500 // This gets the address of a managed type, gets its size, or declares a pointer to it
-				T* ptr = (T*)IntPtr.Add(address, offset);
+                T* ptr = (T*)IntPtr.Add(address, offset);
 #pragma warning restore CS8500 // This gets the address of a managed type, gets its size, or declares a pointer to it
 
-				return *ptr;
-			}
+                return *ptr;
+            }
         }
         #endregion
 
@@ -455,37 +455,37 @@ namespace UnrealSharp.UnrealEngine.InteropService
         #region Set All Types
 
         #region Boolean
-		/// <summary>
-		/// Sets the boolean.
-		/// </summary>
-		/// <param name="address">The address.</param>
-		/// <param name="offset">The offset.</param>
-		/// <param name="fieldMask">The field mask.</param>
-		/// <param name="value">if set to <c>true</c> [value].</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void SetBoolean(
+        /// <summary>
+        /// Sets the boolean.
+        /// </summary>
+        /// <param name="address">The address.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="fieldMask">The field mask.</param>
+        /// <param name="value">if set to <c>true</c> [value].</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SetBoolean(
             IntPtr address, 
             int offset,
             byte fieldMask,
             bool value          
             )
         {
-			Logger.Assert(address != IntPtr.Zero);
+            Logger.Assert(address != IntPtr.Zero);
 
-			unsafe
-			{
-				byte* ptr = (byte*)IntPtr.Add(address, offset);
+            unsafe
+            {
+                byte* ptr = (byte*)IntPtr.Add(address, offset);
 
-				if(value)
-				{
-					*ptr = (byte)((*ptr) | fieldMask);
-				}
+                if(value)
+                {
+                    *ptr = (byte)((*ptr) | fieldMask);
+                }
                 else
                 {
-					*ptr = (byte)((*ptr) & (~fieldMask));
+                    *ptr = (byte)((*ptr) & (~fieldMask));
                 }
             }
-		}
+        }
 
         /// <summary>
         /// Sets the boolean.
@@ -494,21 +494,21 @@ namespace UnrealSharp.UnrealEngine.InteropService
         /// <param name="offset">The offset.</param>
         /// <param name="value">if set to <c>true</c> [value].</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void SetBoolean(
+        public static void SetBoolean(
             IntPtr address, 
             int offset,
             bool value
             )
         {
-			Logger.Assert(address != IntPtr.Zero);
+            Logger.Assert(address != IntPtr.Zero);
 
-			unsafe
-			{
-				bool* ptr = (bool*)IntPtr.Add(address, offset);
+            unsafe
+            {
+                bool* ptr = (bool*)IntPtr.Add(address, offset);
 
-				*ptr = value;
-			}
-		}
+                *ptr = value;
+            }
+        }
 
         /// <summary>
         /// Sets the boolean.
@@ -535,27 +535,27 @@ namespace UnrealSharp.UnrealEngine.InteropService
         /// <param name="offset">The offset.</param>
         /// <param name="value">The value.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void SetNumeric<T>(
+        public static void SetNumeric<T>(
             IntPtr address, 
             int offset,
             T value
             ) where T : struct
 #if NET7_0_OR_GREATER
-			, System.Numerics.INumber<T>
+            , System.Numerics.INumber<T>
 #endif
         {
-			Logger.Assert(address != IntPtr.Zero);
+            Logger.Assert(address != IntPtr.Zero);
 
-			unsafe
-			{
-				// T is value type, so this is safe
+            unsafe
+            {
+                // T is value type, so this is safe
 #pragma warning disable CS8500 // This gets the address of a managed type, gets its size, or declares a pointer to it
-				T* ptr = (T*)IntPtr.Add(address, offset);
+                T* ptr = (T*)IntPtr.Add(address, offset);
 #pragma warning restore CS8500 // This gets the address of a managed type, gets its size, or declares a pointer to it
 
-				*ptr = value;
-			}
-		}
+                *ptr = value;
+            }
+        }
         #endregion
 
         #region Enum
@@ -568,13 +568,13 @@ namespace UnrealSharp.UnrealEngine.InteropService
         /// <param name="enumSize">Size of the enum.</param>
         /// <param name="value">The value.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void SetEnum<T>(
+        public static void SetEnum<T>(
             IntPtr address, 
             int offset,
             int enumSize,
             T value
             ) where T : unmanaged, Enum
-		{
+        {
             Logger.Assert(address != IntPtr.Zero);
 
             unsafe
@@ -651,7 +651,7 @@ namespace UnrealSharp.UnrealEngine.InteropService
         /// <param name="offset">The offset.</param>
         /// <param name="name">The name.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void SetName(
+        public static void SetName(
             IntPtr address, 
             int offset, 
             FName name
@@ -660,7 +660,7 @@ namespace UnrealSharp.UnrealEngine.InteropService
             Logger.Assert(address != IntPtr.Zero);
 
             FName.ToNative(address, offset, ref name);
-		}
+        }
         #endregion
 
         #region Text
@@ -671,7 +671,7 @@ namespace UnrealSharp.UnrealEngine.InteropService
         /// <param name="offset">The offset.</param>
         /// <param name="text">The text.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void SetText(
+        public static void SetText(
             IntPtr address, 
             int offset,
             FText text
@@ -680,7 +680,7 @@ namespace UnrealSharp.UnrealEngine.InteropService
             Logger.Assert(address != IntPtr.Zero);
 
             FText.ToNative(address, offset, ref text);
-		}
+        }
         #endregion
 
         #region Object
@@ -696,11 +696,11 @@ namespace UnrealSharp.UnrealEngine.InteropService
             int offset,
             T? value
             ) where T : IUObjectInterface
-		{
+        {
             Logger.Assert(address != IntPtr.Zero);
 
-			unsafe
-			{
+            unsafe
+            {
                 *(IntPtr*)IntPtr.Add(address, offset) = value != null ? value.GetNativePtr() : IntPtr.Zero;
             }
         }
@@ -721,13 +721,13 @@ namespace UnrealSharp.UnrealEngine.InteropService
         {
             Logger.Assert(address != IntPtr.Zero);
 
-			unsafe
-			{
-				IntPtr* ptr = (IntPtr*)IntPtr.Add(address, offset);
+            unsafe
+            {
+                IntPtr* ptr = (IntPtr*)IntPtr.Add(address, offset);
 
                 *ptr = value != null ? value.GetNativePtr() : IntPtr.Zero;
             }
-		}
+        }
 
         /// <summary>
         /// Sets the class.
@@ -762,27 +762,27 @@ namespace UnrealSharp.UnrealEngine.InteropService
         /// <param name="value">The value.</param>
         public static void SetSoftObjectPtr<T>(
             IntPtr address,
-			int offset,
-			TSoftObjectPtr<T>? value
+            int offset,
+            TSoftObjectPtr<T>? value
             ) where T : UObject
         {
-			Logger.Assert(address != IntPtr.Zero);
+            Logger.Assert(address != IntPtr.Zero);
 
-			IntPtr objectPointer = IntPtr.Zero;
+            IntPtr objectPointer = IntPtr.Zero;
 
-			unsafe
-			{
-				IntPtr* ptr = (IntPtr*)IntPtr.Add(address, offset);
-				objectPointer = *ptr;
-			}
+            unsafe
+            {
+                IntPtr* ptr = (IntPtr*)IntPtr.Add(address, offset);
+                objectPointer = *ptr;
+            }
 
-			if (objectPointer == IntPtr.Zero)
-			{
-				return;
-			}
+            if (objectPointer == IntPtr.Zero)
+            {
+                return;
+            }
 
             SoftObjectPtrInteropUtils.CopySoftObjectPtr(objectPointer, value != null ? value.GetNativePtr() : IntPtr.Zero);
-		}
+        }
         #endregion
 
         #region Soft Class
@@ -794,60 +794,60 @@ namespace UnrealSharp.UnrealEngine.InteropService
         /// <param name="offset">The offset.</param>
         /// <param name="value">The value.</param>
         public static void SetSoftClassPtr<T>(
-			IntPtr address,
-			int offset,
-			TSoftClassPtr<T>? value
-			) where T : UObject
-		{
-			Logger.Assert(address != IntPtr.Zero);
+            IntPtr address,
+            int offset,
+            TSoftClassPtr<T>? value
+            ) where T : UObject
+        {
+            Logger.Assert(address != IntPtr.Zero);
 
-			IntPtr objectPointer = IntPtr.Zero;
+            IntPtr objectPointer = IntPtr.Zero;
 
-			unsafe
-			{
-				IntPtr* ptr = (IntPtr*)IntPtr.Add(address, offset);
-				objectPointer = *ptr;
-			}
+            unsafe
+            {
+                IntPtr* ptr = (IntPtr*)IntPtr.Add(address, offset);
+                objectPointer = *ptr;
+            }
 
-			if (objectPointer == IntPtr.Zero)
-			{
-				return;
-			}
+            if (objectPointer == IntPtr.Zero)
+            {
+                return;
+            }
 
-			// The C++ version of TSoftClassPtr is composed of TSoftObjectPtr.
+            // The C++ version of TSoftClassPtr is composed of TSoftObjectPtr.
             // The memory layout and size of the two are exactly the same, so it is safe to directly use the interface to copy SoftObjectPtr.
             // The C++ side will also have corresponding static assertions, which will not compile when the requirements are not met.
-			SoftObjectPtrInteropUtils.CopySoftObjectPtr(objectPointer, value != null ? value.GetNativePtr() : IntPtr.Zero);
-		}
+            SoftObjectPtrInteropUtils.CopySoftObjectPtr(objectPointer, value != null ? value.GetNativePtr() : IntPtr.Zero);
+        }
         #endregion
 
         #region Struct
-		/// <summary>
-		/// Sets the structure un safe.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="address">The address.</param>
-		/// <param name="offset">The offset.</param>
-		/// <param name="value">The value.</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void SetStructUnsafe<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields)] T>(IntPtr address, int offset, ref T value) where T : struct
-		{
-			Logger.Assert(address != IntPtr.Zero);
-			
-			MetaInteropUtils.CheckStructFastAccessSafety<T>();
+        /// <summary>
+        /// Sets the structure un safe.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="address">The address.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="value">The value.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SetStructUnsafe<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields)] T>(IntPtr address, int offset, ref T value) where T : struct
+        {
+            Logger.Assert(address != IntPtr.Zero);
+            
+            MetaInteropUtils.CheckStructFastAccessSafety<T>();
 
-			unsafe
-			{
-				// T must be struct value, so it is safe here
+            unsafe
+            {
+                // T must be struct value, so it is safe here
 #pragma warning disable CS8500 // This gets the address of a managed type, gets its size, or declares a pointer to it
-				T* ptr = (T*)IntPtr.Add(address, offset);
+                T* ptr = (T*)IntPtr.Add(address, offset);
 #pragma warning restore CS8500 // This gets the address of a managed type, gets its size, or declares a pointer to it
 
-				*ptr = value;
-			}
-		}
+                *ptr = value;
+            }
+        }
         #endregion
 
         #endregion
-	}
+    }
 }

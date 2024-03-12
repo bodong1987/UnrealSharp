@@ -116,8 +116,8 @@ namespace UnrealSharp
             );
         ~FUnrealFunctionInvokeRedirector();
 
-        virtual const UFunction* GetFunction() const override;
-        virtual void Invoke(UObject* Context, FFrame& Stack, RESULT_DECL) override;
+        virtual const UFunction*                                             GetFunction() const override;
+        virtual void                                                         Invoke(UObject* Context, FFrame& Stack, RESULT_DECL) override;
 
     private:
         friend class FScopedUnrealFunctionParameters;

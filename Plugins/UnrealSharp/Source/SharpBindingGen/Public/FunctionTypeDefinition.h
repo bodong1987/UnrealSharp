@@ -30,25 +30,25 @@
 namespace UnrealSharp
 {
     // Function Definition
-	class SHARPBINDINGGEN_API FFunctionTypeDefinition : public FStructTypeDefinition
-	{
-	public:
-		typedef FStructTypeDefinition Super;
+    class SHARPBINDINGGEN_API FFunctionTypeDefinition : public FStructTypeDefinition
+    {
+    public:
+        typedef FStructTypeDefinition Super;
 
-		FFunctionTypeDefinition();
-		FFunctionTypeDefinition(UFunction* InFunction, FTypeValidation* InTypeValidation);
+        FFunctionTypeDefinition();
+        FFunctionTypeDefinition(UFunction* InFunction, FTypeValidation* InTypeValidation);
 
-		virtual void                        Write(FJsonObject& InObject) override;
-		virtual void                        Read(FJsonObject& InObject) override;
+        virtual void                        Write(FJsonObject& InObject) override;
+        virtual void                        Read(FJsonObject& InObject) override;
 
-	public:
-		bool                                IsExportAsEvent() const;
-		bool                                HasReturnType() const;
-		const FPropertyDefinition*          GetReturnPropertyDefinition() const;
-		bool                                HasAnyOutParameter() const;
+    public:
+        bool                                IsExportAsEvent() const;
+        bool                                HasReturnType() const;
+        const FPropertyDefinition*          GetReturnPropertyDefinition() const;
+        bool                                HasAnyOutParameter() const;
 
-	public:
-		FString                             Signature;
-		bool                                bIsOverrideFunction;
-	};
+    public:
+        FString                             Signature;
+        bool                                bIsOverrideFunction;
+    };
 }

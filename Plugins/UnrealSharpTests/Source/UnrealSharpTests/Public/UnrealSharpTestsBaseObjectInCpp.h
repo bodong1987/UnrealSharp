@@ -40,10 +40,10 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FUnrealSharpTestsMulticastDelegate
 UCLASS(Blueprintable)
 class UNREALSHARPTESTS_API UUnrealSharpTestsBaseObjectInCpp : public UObject
 {
-	GENERATED_UCLASS_BODY()
-	
+    GENERATED_UCLASS_BODY()
+    
 public:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Cpp_Scalar")
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Cpp_Scalar")
     bool bBoolValueInCpp = true;
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Cpp_Scalar")

@@ -1,27 +1,27 @@
 ﻿/*
-	MIT License
+    MIT License
 
-	Copyright (c) 2024 UnrealSharp
+    Copyright (c) 2024 UnrealSharp
 
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
 
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
 
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
 
-	Project URL: https://github.com/bodong1987/UnrealSharp
+    Project URL: https://github.com/bodong1987/UnrealSharp
 */
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -86,8 +86,8 @@ namespace UnrealSharp.UnrealEngine
 
                 ModelClass = (method!.Invoke(null, null) as UClass)!;
 
-				Logger.EnsureNotNull(ModelClass, "Invalid class return by {0}.StaticClass", typeof(T).FullName!);
-			}
+                Logger.EnsureNotNull(ModelClass, "Invalid class return by {0}.StaticClass", typeof(T).FullName!);
+            }
         }
 
         /// <summary>
@@ -95,8 +95,8 @@ namespace UnrealSharp.UnrealEngine
         /// </summary>
         public TSubclassOf()
         {
-			CheckStructSize();
-		}
+            CheckStructSize();
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TSubclassOf{T}"/> struct.
@@ -104,9 +104,9 @@ namespace UnrealSharp.UnrealEngine
         /// <param name="classPtr">The class PTR.</param>
         public TSubclassOf(IntPtr classPtr)
         {
-			CheckStructSize();
+            CheckStructSize();
 
-			NativeClassPtr = classPtr;
+            NativeClassPtr = classPtr;
 
             CheckSubclassValidation(NativeClassPtr);
         }
@@ -119,7 +119,7 @@ namespace UnrealSharp.UnrealEngine
         {
             CheckStructSize();
 
-			NativeClassPtr = @class != null ? @class.GetNativePtr() : IntPtr.Zero;
+            NativeClassPtr = @class != null ? @class.GetNativePtr() : IntPtr.Zero;
 
             CheckSubclassValidation(NativeClassPtr);
         }
@@ -127,11 +127,11 @@ namespace UnrealSharp.UnrealEngine
         [Conditional("DEBUG")]
         private void CheckStructSize()
         {
-			unsafe
-			{
-				Logger.Assert(sizeof(TSubclassOf<T>) == 8, "sizeof(TSubclassOf<T>) must be 8");
-			}
-		}
+            unsafe
+            {
+                Logger.Assert(sizeof(TSubclassOf<T>) == 8, "sizeof(TSubclassOf<T>) must be 8");
+            }
+        }
 
         /// <summary>
         /// Checks the subclass validation.
@@ -179,52 +179,52 @@ namespace UnrealSharp.UnrealEngine
             return @class.IsValid();
         }
 
-		/// <summary>
-		/// Implements the == operator.
-		/// </summary>
-		/// <param name="left">The left.</param>
-		/// <param name="right">The right.</param>
-		/// <returns>The result of the operator.</returns>
-		public static bool operator ==(TSubclassOf<T> left, TSubclassOf<T> right)
-		{
+        /// <summary>
+        /// Implements the == operator.
+        /// </summary>
+        /// <param name="left">The left.</param>
+        /// <param name="right">The right.</param>
+        /// <returns>The result of the operator.</returns>
+        public static bool operator ==(TSubclassOf<T> left, TSubclassOf<T> right)
+        {
             return left.GetNativePtr() == right.GetNativePtr();
-		}
+        }
 
-		/// <summary>
-		/// Implements the != operator.
-		/// </summary>
-		/// <param name="left">The left.</param>
-		/// <param name="right">The right.</param>
-		/// <returns>The result of the operator.</returns>
-		public static bool operator !=(TSubclassOf<T> left, TSubclassOf<T> right)
-		{
-			return left.GetNativePtr() != right.GetNativePtr();
-		}
+        /// <summary>
+        /// Implements the != operator.
+        /// </summary>
+        /// <param name="left">The left.</param>
+        /// <param name="right">The right.</param>
+        /// <returns>The result of the operator.</returns>
+        public static bool operator !=(TSubclassOf<T> left, TSubclassOf<T> right)
+        {
+            return left.GetNativePtr() != right.GetNativePtr();
+        }
 
-		/// <summary>
-		/// Returns a hash code for this instance.
-		/// </summary>
-		/// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
-		public override int GetHashCode()
-		{
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
+        public override int GetHashCode()
+        {
             return NativeClassPtr.GetHashCode();
-		}
+        }
 
-		/// <summary>
-		/// Determines whether the specified <see cref="System.Object" /> is equal to this instance.
-		/// </summary>
-		/// <param name="obj">The object to compare with the current instance.</param>
-		/// <returns><c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.</returns>
-		public override bool Equals([NotNullWhen(true)] object? obj)
-		{
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object" /> is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The object to compare with the current instance.</param>
+        /// <returns><c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.</returns>
+        public override bool Equals([NotNullWhen(true)] object? obj)
+        {
             return obj is IUnrealDataView dv && dv.GetNativePtr() == NativeClassPtr;
-		}
+        }
 
-		/// <summary>
-		/// Returns true if ... is valid.
-		/// </summary>
-		/// <returns><c>true</c> if this instance is valid; otherwise, <c>false</c>.</returns>
-		public bool IsValid()
+        /// <summary>
+        /// Returns true if ... is valid.
+        /// </summary>
+        /// <returns><c>true</c> if this instance is valid; otherwise, <c>false</c>.</returns>
+        public bool IsValid()
         {
             return NativeClassPtr != IntPtr.Zero;
         }

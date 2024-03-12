@@ -10,29 +10,29 @@ namespace UnrealSharp.GameScripts.Bindings.Defs.SharpGame
         public USpringArmComponent? CameraBoom;
 
         [UPROPERTY(EPropertyFlags.BlueprintReadOnly | EPropertyFlags.BlueprintVisible, Category = "Camera", AllowPrivateAccess = true, IsActorComponent = true, AttachToComponentName = nameof(CameraBoom), AttachToSocketName= "SpringEndpoint")]
-		public UCameraComponent? FollowCamera;
+        public UCameraComponent? FollowCamera;
 
         [UPROPERTY(EPropertyFlags.BlueprintReadOnly, Category = "Input", AllowPrivateAccess = true)]
-		public UInputMappingContext? DefaultMappingContext;
+        public UInputMappingContext? DefaultMappingContext;
 
         [UPROPERTY(EPropertyFlags.BlueprintReadOnly, Category = "Input", AllowPrivateAccess = true)]
-		public UInputAction? JumpAction;
+        public UInputAction? JumpAction;
 
         [UPROPERTY(EPropertyFlags.BlueprintReadOnly, Category = "Input", AllowPrivateAccess = true)]
-		public UInputAction? MoveAction;
+        public UInputAction? MoveAction;
 
         [UPROPERTY(EPropertyFlags.BlueprintReadOnly, Category = "Input", AllowPrivateAccess = true)]
-		public UInputAction? LookAction;
+        public UInputAction? LookAction;
 
         public delegate void OnJumpDelegate(int jumpCount);
 
-		[UPROPERTY(EPropertyFlags.BlueprintAssignable)]
-		public TMulticastDelegate<OnJumpDelegate>? OnJump;
+        [UPROPERTY(EPropertyFlags.BlueprintAssignable)]
+        public TMulticastDelegate<OnJumpDelegate>? OnJump;
 
-		[UEVENT()]
-		public override void ReceiveBeginPlay()
-		{
-		}
+        [UEVENT()]
+        public override void ReceiveBeginPlay()
+        {
+        }
 
         [UPROPERTY(EPropertyFlags.Net | EPropertyFlags.RepNotify, ReplicatedUsing = nameof(OnRep_JumpCount))]
         public int JumpCount;

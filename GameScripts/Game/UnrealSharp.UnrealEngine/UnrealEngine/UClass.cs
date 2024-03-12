@@ -1,27 +1,27 @@
 ﻿/*
-	MIT License
+    MIT License
 
-	Copyright (c) 2024 UnrealSharp
+    Copyright (c) 2024 UnrealSharp
 
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
 
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
 
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
 
-	Project URL: https://github.com/bodong1987/UnrealSharp
+    Project URL: https://github.com/bodong1987/UnrealSharp
 */
 using System.Diagnostics.CodeAnalysis;
 using UnrealSharp.UnrealEngine.InteropService;
@@ -36,16 +36,16 @@ namespace UnrealSharp.UnrealEngine
     /// </summary>
     /// <seealso cref="UnrealSharp.UnrealEngine.UObject" />
     [NativeBinding("Class", "UClass", "/Script/CoreUObject.Class")]
-	public class UClass : UStruct
-	{
+    public class UClass : UStruct
+    {
         /// <summary>
         /// Initializes a new instance of the <see cref="UClass"/> class.
         /// </summary>
         /// <param name="nativePtr">The native PTR.</param>
         public UClass(IntPtr nativePtr) :
-			base(nativePtr)
-		{
-		}
+            base(nativePtr)
+        {
+        }
 
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
@@ -81,27 +81,27 @@ namespace UnrealSharp.UnrealEngine
         /// </summary>
         /// <returns>System.Nullable&lt;UObject&gt;.</returns>
         public UObject? GetDefaultObject()
-		{
-			return GetNativePtr() != IntPtr.Zero ? ClassInteropUtils.GetDefaultObjectOfClass(GetNativePtr()) : null;
-		}
+        {
+            return GetNativePtr() != IntPtr.Zero ? ClassInteropUtils.GetDefaultObjectOfClass(GetNativePtr()) : null;
+        }
 
         /// <summary>
         /// Gets the super class.
         /// </summary>
         /// <returns>System.Nullable&lt;UClass&gt;.</returns>
         public UClass? GetSuperClass()
-		{
-			IntPtr SuperPtr = ClassInteropUtils.GetClassPointerOfUnrealObject(GetNativePtr());
+        {
+            IntPtr SuperPtr = ClassInteropUtils.GetClassPointerOfUnrealObject(GetNativePtr());
 
-			return SuperPtr != IntPtr.Zero ? new UClass(SuperPtr) : null;
-		}
+            return SuperPtr != IntPtr.Zero ? new UClass(SuperPtr) : null;
+        }
 
-		/// <summary>
-		/// Finds the function.
-		/// </summary>
-		/// <param name="functionName">Name of the function.</param>
-		/// <returns>IntPtr.</returns>
-		public IntPtr FindFunction(string functionName)
+        /// <summary>
+        /// Finds the function.
+        /// </summary>
+        /// <param name="functionName">Name of the function.</param>
+        /// <returns>IntPtr.</returns>
+        public IntPtr FindFunction(string functionName)
         {
             if(!IsBindingToUnreal)
             {
@@ -117,56 +117,56 @@ namespace UnrealSharp.UnrealEngine
         /// <param name="parentClass">The parent class.</param>
         /// <returns><c>true</c> if [is child of] [the specified parent class]; otherwise, <c>false</c>.</returns>
         public bool IsChildOf(UClass? parentClass)
-		{
-			if(parentClass == null)
-			{
-				return false;
-			}
+        {
+            if(parentClass == null)
+            {
+                return false;
+            }
 
-			return ClassInteropUtils.CheckUClassIsChildOf(GetNativePtr(), parentClass.GetNativePtr());
-		}
+            return ClassInteropUtils.CheckUClassIsChildOf(GetNativePtr(), parentClass.GetNativePtr());
+        }
 
-		/// <summary>
-		/// Implements the == operator.
-		/// </summary>
-		/// <param name="left">The left.</param>
-		/// <param name="right">The right.</param>
-		/// <returns>The result of the operator.</returns>
-		public static bool operator ==(UClass? left, UClass? right)
-		{
-			return left.GetNativePtrSafe() == right.GetNativePtrSafe();
-		}
+        /// <summary>
+        /// Implements the == operator.
+        /// </summary>
+        /// <param name="left">The left.</param>
+        /// <param name="right">The right.</param>
+        /// <returns>The result of the operator.</returns>
+        public static bool operator ==(UClass? left, UClass? right)
+        {
+            return left.GetNativePtrSafe() == right.GetNativePtrSafe();
+        }
 
-		/// <summary>
-		/// Implements the != operator.
-		/// </summary>
-		/// <param name="left">The left.</param>
-		/// <param name="right">The right.</param>
-		/// <returns>The result of the operator.</returns>
-		public static bool operator !=(UClass? left, UClass? right)
-		{
-			return left.GetNativePtrSafe() != right.GetNativePtrSafe();
-		}
+        /// <summary>
+        /// Implements the != operator.
+        /// </summary>
+        /// <param name="left">The left.</param>
+        /// <param name="right">The right.</param>
+        /// <returns>The result of the operator.</returns>
+        public static bool operator !=(UClass? left, UClass? right)
+        {
+            return left.GetNativePtrSafe() != right.GetNativePtrSafe();
+        }
 
 
-		/// <summary>
-		/// Determines whether the specified <see cref="System.Object" /> is equal to this instance.
-		/// </summary>
-		/// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
-		/// <returns><c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.</returns>
-		public override bool Equals(object? obj)
-		{
-			return obj is UClass u && u.GetNativePtr() == GetNativePtr();
-		}
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object" /> is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <returns><c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.</returns>
+        public override bool Equals(object? obj)
+        {
+            return obj is UClass u && u.GetNativePtr() == GetNativePtr();
+        }
 
         /// <summary>
         /// Returns a hash code for this instance.
         /// </summary>
         /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
         public override int GetHashCode()
-		{
-			return GetNativePtr().GetHashCode();
-		}
+        {
+            return GetNativePtr().GetHashCode();
+        }
 
         /// <summary>
         /// Gets the class of.
@@ -174,7 +174,7 @@ namespace UnrealSharp.UnrealEngine
         /// <typeparam name="T"></typeparam>
         /// <returns>System.Nullable&lt;UClass&gt;.</returns>
         public static UClass GetClassOf<T>() where T : UObject
-		{
+        {
             return TUClassOf<T>.Class;
         }
 
@@ -184,11 +184,11 @@ namespace UnrealSharp.UnrealEngine
         /// <typeparam name="T"></typeparam>
         /// <returns>TSubclassOf&lt;T&gt;.</returns>
         public static TSubclassOf<T> GetTSubClassOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] T>() where T : UObject
-		{
-			var @class = GetClassOf<T>();
+        {
+            var @class = GetClassOf<T>();
 
-			return new TSubclassOf<T>(@class);
-		}
+            return new TSubclassOf<T>(@class);
+        }
 
         /// <summary>
         /// Loads the class.
@@ -196,10 +196,10 @@ namespace UnrealSharp.UnrealEngine
         /// <param name="classPath">The class path.</param>
         /// <returns>System.Nullable&lt;UClass&gt;.</returns>
         public static UClass? LoadClass(string classPath)
-		{
-			IntPtr classPtr = ClassInteropUtils.LoadUnrealField(classPath);
+        {
+            IntPtr classPtr = ClassInteropUtils.LoadUnrealField(classPath);
 
-			return classPtr != IntPtr.Zero ? new UClass(classPtr) : null;
+            return classPtr != IntPtr.Zero ? new UClass(classPtr) : null;
         }
     }
 

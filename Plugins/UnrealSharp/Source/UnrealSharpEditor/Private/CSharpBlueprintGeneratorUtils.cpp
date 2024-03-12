@@ -48,7 +48,7 @@
 
 namespace UnrealSharp
 {
-	const FString FCSharpBlueprintGeneratorUtils::CSharpBlueprintClassPrefixPath = TEXT("CSharpBlueprints");
+    const FString FCSharpBlueprintGeneratorUtils::CSharpBlueprintClassPrefixPath = TEXT("CSharpBlueprints");
     const int FCSharpBlueprintGeneratorUtils::GeneratorVersion = 1;
   
     FString FCSharpBlueprintGeneratorUtils::GetPackagePath(const TSharedPtr<FBaseTypeDefinition>& InType)

@@ -39,16 +39,16 @@ namespace UnrealSharp.GameScripts.UnrealSharpTests
             return (int)(a + b);
         }
 
-		[UFUNCTION(Category = "UnrealSharp_CSharp")]
-		public static Int64 CSharpAddAndReturnByRef_Int64(Int64 a, Int64 b, ref Int64 outA, ref Int64 outB)
-		{
-			outA = a;
-			outB = b;
+        [UFUNCTION(Category = "UnrealSharp_CSharp")]
+        public static Int64 CSharpAddAndReturnByRef_Int64(Int64 a, Int64 b, ref Int64 outA, ref Int64 outB)
+        {
+            outA = a;
+            outB = b;
 
-			return (Int64)(a + b);
-		}
+            return (Int64)(a + b);
+        }
 
-		[UFUNCTION(Category = "UnrealSharp_CSharp")]
+        [UFUNCTION(Category = "UnrealSharp_CSharp")]
         public static float CSharpAddAndReturnByRef_Float(float a, float b, ref float outA, ref float outB)
         {
             outA = a;
@@ -111,17 +111,17 @@ namespace UnrealSharp.GameScripts.UnrealSharpTests
             return a;
         }
 
-		[UFUNCTION(Category = "UnrealSharp_CSharp")]
-		public static EUnrealSharpCSharpEnumTypeInCSharp CSharpAddAndReturnByRef_CSharpEnum(EUnrealSharpCSharpEnumTypeInCSharp a, EUnrealSharpCSharpEnumTypeInCSharp b, ref EUnrealSharpCSharpEnumTypeInCSharp outA, ref EUnrealSharpCSharpEnumTypeInCSharp outB)
-		{
+        [UFUNCTION(Category = "UnrealSharp_CSharp")]
+        public static EUnrealSharpCSharpEnumTypeInCSharp CSharpAddAndReturnByRef_CSharpEnum(EUnrealSharpCSharpEnumTypeInCSharp a, EUnrealSharpCSharpEnumTypeInCSharp b, ref EUnrealSharpCSharpEnumTypeInCSharp outA, ref EUnrealSharpCSharpEnumTypeInCSharp outB)
+        {
             Logger.LogD("CSharpAddAndReturnByRef_CSharpEnum a={0} b={1}", a, b);
-			outA = a;
-			outB = b;
+            outA = a;
+            outB = b;
 
-			return EUnrealSharpCSharpEnumTypeInCSharp.Method;
-		}
+            return EUnrealSharpCSharpEnumTypeInCSharp.Method;
+        }
 
-		[UFUNCTION(Category = "UnrealSharp_CSharp")]
+        [UFUNCTION(Category = "UnrealSharp_CSharp")]
         public static FUnrealSharpTestsBaseStructValueInCpp CSharpGetUserStructAndReturnByRef(FUnrealSharpTestsBaseStructValueInCpp a, FUnrealSharpTestsBaseStructValueInCpp b, ref FUnrealSharpTestsBaseStructValueInCpp outA, ref FUnrealSharpTestsBaseStructValueInCpp outB)
         {
             outA = a;
@@ -139,96 +139,96 @@ namespace UnrealSharp.GameScripts.UnrealSharpTests
             return Return;
         }
 
-		[UFUNCTION(Category = "UnrealSharp_CSharp")]
-		public static FUnrealSharpTestsBaseStructValueInCSharp CSharpGetCSharpUserStructAndReturnByRef(FUnrealSharpTestsBaseStructValueInCSharp a, FUnrealSharpTestsBaseStructValueInCSharp b, ref FUnrealSharpTestsBaseStructValueInCSharp outA, ref FUnrealSharpTestsBaseStructValueInCSharp outB)
-		{
-			outA = a;
-			outB = b;
+        [UFUNCTION(Category = "UnrealSharp_CSharp")]
+        public static FUnrealSharpTestsBaseStructValueInCSharp CSharpGetCSharpUserStructAndReturnByRef(FUnrealSharpTestsBaseStructValueInCSharp a, FUnrealSharpTestsBaseStructValueInCSharp b, ref FUnrealSharpTestsBaseStructValueInCSharp outA, ref FUnrealSharpTestsBaseStructValueInCSharp outB)
+        {
+            outA = a;
+            outB = b;
 
-			FUnrealSharpTestsBaseStructValueInCSharp Return = new FUnrealSharpTestsBaseStructValueInCSharp();
+            FUnrealSharpTestsBaseStructValueInCSharp Return = new FUnrealSharpTestsBaseStructValueInCSharp();
 
-			Return.fValue = 1024;
-			Return.dValue = 2048;
-			Return.StrValue = "UnrealSharp:你好，朋友！";
+            Return.fValue = 1024;
+            Return.dValue = 2048;
+            Return.StrValue = "UnrealSharp:你好，朋友！";
 
-			outA.StrValue = outB.StrValue = Return.StrValue;
-			outA.NameValue = outB.NameValue = FName.FromString(Return.StrValue);
+            outA.StrValue = outB.StrValue = Return.StrValue;
+            outA.NameValue = outB.NameValue = FName.FromString(Return.StrValue);
 
-			return Return;
-		}
+            return Return;
+        }
 
-		[UFUNCTION(Category = "UnrealSharp_CSharp")]
+        [UFUNCTION(Category = "UnrealSharp_CSharp")]
         public static TSubclassOf<UUnrealSharpTestsBaseObjectInCpp> CSharpGetSubclassOfAndReturnByRef(TSubclassOf<UUnrealSharpTestsBaseObjectInCpp> a, TSubclassOf<UUnrealSharpTestsBaseObjectInCpp> b, ref TSubclassOf<UUnrealSharpTestsBaseObjectInCpp> outA, ref TSubclassOf<UUnrealSharpTestsBaseObjectInCpp> outB)
         {
-			if (!a)
-			{
-				Logger.LogWarning("Invalid actor class a");
-			}
-			else
-			{
-				Logger.Log($"ActorClass={a.GetPathName()}");
-			}
+            if (!a)
+            {
+                Logger.LogWarning("Invalid actor class a");
+            }
+            else
+            {
+                Logger.Log($"ActorClass={a.GetPathName()}");
+            }
 
-			if (!b)
-			{
-				Logger.LogWarning("Invalid object class b");
-			}
-			else
-			{
-				Logger.Log($"ObjectClass={b.GetPathName()}");
-			}
+            if (!b)
+            {
+                Logger.LogWarning("Invalid object class b");
+            }
+            else
+            {
+                Logger.Log($"ObjectClass={b.GetPathName()}");
+            }
 
-			outA = a;
+            outA = a;
             outB = b;
 
             return (TSubclassOf<UUnrealSharpTestsBaseObjectInCpp>)UUnrealSharpTestsObjectInheritCPPObjectInCSharp.StaticClass();
         }
 
-		[UFUNCTION(Category = "UnrealSharp_CSharp")]
-		public static TSoftObjectPtr<UObject> CSharpPrintSoftObjectPtrAndReturnByRef(TSoftObjectPtr<UObject> a, ref TSoftObjectPtr<UObject> outA)
-		{
-			Logger.LogD($"SoftObjectPtr: IsPending={a.IsPending()} IsNull={a.IsNull()} IsValid={a.IsValid()} IsStale={a.IsStale()}");
-			
-			var softObject = a.Get();
+        [UFUNCTION(Category = "UnrealSharp_CSharp")]
+        public static TSoftObjectPtr<UObject> CSharpPrintSoftObjectPtrAndReturnByRef(TSoftObjectPtr<UObject> a, ref TSoftObjectPtr<UObject> outA)
+        {
+            Logger.LogD($"SoftObjectPtr: IsPending={a.IsPending()} IsNull={a.IsNull()} IsValid={a.IsValid()} IsStale={a.IsStale()}");
+            
+            var softObject = a.Get();
 
-			if (softObject == null)
-			{
-				Logger.LogWarning("Failed get soft object.");
-			}
-			else
-			{
-				Logger.Log($"Get soft object:{softObject.GetName()}");
-			}
+            if (softObject == null)
+            {
+                Logger.LogWarning("Failed get soft object.");
+            }
+            else
+            {
+                Logger.Log($"Get soft object:{softObject.GetName()}");
+            }
 
-			Logger.LogD($"SoftObjectPtr: IsPending={a.IsPending()} IsNull={a.IsNull()} IsValid={a.IsValid()} IsStale={a.IsStale()}");
+            Logger.LogD($"SoftObjectPtr: IsPending={a.IsPending()} IsNull={a.IsNull()} IsValid={a.IsValid()} IsStale={a.IsStale()}");
 
             outA = a;
 
-			return a;
-		}
+            return a;
+        }
 
-		[UFUNCTION(Category = "UnrealSharp_CSharp")]
-		public static TSoftClassPtr<UObject> CSharpPrintSoftClassPtrAndReturnByRef(TSoftClassPtr<UObject> b, ref TSoftClassPtr<UObject> outB)
-		{			
-			Logger.LogD($"SoftClassPtr: IsPending={b.IsPending()} IsNull={b.IsNull()} IsValid={b.IsValid()}");
-            		
-			var classPtr = b.Get();
+        [UFUNCTION(Category = "UnrealSharp_CSharp")]
+        public static TSoftClassPtr<UObject> CSharpPrintSoftClassPtrAndReturnByRef(TSoftClassPtr<UObject> b, ref TSoftClassPtr<UObject> outB)
+        {            
+            Logger.LogD($"SoftClassPtr: IsPending={b.IsPending()} IsNull={b.IsNull()} IsValid={b.IsValid()}");
+                    
+            var classPtr = b.Get();
 
-			if (classPtr == null)
-			{
-				Logger.LogWarning("Failed get soft class");
-			}
-			else
-			{
-				Logger.Log($"Get soft class:{classPtr.GetPathName()}");
-			}
+            if (classPtr == null)
+            {
+                Logger.LogWarning("Failed get soft class");
+            }
+            else
+            {
+                Logger.Log($"Get soft class:{classPtr.GetPathName()}");
+            }
 
-			Logger.LogD($"SoftClassPtr: IsPending={b.IsPending()} IsNull={b.IsNull()} IsValid={b.IsValid()}");
+            Logger.LogD($"SoftClassPtr: IsPending={b.IsPending()} IsNull={b.IsNull()} IsValid={b.IsValid()}");
 
-			outB = b;
+            outB = b;
 
-			return b;
-		}
+            return b;
+        }
 
         [UFUNCTION(Category = "UnrealSharp_CSharp")]
         public static UObject? CSharpGetObjectAndReturnByRef(UObject? a, UObject? b, ref UObject? outA, ref UObject? outB)
@@ -242,13 +242,13 @@ namespace UnrealSharp.GameScripts.UnrealSharpTests
         [UFUNCTION(Category = "UnrealSharp_CSharp")]
         public static IList<string?> CSharpGetStringArrayAndReturnByRef(IList<string?> a, IList<string?> b, ref IList<string?> outA, ref IList<string?> outB)
         {
-			/*
+            /*
             * You need to use retain here to obtain the complete resource ownership of the input parameters, 
             * because the ones that accept outA and outB may come from Unreal or C#. 
             * If they come from C# and are not retained, it may cause a crash caused by the loss of resource references. 
             * Unless you clearly know that neither a nor b are Views from Unreal data.
             */
-			outA = a.Retain()!;  
+            outA = a.Retain()!;  
             outB = b.Retain()!;
 
             List<string?> Result = [.. a, .. b];
@@ -259,13 +259,13 @@ namespace UnrealSharp.GameScripts.UnrealSharpTests
         [UFUNCTION(Category = "UnrealSharp_CSharp")]
         public static ISet<FName> CSharpGetNameSetAndReturnByRef(ISet<FName> a, ISet<FName> b, ref ISet<FName> outA, ref ISet<FName> outB)
         {
-			/*
+            /*
             * You need to use retain here to obtain the complete resource ownership of the input parameters, 
             * because the ones that accept outA and outB may come from Unreal or C#. 
             * If they come from C# and are not retained, it may cause a crash caused by the loss of resource references. 
             * Unless you clearly know that neither a nor b are Views from Unreal data.
             */
-			outA = a.Retain()!;
+            outA = a.Retain()!;
             outB = b.Retain()!;
 
             HashSet<FName> Result = [.. a, .. b];
@@ -276,13 +276,13 @@ namespace UnrealSharp.GameScripts.UnrealSharpTests
         [UFUNCTION(Category = "UnrealSharp_CSharp")]
         public static IDictionary<Int64, double> CSharpGetInt64DoubleMapAndReturnByRef(IDictionary<Int64, double> a, IDictionary<Int64, double> b, ref IDictionary<Int64, double> outA, ref IDictionary<Int64, double> outB)
         {
-			/*
+            /*
             * You need to use retain here to obtain the complete resource ownership of the input parameters, 
             * because the ones that accept outA and outB may come from Unreal or C#. 
             * If they come from C# and are not retained, it may cause a crash caused by the loss of resource references. 
             * Unless you clearly know that neither a nor b are Views from Unreal data.
             */
-			outA = a.Retain()!;
+            outA = a.Retain()!;
             outB = b.Retain()!;
 
             Dictionary<Int64, double> Result = new Dictionary<long, double>();

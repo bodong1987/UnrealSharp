@@ -35,25 +35,25 @@
 UCLASS(Blueprintable, placeable)
 class UNREALSHARPTESTS_API AUnrealSharpTestsActorInCpp : public AActor, public IUnrealSharpTestsActorInterface
 {
-	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-	AUnrealSharpTestsActorInCpp();
+    GENERATED_BODY()
+    
+public:    
+    // Sets default values for this actor's properties
+    AUnrealSharpTestsActorInCpp();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+    // Called when the game starts or when spawned
+    virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+public:    
+    // Called every frame
+    virtual void Tick(float DeltaTime) override;
 
 public:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FUnrealSharpTestsStructValueInCpp StructValue;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere)
+    FUnrealSharpTestsStructValueInCpp StructValue;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Scalar")
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Scalar")
     bool bBoolActorValue = true;
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Scalar")

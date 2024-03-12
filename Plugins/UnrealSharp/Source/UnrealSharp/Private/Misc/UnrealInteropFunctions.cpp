@@ -103,11 +103,11 @@ namespace UnrealSharp
         int LocalInternalIndex = 0;
 
 #define DECLARE_UNREAL_SHARP_INTEROP_API(returnType, name, parameters) \
-			AddInteropFunction(TEXT(#name), (void*)&FInteropUtils::name)
+            AddInteropFunction(TEXT(#name), (void*)&FInteropUtils::name)
 
 #include "Misc/InteropApiDefines.inl"
 
-#undef DECLARE_UNREAL_SHARP_INTEROP_API	
+#undef DECLARE_UNREAL_SHARP_INTEROP_API    
     }
 
     FUnrealInteropFunctions* FUnrealInteropFunctions::GetUnrealInteropFunctionsPtr()

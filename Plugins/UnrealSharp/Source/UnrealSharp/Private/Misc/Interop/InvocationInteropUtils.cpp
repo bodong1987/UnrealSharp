@@ -1,98 +1,98 @@
 /*
-	MIT License
+    MIT License
 
-	Copyright (c) 2024 UnrealSharp
+    Copyright (c) 2024 UnrealSharp
 
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
 
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
 
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
 
-	Project URL: https://github.com/bodong1987/UnrealSharp
+    Project URL: https://github.com/bodong1987/UnrealSharp
 */
 #include "Misc/InteropUtils.h"
 #include "Misc/UnrealFunctionInvocation.h"
 
 namespace UnrealSharp
 {
-	FUnrealFunctionInvocation* FInteropUtils::CreateUnrealInvocation(const UClass* InClass, const char* InCSharpFunctionName)
-	{
-		checkSlow(InClass);
-		checkSlow(InCSharpFunctionName);
+    FUnrealFunctionInvocation* FInteropUtils::CreateUnrealInvocation(const UClass* InClass, const char* InCSharpFunctionName)
+    {
+        checkSlow(InClass);
+        checkSlow(InCSharpFunctionName);
 
-		FUnrealFunctionInvocation* Invocation = new FUnrealFunctionInvocation(InClass, UNREALSHARP_STRING_TO_TCHAR(InCSharpFunctionName));
+        FUnrealFunctionInvocation* Invocation = new FUnrealFunctionInvocation(InClass, UNREALSHARP_STRING_TO_TCHAR(InCSharpFunctionName));
 
-		return Invocation;
-	}
+        return Invocation;
+    }
 
-	FUnrealFunctionInvocation* FInteropUtils::CreateUnrealInvocationFromDelegateProperty(const FProperty* InProperty)
-	{
-		if (const FMulticastDelegateProperty* MulticastDelegateProperty = CastField<FMulticastDelegateProperty>(InProperty))
-		{
-			return new FUnrealFunctionInvocation(MulticastDelegateProperty);
-		}
-		else if (const FDelegateProperty* DelegateProperty = CastField<FDelegateProperty>(InProperty))
-		{
-			return new FUnrealFunctionInvocation(DelegateProperty);
-		}
+    FUnrealFunctionInvocation* FInteropUtils::CreateUnrealInvocationFromDelegateProperty(const FProperty* InProperty)
+    {
+        if (const FMulticastDelegateProperty* MulticastDelegateProperty = CastField<FMulticastDelegateProperty>(InProperty))
+        {
+            return new FUnrealFunctionInvocation(MulticastDelegateProperty);
+        }
+        else if (const FDelegateProperty* DelegateProperty = CastField<FDelegateProperty>(InProperty))
+        {
+            return new FUnrealFunctionInvocation(DelegateProperty);
+        }
 
-		checkNoEntry();
+        checkNoEntry();
 
-		return nullptr;
-	}
+        return nullptr;
+    }
 
-	void FInteropUtils::DestroyUnrealInvocation(FUnrealFunctionInvocation* InInvocation)
-	{
-		if (InInvocation != nullptr)
-		{
-			delete InInvocation;
-		}
-	}
+    void FInteropUtils::DestroyUnrealInvocation(FUnrealFunctionInvocation* InInvocation)
+    {
+        if (InInvocation != nullptr)
+        {
+            delete InInvocation;
+        }
+    }
 
-	void FInteropUtils::InvokeUnrealInvocation(FUnrealFunctionInvocation* InInvocation, UObject* InObject, void* InParameterBuffer, int InParameterBufferSize)
-	{
-		checkSlow(InInvocation);
+    void FInteropUtils::InvokeUnrealInvocation(FUnrealFunctionInvocation* InInvocation, UObject* InObject, void* InParameterBuffer, int InParameterBufferSize)
+    {
+        checkSlow(InInvocation);
 
-		InInvocation->Invoke(InObject, InParameterBuffer, InParameterBufferSize);
-	}
+        InInvocation->Invoke(InObject, InParameterBuffer, InParameterBufferSize);
+    }
 
-	UFunction* FInteropUtils::GetUnrealInvocationFunction(FUnrealFunctionInvocation* InInvocation)
-	{
-		return InInvocation->GetFunction();
-	}
+    UFunction* FInteropUtils::GetUnrealInvocationFunction(FUnrealFunctionInvocation* InInvocation)
+    {
+        return InInvocation->GetFunction();
+    }
 
-	int FInteropUtils::GetUnrealInvocationParameterSize(FUnrealFunctionInvocation* InInvocation)
-	{
-		check(InInvocation);
-		check(InInvocation->GetFunction());
+    int FInteropUtils::GetUnrealInvocationParameterSize(FUnrealFunctionInvocation* InInvocation)
+    {
+        check(InInvocation);
+        check(InInvocation->GetFunction());
 
-		return InInvocation->GetFunction()->ParmsSize;
-	}
+        return InInvocation->GetFunction()->ParmsSize;
+    }
 
-	void FInteropUtils::InitializeUnrealInvocationParameters(FUnrealFunctionInvocation* InInvocation, void* InParameterBuffer, int InParameterBufferSize)
-	{
-		check(InInvocation);
+    void FInteropUtils::InitializeUnrealInvocationParameters(FUnrealFunctionInvocation* InInvocation, void* InParameterBuffer, int InParameterBufferSize)
+    {
+        check(InInvocation);
 
-		InInvocation->InitializeParameterBuffer(InParameterBuffer, InParameterBufferSize);
-	}
+        InInvocation->InitializeParameterBuffer(InParameterBuffer, InParameterBufferSize);
+    }
 
-	void FInteropUtils::UnInitializeUnrealInvocationParameters(FUnrealFunctionInvocation* InInvocation, void* InParameterBuffer, int InParameterBufferSize)
-	{
-		check(InInvocation);
+    void FInteropUtils::UnInitializeUnrealInvocationParameters(FUnrealFunctionInvocation* InInvocation, void* InParameterBuffer, int InParameterBufferSize)
+    {
+        check(InInvocation);
 
-		InInvocation->UnInitializeParameterBuffer(InParameterBuffer, InParameterBufferSize);
-	}
+        InInvocation->UnInitializeParameterBuffer(InParameterBuffer, InParameterBufferSize);
+    }
 }

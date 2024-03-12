@@ -1,27 +1,27 @@
 ﻿/*
-	MIT License
+    MIT License
 
-	Copyright (c) 2024 UnrealSharp
+    Copyright (c) 2024 UnrealSharp
 
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
 
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
 
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
 
-	Project URL: https://github.com/bodong1987/UnrealSharp
+    Project URL: https://github.com/bodong1987/UnrealSharp
 */
 using System.Diagnostics;
 using UnrealSharp.UnrealEngine.InteropService;
@@ -35,7 +35,7 @@ namespace UnrealSharp.UnrealEngine
     /// Interface IUnrealObject
     /// </summary>
     public interface IUObjectInterface : IUnrealDataView
-	{
+    {
         /// <summary>
         /// Gets the class.
         /// </summary>
@@ -47,14 +47,14 @@ namespace UnrealSharp.UnrealEngine
         /// </summary>
         /// <returns>System.Nullable&lt;System.String&gt;.</returns>
         string? GetName();
-	}
+    }
     #endregion
 
     /// <summary>
     /// Class UObject.
     /// </summary>
-    [NativeBinding("Object", "UObject", "/Script/CoreUObject.Object")]	
-	public partial class UObject : IUObjectInterface
+    [NativeBinding("Object", "UObject", "/Script/CoreUObject.Object")]    
+    public partial class UObject : IUObjectInterface
     {
         #region Fields
 
@@ -69,7 +69,7 @@ namespace UnrealSharp.UnrealEngine
         /// </summary>
         /// <value>The native PTR.</value>
 #if !DEBUG
-		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
 #endif
         IntPtr NativePtr;
 
@@ -92,13 +92,13 @@ namespace UnrealSharp.UnrealEngine
         /// </summary>
         /// <param name="unrealObjectPtr">The unreal object PTR.</param>
         public UObject(IntPtr unrealObjectPtr)
-		{
-			Logger.Ensure<AccessViolationException>(unrealObjectPtr != IntPtr.Zero, "Invalid native address!");
+        {
+            Logger.Ensure<AccessViolationException>(unrealObjectPtr != IntPtr.Zero, "Invalid native address!");
 
-			NativePtr = unrealObjectPtr;
+            NativePtr = unrealObjectPtr;
 
-			// Logger.LogD("{0} is created, UnrealObjectPtr = 0x{1:x}", GetType().Name, NativePtr);
-		}
+            // Logger.LogD("{0} is created, UnrealObjectPtr = 0x{1:x}", GetType().Name, NativePtr);
+        }
         #endregion
 
         #region Properties
@@ -115,13 +115,13 @@ namespace UnrealSharp.UnrealEngine
         /// </summary>
         /// <returns>System.Nullable&lt;System.String&gt;.</returns>
         public string? GetName()
-		{
-			if(NativePtr == IntPtr.Zero)
-			{
-				return null;
-			}
+        {
+            if(NativePtr == IntPtr.Zero)
+            {
+                return null;
+            }
 
-			return ObjectInteropUtils.GetUnrealObjectName(NativePtr);
+            return ObjectInteropUtils.GetUnrealObjectName(NativePtr);
         }
 
         /// <summary>
@@ -157,11 +157,11 @@ namespace UnrealSharp.UnrealEngine
         /// </summary>
         /// <returns>System.Nullable&lt;UClass&gt;.</returns>
         public UClass? GetClass()
-		{
-			if(ClassCache != null)
-			{
-				return ClassCache;
-			}
+        {
+            if(ClassCache != null)
+            {
+                return ClassCache;
+            }
 
             if (NativePtr == IntPtr.Zero)
             {
@@ -170,23 +170,23 @@ namespace UnrealSharp.UnrealEngine
 
             IntPtr classPtr = ClassInteropUtils.GetClassPointerOfUnrealObject(NativePtr);
 
-			Logger.Assert(classPtr != IntPtr.Zero);
+            Logger.Assert(classPtr != IntPtr.Zero);
 
-			ClassCache = new UClass(classPtr);
+            ClassCache = new UClass(classPtr);
 
-			return ClassCache;
-		}
+            return ClassCache;
+        }
 
         /// <summary>
         /// Statics the class.
         /// </summary>
         /// <returns>UClass.</returns>
         public static UClass StaticClass()
-		{			
-			MetaInteropUtils.LoadClassIfNeed(ref ObjectClass, "/Script/CoreUObject.Object");
+        {            
+            MetaInteropUtils.LoadClassIfNeed(ref ObjectClass, "/Script/CoreUObject.Object");
 
             return ObjectClass;
-		}
+        }
 
         /// <summary>
         /// Determines whether the specified <see cref="System.Object" /> is equal to this instance.
@@ -194,18 +194,18 @@ namespace UnrealSharp.UnrealEngine
         /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
         /// <returns><c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.</returns>
         public override bool Equals(object? obj)
-		{
-			return obj is UObject u && u.NativePtr == NativePtr;
-		}
+        {
+            return obj is UObject u && u.NativePtr == NativePtr;
+        }
 
         /// <summary>
         /// Returns a hash code for this instance.
         /// </summary>
         /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
         public override int GetHashCode()
-		{
-			return NativePtr.GetHashCode();
-		}
+        {
+            return NativePtr.GetHashCode();
+        }
 
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
@@ -213,7 +213,7 @@ namespace UnrealSharp.UnrealEngine
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
         public override string? ToString()
         {
-			string? Name = GetName();
+            string? Name = GetName();
 
             //return $"{(Name ?? "Null")}[{GetType().Name}](0x{NativePtr:x})";
             return $"{(Name ?? "null")}";
@@ -223,26 +223,26 @@ namespace UnrealSharp.UnrealEngine
         /// Disconnects from native.
         /// </summary>
         public void DisconnectFromNative()
-		{
-			// Logger.LogD("DisconnectFromNative 0x{0:x}", NativePtr);
+        {
+            // Logger.LogD("DisconnectFromNative 0x{0:x}", NativePtr);
 
-			NativePtr = IntPtr.Zero;
-		}
+            NativePtr = IntPtr.Zero;
+        }
 
         /// <summary>
         /// Gets the native PTR.
         /// </summary>
         /// <returns>IntPtr.</returns>
         public IntPtr GetNativePtr()
-		{
-			return NativePtr;
-		}
+        {
+            return NativePtr;
+        }
 
-		/// <summary>
-		/// Gets the native PTR checked.
-		/// </summary>
-		/// <returns>IntPtr.</returns>
-		public IntPtr GetNativePtrChecked()
+        /// <summary>
+        /// Gets the native PTR checked.
+        /// </summary>
+        /// <returns>IntPtr.</returns>
+        public IntPtr GetNativePtrChecked()
         {
             Logger.Ensure<AccessViolationException>(IsBindingToUnreal, "Invalid access: install of {0} is not binding to unreal object.", GetType().FullName!);
 
@@ -292,9 +292,9 @@ namespace UnrealSharp.UnrealEngine
         /// </summary>
         /// <param name="nativeObjectInitializerPtr">The native object initializer PTR.</param>
         private void BeforeObjectConstructorInternal(IntPtr nativeObjectInitializerPtr)
-		{
-			BeforeObjectConstructor(new FObjectInitializer(nativeObjectInitializerPtr));
-		}
+        {
+            BeforeObjectConstructor(new FObjectInitializer(nativeObjectInitializerPtr));
+        }
 
         /// <summary>
         /// Invoked from native
@@ -302,16 +302,16 @@ namespace UnrealSharp.UnrealEngine
         /// </summary>
         /// <param name="objectInitializer">The object initializer.</param>
         protected virtual void BeforeObjectConstructor(FObjectInitializer objectInitializer)
-		{
-			//Logger.Log("C# {0} BeforeObjectConstructor", GetType().FullName!);
-		}
+        {
+            //Logger.Log("C# {0} BeforeObjectConstructor", GetType().FullName!);
+        }
 
         /// <summary>
         /// Invoked from native
         /// Only valid for C# Script class
         /// </summary>
         protected virtual void PostObjectConstructor()
-		{
+        {
             //Logger.Log("C# {0} PostObjectConstructor", GetType().FullName!);
         }
         #endregion
@@ -327,15 +327,15 @@ namespace UnrealSharp.UnrealEngine
         /// <param name="isTransient">if set to <c>true</c> [is transient].</param>
         /// <returns>System.Nullable&lt;UObject&gt;.</returns>
         public UObject? CreateDefaultSubobject(string subobjectName, UClass? returnType, UClass? classToCreateByDefault, bool isRequired, bool isTransient)
-		{
-			return ObjectInteropUtils.CreateDefaultSubobject(
-				GetNativePtr(),
-				subobjectName,
-				returnType != null ? returnType.GetNativePtr() : IntPtr.Zero,
-				classToCreateByDefault != null ? classToCreateByDefault.GetNativePtr() : IntPtr.Zero,
-				isRequired,
-				isTransient
-			);
+        {
+            return ObjectInteropUtils.CreateDefaultSubobject(
+                GetNativePtr(),
+                subobjectName,
+                returnType != null ? returnType.GetNativePtr() : IntPtr.Zero,
+                classToCreateByDefault != null ? classToCreateByDefault.GetNativePtr() : IntPtr.Zero,
+                isRequired,
+                isTransient
+            );
         }
 
         /// <summary>
@@ -346,11 +346,11 @@ namespace UnrealSharp.UnrealEngine
         /// <param name="isTransient">if set to <c>true</c> [is transient].</param>
         /// <returns>System.Nullable&lt;TReturnType&gt;.</returns>
         public TReturnType? CreateDefaultSubobject<TReturnType>(string subobjectName, bool isTransient = false) where TReturnType : UObject
-		{
-			UClass? ReturnType = UClass.GetClassOf<TReturnType>();
+        {
+            UClass? ReturnType = UClass.GetClassOf<TReturnType>();
 
-			return CreateDefaultSubobject(subobjectName, ReturnType, ReturnType, true, isTransient) as TReturnType;
-		}
+            return CreateDefaultSubobject(subobjectName, ReturnType, ReturnType, true, isTransient) as TReturnType;
+        }
 
         /// <summary>
         /// Creates the default subobject.
@@ -361,11 +361,11 @@ namespace UnrealSharp.UnrealEngine
         /// <param name="isTransient">if set to <c>true</c> [is transient].</param>
         /// <returns>System.Nullable&lt;TReturnType&gt;.</returns>
         public TReturnType? CreateDefaultSubobject<TReturnType, TClassToConstructByDefault>(string subobjectName, bool isTransient = false) 
-			where TReturnType : UObject
-			where TClassToConstructByDefault : UObject
+            where TReturnType : UObject
+            where TClassToConstructByDefault : UObject
         {
             UClass? ReturnType = UClass.GetClassOf<TReturnType>();
-			UClass? ClassToCreateByDefault = UClass.GetClassOf<TClassToConstructByDefault>();
+            UClass? ClassToCreateByDefault = UClass.GetClassOf<TClassToConstructByDefault>();
 
             return CreateDefaultSubobject(subobjectName, ReturnType, ClassToCreateByDefault, true, isTransient) as TReturnType;
         }
@@ -401,7 +401,7 @@ namespace UnrealSharp.UnrealEngine
             UClass? ClassToCreateByDefault = UClass.GetClassOf<TClassToConstructByDefault>();
 
             return CreateDefaultSubobject(subobjectName, ReturnType, ClassToCreateByDefault, false, isTransient) as TReturnType;
-		}
+        }
         #endregion
 
         #region Object Factory
@@ -794,7 +794,7 @@ namespace UnrealSharp.UnrealEngine
         {
             Logger.Assert(address != IntPtr.Zero);
 
-			return IntelligentCacheUtils.GetPointerBasedValue(ref CachedPointer, ref CachedValue, address, offset, Constructor);
+            return IntelligentCacheUtils.GetPointerBasedValue(ref CachedPointer, ref CachedValue, address, offset, Constructor);
         }
     }
     #endregion

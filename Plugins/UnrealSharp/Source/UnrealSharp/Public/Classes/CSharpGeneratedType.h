@@ -33,7 +33,7 @@
 UINTERFACE(MinimalAPI)
 class UCSharpGeneratedType : public UInterface
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 };
 
 /**
@@ -42,18 +42,18 @@ class UCSharpGeneratedType : public UInterface
  */
 class UNREALSHARP_API ICSharpGeneratedType
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	virtual int64           GetCrcCode() const = 0;	
-	virtual int             GetGeneratorVersion() const = 0;
-	virtual const FString&  GetCSharpFullName() const = 0;
-	virtual const FString&  GetAssemblyName() const = 0;
-	virtual FString         GetCSharpTypeName() const = 0;
+    virtual int64           GetCrcCode() const = 0;    
+    virtual int             GetGeneratorVersion() const = 0;
+    virtual const FString&  GetCSharpFullName() const = 0;
+    virtual const FString&  GetAssemblyName() const = 0;
+    virtual FString         GetCSharpTypeName() const = 0;
 
     // used in editor...
-	virtual void            SetCrcCode(int64 InCrcCode) = 0;
-	virtual void            SetGeneratorVersion(int InVersion) = 0;
-	virtual void            SetCSharpFullName(const FString& InCSharpFullName) = 0;
-	virtual void            SetAssemblyName(const FString& InAssemblyName) = 0;
+    virtual void            SetCrcCode(int64 InCrcCode) = 0;
+    virtual void            SetGeneratorVersion(int InVersion) = 0;
+    virtual void            SetCSharpFullName(const FString& InCSharpFullName) = 0;
+    virtual void            SetAssemblyName(const FString& InAssemblyName) = 0;
 };
