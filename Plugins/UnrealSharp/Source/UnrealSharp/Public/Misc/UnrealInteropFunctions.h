@@ -48,6 +48,9 @@ namespace UnrealSharp
         // log message
         void*                               LogMessageFunctionPointerFunc;
 
+
+        // engine versions
+        // C# will check this for Compatibility testing
         int                                 UnrealMajorVersion = ENGINE_MAJOR_VERSION;
         int                                 UnrealMinorVersion = ENGINE_MINOR_VERSION;
         int                                 UnrealPatchVersion = ENGINE_PATCH_VERSION;
@@ -76,6 +79,9 @@ namespace UnrealSharp
 
         // get interop function by name
         void*                               GetInteropFunction(const FString& InFunctionName) const;
+
+        // remove interop function
+        void                                RemoveInteropFunction(const FString& InFunctionName);
 
     private:                           
         // setup base interop functions

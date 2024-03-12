@@ -63,215 +63,104 @@ namespace UnrealSharp
         // default: UnrealSharp.GameContent
         static const FString UnrealSharpGameContentNamespace;
 
-        /// <summary>
-        /// Is Native Type(implement in C++)
-        /// </summary>
-        /// <param name="InField">The in field.</param>
-        /// <returns>bool.</returns>
+        // Is Native Type(implement in C++)
         static bool IsNativeField(const UField* InField);
 
-        /// <summary>
-        /// is C# types(implement in C#)
-        /// </summary>
-        /// <param name="InField">The in field.</param>
-        /// <returns>bool.</returns>
+        // Is C# types(implement in C#)
         static bool IsCSharpField(const UField* InField);
 
-        /// <summary>
-        /// Is blueprint types(implement in blueprint)
-        /// </summary>
-        /// <param name="InField">The in field.</param>
-        /// <returns>bool.</returns>
+        // Is blueprint types(implement in blueprint)
         static bool IsBlueprintField(const UField* InField);
 
-        /// <summary>
-        /// export to GameScripts field?
-        /// </summary>
-        /// <param name="InField">The in field.</param>
-        /// <returns>bool.</returns>
+        // Is export to GameScripts field?
         static bool IsExportToGameScriptsField(const UField* InField);
 
-        /// <summary>
-        /// Is reserve class types
-        /// </summary>
-        /// <param name="InClass">The in class.</param>
-        /// <returns>bool.</returns>
+        // Is reserve class types
+        // these types can't be exported to C#
         static bool IsSpecialClass(const UClass* InClass);
 
-        /// <summary>
-        /// Is Native class ?? implement in C++
-        /// </summary>
-        /// <param name="InClass">The in class.</param>
-        /// <returns>bool.</returns>
+        // Is Native class ?? implement in C++
         static bool IsNativeClass(const UClass* InClass);
 
-        /// <summary>
-        /// Is Blueprint class ? implement in blueprint
-        /// </summary>
-        /// <param name="InClass">The in class.</param>
-        /// <returns>bool.</returns>
+        // Is Blueprint class ? implement in blueprint
         static bool IsBlueprintClass(const UClass* InClass);
 
-        /// <summary>
-        /// is blueprint class and inherit from an C# generated class ?
-        /// </summary>
-        /// <param name="InClass">The in class.</param>
-        /// <returns>bool.</returns>
+        // is blueprint class and inherit from an C# generated class ?
         static bool IsCSharpInheritBlueprintClass(const UClass* InClass);
 
-        /// <summary>
-        /// Is C# Class, Implement in C#
-        /// </summary>
-        /// <param name="InClass">The in class.</param>
-        /// <returns>bool.</returns>
+        // Is C# Class, Implement in C#
         static bool IsCSharpClass(const UClass* InClass);
 
-        /// <summary>
-        /// Is Native struct ?? implement in C++
-        /// </summary>
-        /// <param name="InStruct">The in struct.</param>
-        /// <returns>bool.</returns>
+        // Is Native struct ?? implement in C++
         static bool IsNativeStruct(const UScriptStruct* InStruct);
 
-        /// <summary>
-        /// Is Blueprint struct ? implement in blueprint
-        /// </summary>
-        /// <param name="InStruct">The in struct.</param>
-        /// <returns>bool.</returns>
+        // Is Blueprint struct ? implement in blueprint
         static bool IsBlueprintStruct(const UScriptStruct* InStruct);
 
-        /// <summary>
-        /// Is C# Struct, Implement in C#
-        /// </summary>
-        /// <param name="InStruct">The in struct.</param>
-        /// <returns>bool.</returns>
+        // Is C# Struct, Implement in C#
         static bool IsCSharpStruct(const UScriptStruct* InStruct);
 
-        /// <summary>
-        /// Is Native Enum ?? implement in C++
-        /// </summary>
-        /// <param name="InEnum">The in Enum.</param>
-        /// <returns>bool.</returns>
+        // Is Native Enum ?? implement in C++
         static bool IsNativeEnum(const UEnum* InEnum);
 
-        /// <summary>
-        /// Is Blueprint Enum ? implement in blueprint
-        /// </summary>
-        /// <param name="InEnum">The in Enum.</param>
-        /// <returns>bool.</returns>
+        // Is Blueprint Enum ? implement in blueprint
         static bool IsBlueprintEnum(const UEnum* InEnum);
 
-        /// <summary>
-        /// Is C# Enum, Implement in C#
-        /// </summary>
-        /// <param name="InEnum">The in Enum.</param>
-        /// <returns>bool.</returns>
+        // Is C# Enum, Implement in C#
         static bool IsCSharpEnum(const UEnum* InEnum);
 
-        /// <summary>
-        /// Gets the name of the CPP type.
-        /// </summary>
-        /// <param name="InField">The in field.</param>
-        /// <returns>FString.</returns>
+        // Gets the name of the CPP type.
+        // add C++ class prefix string for script name
+        // Actor -> AActor
+        // Object -> UObject
         static FString GetCppTypeName(const UField* InField);
 
-        /// <summary>
-        /// Gets the name of the field module.
-        /// </summary>
-        /// <param name="InField">The in field.</param>
-        /// <returns>FName.</returns>
+        // Gets the name of the field module.
         static FName GetFieldModuleName(const UField* InField);
 
-        /// <summary>
-        /// Gets the default name of the export project.
-        /// UFunction* is not supported.
-        /// </summary>
-        /// <param name="InField">The in field.</param>
-        /// <returns>FString.</returns>
+        // Gets the default name of the export project.
         static const FString& GetDefaultExportProjectName(const UField* InField);
 
-        /// <summary>
-        /// Gets the default export namespace.
-        /// UFunction* is not supported.
-        /// </summary>
-        /// <param name="InField">The in field.</param>
-        /// <returns>FString.</returns>
+        // Gets the default export namespace.
+        // UFunction* is not supported.
         static const FString& GetDefaultExportNamespace(const UField* InField);
 
-        /// <summary>
-        /// Gets the name of the assembly.
-        /// if it is Unreal native type, return UnrealSharpAssemblyName
-        /// if it is C# type, return the real assembly name
-        /// </summary>
-        /// <param name="InField">The in field.</param>
-        /// <returns>FString.</returns>
+        // Gets the name of the assembly.
+        // if it is Unreal native type, return UnrealSharpAssemblyName
+        // if it is C# type, return the real assembly name
         static const FString& GetAssemblyName(const UField* InField);
 
-        /// <summary>
-        /// Gets the C# full path.
-        /// </summary>
-        /// <param name="InField">The in field.</param>
-        /// <returns>FString.</returns>
+        // Gets the C# full path.
+        // If it is a C# type, the data will be obtained from the type data itself
+        // if not, combine string by configuration
         static FString GetCSharpFullPath(const UField* InField);
 
-        /// <summary>
-        /// Gets the name of the assembly.
-        /// use underlying type of property
-        /// </summary>
-        /// <param name="InProperty">The in property.</param>
-        /// <returns>FString.</returns>
+        // Gets the name of the assembly.
+        // use underlying type of property
         static const FString& GetAssemblyName(const FProperty* InProperty);
 
-        /// <summary>
-        /// Gets the full path.
-        /// use underlying type of property
-        /// </summary>
-        /// <param name="InProperty">The in property.</param>
-        /// <returns>FString.</returns>
+        // Gets the full path.
+        // use underlying type of property
         static FString GetCSharpFullPath(const FProperty* InProperty);
 
-        /// <summary>
-        /// Gets the property inner field.
-        /// </summary>
-        /// <param name="InProperty">The in property.</param>
-        /// <returns>UField *.</returns>
+        // Gets the property inner field.
         static UField* GetPropertyInnerField(const FProperty* InProperty);
 
-        /// <summary>
-        /// A simple estimate of the size of the type behind it, not necessarily 100% accurate
-        /// </summary>
-        /// <param name="InEnum">The in enum.</param>
-        /// <returns>int.</returns>
+        // A simple estimate of the size of the type behind it, not necessarily 100% accurate
+        // It just calculates the smallest type that can fit all enumeration fields. 
+        // The real size should be obtained from FProperty
         static int CalcEnumUnderlyingTypeSize(const UEnum* InEnum);
 
-        /// <summary>
-        /// Get property count
-        /// </summary>
-        /// <returns>int.</returns>
+        // Get property count
         static int GetPropertyCount(const UStruct* InStruct);
 
-        /// <summary>
-        /// Get property count witch filter
-        /// </summary>
-        /// <returns>int.</returns>
+        // Get property count witch filter        
         static int GetPropertyCount(const UStruct* InStruct, TFunction<bool(const FProperty*)> InFilter);
 
-        /// <summary>
-        /// pickup property name from blueprint struct property name: {propertyName}_{index}_{guid}
-        /// </summary>
-        /// <param name="InProperty">The in property.</param>
-        /// <returns>FName.</returns>
+        // pickup property name from blueprint struct property name: {propertyName}_{index}_{guid}
         static FName ExtraUserDefinedStructPropertyName(const FProperty* InProperty);
 
-        /// <summary>
-        /// Binds the c sharp method checked.
-        /// </summary>
-        /// <param name="InRuntime">The in runtime.</param>
-        /// <param name="InAssemblyName">Name of the in assembly.</param>
-        /// <param name="InNamespace">The in namespace.</param>
-        /// <param name="InClassName">Name of the in class.</param>
-        /// <param name="InBaseSignature">The in base signature.</param>
-        /// <returns>TSharedPtr&lt;ObjectType, InMode&gt;.</returns>
+        // Binds the c sharp method checked.
         static TSharedPtr<ICSharpMethodInvocation> BindCSharpMethodChecked(
             ICSharpRuntime* InRuntime,
             const FString& InAssemblyName,
@@ -280,14 +169,8 @@ namespace UnrealSharp
             const FString& InBaseSignature
         );
 
-        /// <summary>
-        /// Binds the unreal engine c sharp method checked.
-        /// default use UnrealSharp.UnrealEngine.dll namespace : UnrealSharp.UnrealEngine
-        /// </summary>
-        /// <param name="InRuntime">The in runtime.</param>
-        /// <param name="InClassName">Name of the in class.</param>
-        /// <param name="InBaseSignature">The in base signature.</param>
-        /// <returns>TSharedPtr&lt;ObjectType, InMode&gt;.</returns>
+        // Binds the unreal engine c sharp method checked.
+        // default use UnrealSharp.UnrealEngine.dll namespace : UnrealSharp.UnrealEngine
         static TSharedPtr<ICSharpMethodInvocation> BindUnrealEngineCSharpMethodChecked(
             ICSharpRuntime* InRuntime, 
             const FString& InClassName, 

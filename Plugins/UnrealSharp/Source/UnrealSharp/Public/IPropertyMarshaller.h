@@ -58,7 +58,7 @@ namespace UnrealSharp
         // This is a pointer to a temporary buffer
         void** InputReferenceAddress;
                 
-        // if this argument pass by reference??        
+        // is this argument pass by reference??        
         bool bPassAsReference;
     };
 
@@ -80,7 +80,10 @@ namespace UnrealSharp
         * But there are some special cases such as structures. 
         * We need to first create the C# data of this structure on the C# side, then copy the Unreal data into it, 
         * and then use it for function calls, so some additional memory is needed to handle these special cases. 
-        * So each IPropertyMarshaller can decide the size of the temporary memory area it needs.
+        * So each IPropertyMarshaller can decide the size of the temporary memory area it needs.  
+        * 
+        * For performance reasons, temporary memory when calling C# functions is dynamically allocated on the stack, 
+        * so we must know the size of these temporary memory areas in advance.
         */
         virtual int                 GetTempParameterBufferSize() const = 0;
 
@@ -95,9 +98,9 @@ namespace UnrealSharp
         * Data can be copied from unreal to C# and back from C#. 
         * There are two points to note: 
         *   1. the copy return value is different from the parameter, which has been explained in the previous comments; 
-        *   2. not every Property supports all copy operations, for example, containers and structures do not support copying from Unreal is copied directly to C#, 
-        *      and these operations require special processes to handle. 
-        *      So we can't assume that if you pass any parameters, the bottom layer will do it for you.
+        *   2. not every Property supports all copy operations, for example, containers and structures do not support copy from Unreal to C#, 
+        *      these operations require special processes to handle. 
+        *      So we can't assume that if you pass any parameters, the bottom layer will do it for you. Maybe, you will get a check(false), ^_^
         */
         virtual void                Copy(const void* InUnrealDataPointer, const void* InCSharpDataPointer, FProperty* InProperty, EMarshalCopyDirection InCopyDirection) const = 0;
     };

@@ -83,6 +83,11 @@ namespace UnrealSharp
         return Ptr != nullptr ? *Ptr : nullptr;
     }
 
+    void FUnrealInteropFunctions::RemoveInteropFunction(const FString& InFunctionName)
+    {
+        InteropFunctions.Remove(InFunctionName);
+    }
+
     void FUnrealInteropFunctions::SetupBaseInteropFunctions()
     {
         int InteropFunctionCount = 0;
