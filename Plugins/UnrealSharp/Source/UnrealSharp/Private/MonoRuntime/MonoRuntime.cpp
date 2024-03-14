@@ -102,7 +102,7 @@ namespace UnrealSharp::Mono
         return FString();
     }
 
-#if WITH_EDITOR    
+#if PLATFORM_MAC || PLATFORM_WINDOWS || PLATFORM_LINUX
     static const FString UnrealSharpTempFilePrefix = TEXT("__unrealsharp_temp.");
     static void DeleteIntermediateTempFiles(const FString& Directory)
     {
@@ -167,9 +167,11 @@ namespace UnrealSharp::Mono
 
         auto UnrealSharpTempDirectory = FUnrealSharpPaths::GetUnrealSharpIntermediateDir();
 
+#if PLATFORM_MAC || PLATFORM_WINDOWS || PLATFORM_LINUX
         DeleteIntermediateTempFiles(UnrealSharpTempDirectory);
+#endif
 
-#if WITH_EDITOR        
+#if WITH_EDITOR && PLATFORM_MAC || PLATFORM_WINDOWS || PLATFORM_LINUX
         if(bUseTempCoreCLRLibrary)
         {
             FString TempDllName = FPaths::Combine(UnrealSharpTempDirectory, UnrealSharpTempFilePrefix + TEXT("coreclr.") + FGuid::NewGuid().ToString() + TEXT(".") + FPlatformProcess::GetModuleExtension());
@@ -183,11 +185,13 @@ namespace UnrealSharp::Mono
         }
 #endif        
 
+#if WITH_EDITOR && PLATFORM_MAC || PLATFORM_WINDOWS || PLATFORM_LINUX
         LibraryHandle = FPlatformProcess::GetDllHandle(*CoreClrRuntimePath);
 
         checkf(LibraryHandle, TEXT("Failed load corelib from:%s"), *CoreClrRuntimePath);
 
         FMonoApis::Import(LibraryHandle);
+#endif
         
 #if PLATFORM_MAC
         // load managed require dylibs here
@@ -220,7 +224,9 @@ namespace UnrealSharp::Mono
 
     FMonoRuntime::~FMonoRuntime()
     {
+#if WITH_EDITOR && PLATFORM_MAC || PLATFORM_WINDOWS || PLATFORM_LINUX
         FMonoApis::UnImport();
+#endif
 
         if(LibraryHandle != nullptr)
         {
@@ -535,6 +541,7 @@ namespace UnrealSharp::Mono
                 return { LoadedAssembly, mono_assembly_get_image(LoadedAssembly)};
             }
         }
+#if PLATFORM_MAC || PLATFORM_WINDOWS || PLATFORM_LINUX
         else if(bIsDebuggerAvaialble)
         {
             // create temp files for them
@@ -560,6 +567,7 @@ namespace UnrealSharp::Mono
                 return { LoadedAssembly, mono_assembly_get_image(LoadedAssembly) };
             }
         }
+#endif
 
         TUniquePtr<FArchive> Reader(IFileManager::Get().CreateFileReader(*AbsoluteAssemblyPath));
         if (!Reader)

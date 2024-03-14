@@ -45,9 +45,15 @@ namespace UnrealSharp::Mono
 {
     void FMonoApis::Import(void* InHandle)
     {
+#if PLATFORM_MAC || PLATFORM_WINDOWS || PLATFORM_LINUX
 #define MONO_API_FUNCTION(returnType, name, params) \
         name = (decltype(name))FPlatformProcess::GetDllExport(InHandle, TEXT(#name)); \
         checkf(name != nullptr, TEXT("Failed bind mono api:") TEXT(#name));
+#else
+#define MONO_API_FUNCTION(returnType, name, params) \
+        name = &::name; \
+        checkf(name != nullptr, TEXT("Failed bind mono api:") TEXT(#name));
+#endif
 
 #include "MonoRuntime/MonoApisImport.h"
 

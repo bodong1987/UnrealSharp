@@ -140,11 +140,14 @@ public class UnrealSharp : ModuleRules
         {
             return "coreclr.dll";
         }
-        else if(Target.Platform == UnrealTargetPlatform.Mac ||
-            Target.Platform == UnrealTargetPlatform.IOS||
-            Target.Platform == UnrealTargetPlatform.TVOS)
+        else if(Target.Platform == UnrealTargetPlatform.Mac)
         {
             return "libcoreclr.dylib";
+        }
+        else if(Target.Platform == UnrealTargetPlatform.IOS||
+            Target.Platform == UnrealTargetPlatform.TVOS)
+        {
+            return "libmonosgen-2.0.dylib";
         }
 
         return "libcoreclr.so";
@@ -193,79 +196,84 @@ public class UnrealSharp : ModuleRules
         string platformTag = GetPlatformName();
         string archTypeTag = GetArchTypeName();
 
-        if (Target.Platform == UnrealTargetPlatform.Win64 || 
-            Target.Platform == UnrealTargetPlatform.Mac)
+        string platformDirectoryName = $"{platformTag}.{archTypeTag}.{configurationTag}";
+        string managedRuntimeDirectoryName = $"{DotnetVersion}-{platformTag}-{configurationTagRaw}-{archTypeTag}";
+        System.Console.WriteLine($"Platform Directory:{platformDirectoryName}");
+        System.Console.WriteLine($"Managed Runtime Directory:{managedRuntimeDirectoryName}");
+
+        string NativeLibDirectoryRelativePath = $"ThirdParty/mono/{platformDirectoryName}";
+        string SystemManagedLibDirectoryRelativePath = $"ThirdParty/runtime/{managedRuntimeDirectoryName}";
+
+        System.Console.WriteLine($"Native library relative path:{NativeLibDirectoryRelativePath}");
+        System.Console.WriteLine($"System managed library relative path:{SystemManagedLibDirectoryRelativePath}");
+
+        PublicDefinitions.Add($"UNREALSHARP_NATIVE_LIBDIRECTORY_RELATIVE_PATH=\"{NativeLibDirectoryRelativePath}\"");
+        PublicDefinitions.Add($"UNREALSHARP_SYSTEM_MANAGED_LIBDIRECTORY_RELATIVE_PATH=\"{SystemManagedLibDirectoryRelativePath}\"");
+        PublicDefinitions.Add($"UNREALSHARP_CORECLR_LIBNAME=\"{GetCoreCLRLibName()}\"");
+
+        string IncludePath = Path.GetFullPath(Path.Combine(ModuleDirectory, $"../../ThirdParty/mono/{platformDirectoryName}/include/mono-2.0/"));
+        PublicIncludePaths.Add(IncludePath);
+
+        System.Console.WriteLine($"Add mono inlude path:{IncludePath}");
+
+        string RuntimeLibPath = Path.GetFullPath(Path.Combine(ModuleDirectory, $"../../ThirdParty/mono/{platformDirectoryName}"));
+        PublicSystemLibraryPaths.Add(RuntimeLibPath);
+
+        List<string> runtimeLibs = new List<string>()
+            {
+                Path.Combine(ModuleDirectory, $"../../ThirdParty/mono/{platformDirectoryName}/{GetCoreCLRLibName()}"),
+                Path.Combine(ModuleDirectory, $"../../ThirdParty/mono/{platformDirectoryName}/System.Private.CoreLib.dll")
+            };
+
+        if (bIsDebug && (Target.Platform == UnrealTargetPlatform.Mac||Target.Platform == UnrealTargetPlatform.Win64))
         {
-            string platformDirectoryName = $"{platformTag}.{archTypeTag}.{configurationTag}";
-            string managedRuntimeDirectoryName = $"{DotnetVersion}-{platformTag}-{configurationTagRaw}-{archTypeTag}";
-            System.Console.WriteLine($"Platform Directory:{platformDirectoryName}");
-            System.Console.WriteLine($"Managed Runtime Directory:{managedRuntimeDirectoryName}");
-
-            string NativeLibDirectoryRelativePath = $"ThirdParty/mono/{platformDirectoryName}";
-            string SystemManagedLibDirectoryRelativePath = $"ThirdParty/runtime/{managedRuntimeDirectoryName}";
-
-            System.Console.WriteLine($"Native library relative path:{NativeLibDirectoryRelativePath}");
-            System.Console.WriteLine($"System managed library relative path:{SystemManagedLibDirectoryRelativePath}");
-
-            PublicDefinitions.Add($"UNREALSHARP_NATIVE_LIBDIRECTORY_RELATIVE_PATH=\"{NativeLibDirectoryRelativePath}\"");
-            PublicDefinitions.Add($"UNREALSHARP_SYSTEM_MANAGED_LIBDIRECTORY_RELATIVE_PATH=\"{SystemManagedLibDirectoryRelativePath}\"");
-            PublicDefinitions.Add($"UNREALSHARP_CORECLR_LIBNAME=\"{GetCoreCLRLibName()}\"");
-
-            string IncludePath = Path.GetFullPath(Path.Combine(ModuleDirectory, $"../../ThirdParty/mono/{platformDirectoryName}/include/mono-2.0/"));
-            PublicIncludePaths.Add(IncludePath);
-
-            List<string> runtimeLibs = new List<string>()
-                {
-                    Path.Combine(ModuleDirectory, $"../../ThirdParty/mono/{platformDirectoryName}/{GetModulePrefix()}coreclr{GetModuleExtension()}"),
-                    Path.Combine(ModuleDirectory, $"../../ThirdParty/mono/{platformDirectoryName}/System.Private.CoreLib.dll")
-                };
-
-            if (bIsDebug)
+            if(Target.Platform == UnrealTargetPlatform.Win64)
             {
                 runtimeLibs.Add(Path.Combine(ModuleDirectory, $"../../ThirdParty/mono/{platformDirectoryName}/coreclr.pdb"));
-                runtimeLibs.Add(Path.Combine(ModuleDirectory, $"../../ThirdParty/mono/{platformDirectoryName}/System.Private.CoreLib.pdb"));
             }
+            
+            runtimeLibs.Add(Path.Combine(ModuleDirectory, $"../../ThirdParty/mono/{platformDirectoryName}/System.Private.CoreLib.pdb"));
+        }
 
-            foreach (var managedRuntimeFile in Directory.GetFiles(Path.Combine(ModuleDirectory, $"../../ThirdParty/runtime/{managedRuntimeDirectoryName}")))
+        foreach (var managedRuntimeFile in Directory.GetFiles(Path.Combine(ModuleDirectory, $"../../ThirdParty/runtime/{managedRuntimeDirectoryName}")))
+        {
+            if (managedRuntimeFile.EndsWith(".dll", System.StringComparison.CurrentCultureIgnoreCase) || bIsDebug)
             {
-                if (managedRuntimeFile.EndsWith(".dll", System.StringComparison.CurrentCultureIgnoreCase) || bIsDebug)
+                runtimeLibs.Add(managedRuntimeFile);
+            }
+        }
+
+        foreach (var file in runtimeLibs)
+        {
+            System.Console.WriteLine($"Add runtime lib file:{file}");
+            RuntimeDependencies.Add(file);
+        }
+
+        var ManagedDir = Path.Combine(ModuleDirectory, "../../../../Managed/");
+
+        if (Directory.Exists(ManagedDir))
+        {
+            foreach (var file in Directory.GetFiles(ManagedDir))
+            {
+                string extension = Path.GetExtension(file);
+                string fileName = Path.GetFileNameWithoutExtension(file);
+
+                if ((extension == ".dll" || extension == ".json"))
                 {
-                    runtimeLibs.Add(managedRuntimeFile);
-                }
-            }
-
-            foreach (var file in runtimeLibs)
-            {
-                RuntimeDependencies.Add(file);
-            }
-
-            var ManagedDir = Path.Combine(ModuleDirectory, "../../../../Managed/");
-
-            if (Directory.Exists(ManagedDir))
-            {
-                foreach (var file in Directory.GetFiles(ManagedDir))
-                {
-                    string extension = Path.GetExtension(file);
-                    string fileName = Path.GetFileNameWithoutExtension(file);
-
-                    if ((extension == ".dll" || extension == ".json"))
-                    {
-                        RuntimeDependencies.Add(file);
-                    }
+                    RuntimeDependencies.Add(file);
                 }
             }
         }
-        else if(Target.Platform == UnrealTargetPlatform.Mac ||
-            Target.Platform == UnrealTargetPlatform.IOS ||
-            Target.Platform == UnrealTargetPlatform.TVOS) 
+
+        PublicDefinitions.Add($"MONO_LIBRARY_NAME=\"{GetCoreCLRLibName()}\"");
+        System.Console.WriteLine($"MONO_LIBRARY_NAME=\"{GetCoreCLRLibName()}\"");
+
+        if(Target.Platform == UnrealTargetPlatform.IOS ||
+            Target.Platform == UnrealTargetPlatform.TVOS ||
+            Target.Platform == UnrealTargetPlatform.Android)
         {
-            // temp... it will be not working
-            PublicDefinitions.Add($"MONO_LIBRARY_NAME=\"libmonosgen-2.0.dylib\"");
-        }
-        else
-        {
-            // temp... it will be not working
-            PublicDefinitions.Add($"MONO_LIBRARY_NAME=\"libmonosgen-2.0.so\"");
+            PublicAdditionalLibraries.Add($"{RuntimeLibPath}/{GetCoreCLRLibName()}");
+            // PublicAdditionalLibraries.Add($"{RuntimeLibPath}/libmonosgen-2.0.a");
         }
     }
 }

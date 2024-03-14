@@ -44,10 +44,18 @@
 #include <mono/metadata/details/appdomain-types.h>
 #include <mono/metadata/details/loader-types.h>
 
+#if WITH_EDITOR && PLATFORM_MAC || PLATFORM_WINDOWS || PLATFORM_LINUX
 #define MONO_API_FUNCTION(returnType, name, params) \
     namespace UnrealSharp::Mono {\
         extern returnType(*name) params;\
     }
+#else
+#define MONO_API_FUNCTION(returnType, name, params) \
+    extern "C"\
+    { \
+        extern returnType name params; \
+    }
+#endif
 
 // include mono api definitions
 #include "MonoRuntime/MonoApisImport.h"
