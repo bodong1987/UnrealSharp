@@ -89,7 +89,7 @@ To use this library, you need these few steps, you can click on the link to get 
     * UnrealSharp.ExportDatabase
     * UnrealSharp.ExportUnrealCppDatabase
     * UnrealSharp.ExportBlueprintDatabase
-8. open GameScripts/UnrealSharp.sln, **[Select your development platform's Configuration](./Docs/CSharpBuildConfiguration.md)**, compile this solution.  
+8. open GameScripts/UnrealSharp.sln, **[Select your development platform's Configuration](./Docs/CSharpBuildConfiguration.md)**, upgrade nuget package UnrealSharp.Toolkit, It is best to keep the version number consistent with the version number of UnrealSharp. Different version numbers may not be compatible; compile this solution.  
 C# binding code and C++ interaction APIs will be automatically generated during the compilation process [if you enable this function]. 
 9. If you enable C++ interactive code generation, you need to recompile your C++ code and start Unreal Editor again. The deployment is complete.   
 10. The next thing you have to do is [learn how to](#turtorials) add C# code in C# according to the specifications to implement Unreal Class, Unreal Struct, Unreal Enums, etc.  
