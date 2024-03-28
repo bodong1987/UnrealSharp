@@ -167,6 +167,24 @@ namespace UnrealSharp::Mono
         ParamCount = 0;
     }
 
+    void* FMonoMethodInvocation::DecodeReturnPointer(void* InReturnValue) const
+    {
+        if (InReturnValue == nullptr)
+        {
+            return nullptr;
+        }
+
+        MonoObject* ObjectPtr = (MonoObject*)InReturnValue;
+        MonoClass* klass = mono_object_get_class(ObjectPtr);
+
+        if (mono_class_is_valuetype(klass))
+        {
+            return mono_object_unbox(ObjectPtr);
+        }
+
+        return InReturnValue;
+    }
+
     void FMonoMethodInvocation::AddArgument(void* InArgumentPtr)
     {
         check(ParameterBuffer != nullptr);

@@ -60,6 +60,21 @@ namespace UnrealSharp
         return Invocation.Invoke(InInstance, OutException);
     }
 
+    void* FScopedCSharpMethodInvocation::DecodeReturnValue(void* InReturnValue)
+    {
+        return Invocation.DecodeReturnPointer(InReturnValue);
+    }
+
+    void* FScopedCSharpMethodInvocation::DecodedInvoke(void* InInstance)
+    {
+        return DecodeReturnValue(Invoke(InInstance));
+    }
+
+    void* FScopedCSharpMethodInvocation::DecodedInvoke(void* InInstance, TUniquePtr<ICSharpMethodInvocationException>& OutException)
+    {
+        return DecodeReturnValue(Invoke(InInstance, OutException));
+    }
+
     void FScopedCSharpMethodInvocation::AddArgument(void* InArgumentPtr)
     {
         Invocation.AddArgument(InArgumentPtr);

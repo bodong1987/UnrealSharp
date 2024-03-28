@@ -55,15 +55,22 @@ namespace UnrealSharp::Mono
         AddMarshaller<FCollectionPropertyMarshaller>();
     }
 
-    const IPropertyMarshaller* FPropertyMarshallerCollection::GetMarshaller(FProperty* InProperty) const
+    const IPropertyMarshaller* FPropertyMarshallerCollection::GetMarshaller(const FProperty* InProperty) const
     {
         checkSlow(InProperty!=nullptr);
 
-        FFieldClass* Class = InProperty->GetClass();
+        auto Class = InProperty->GetClass();
 
-        auto* Ptr = Marshallers.Find(Class);
-        
-        checkf(Ptr!=nullptr, TEXT("Failed find Marshaller for type:%s"), *InProperty->GetClass()->GetName());
+        return GetMarshaller(Class);
+    }
+
+    const IPropertyMarshaller* FPropertyMarshallerCollection::GetMarshaller(const FFieldClass* InFieldClass) const
+    {
+        checkSlow(InFieldClass!=nullptr);
+
+        auto* Ptr = Marshallers.Find(InFieldClass);
+
+        checkf(Ptr != nullptr, TEXT("Failed find Marshaller for type:%s"), *InFieldClass->GetName());
 
         return (*Ptr).Get();
     }
@@ -431,7 +438,7 @@ namespace UnrealSharp::Mono
         
         MonoObject* ObjectPtr = (MonoObject*)InCSharpDataPointer;
 
-#if UE_BUILD_DEBUG        
+#if !UE_BUILD_SHIPPING
         MonoClass* klass = mono_object_get_class(ObjectPtr);
 
         check(mono_class_is_valuetype(klass));
@@ -569,8 +576,10 @@ namespace UnrealSharp::Mono
         void* CSharpStructPtr = FMonoInteropUtils::CreateCSharpStruct(InParameters.InputAddress, Struct);        
         checkf(CSharpStructPtr != nullptr, TEXT("Failed create C# struct of type:%s, please check log for more information."), *Struct->GetStructCPPName());
 
+#if !UE_BUILD_SHIPPING
         // validate type
-        checkSlow(mono_class_is_valuetype(mono_object_get_class((MonoObject*)CSharpStructPtr)));
+        check(mono_class_is_valuetype(mono_object_get_class((MonoObject*)CSharpStructPtr)));
+#endif
 
         void* TargetPtr = mono_object_unbox((MonoObject*)CSharpStructPtr);
         

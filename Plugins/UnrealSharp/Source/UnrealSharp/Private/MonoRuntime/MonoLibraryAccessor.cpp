@@ -41,30 +41,8 @@ namespace UnrealSharp::Mono
     {
     }
 
-    UObject* FMonoLibraryAccessor::GetUnrealObject(void* InCSharpObject)
+    FMonoLibraryAccessor::~FMonoLibraryAccessor()
     {
-        UNREALSHARP_SCOPED_CSHARP_METHOD_INVOCATION(GetNativePtrInvocation);
-
-        void* Result = GetNativePtrInvocationInvoker.Invoke(InCSharpObject);
-
-        if (Result == nullptr)
-        {
-            return nullptr;
-        }
-
-        // this result must be MonoObject*
-        MonoObject* ObjectPtr = (MonoObject*)Result;
-
-        void* RawAddress = mono_object_unbox(ObjectPtr);
-
-        if (RawAddress == nullptr)
-        {
-            return nullptr;
-        }
-
-        UObject** ObjectPointerPtr = (UObject**)RawAddress;
-
-        return *ObjectPointerPtr;
     }
 }
 #endif

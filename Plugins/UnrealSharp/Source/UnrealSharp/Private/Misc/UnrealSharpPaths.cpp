@@ -61,7 +61,8 @@ namespace UnrealSharp
 
     FString FUnrealSharpPaths::GetUnrealSharpManagedLibraryDir()
     {
-        FString ManagedPath = FPaths::ConvertRelativePathToFull(FPaths::Combine(FPaths::ProjectDir(), TEXT("Managed")));
+        // MANAGED_DIRECTORYNAME is defined in Build.cs
+        FString ManagedPath = FPaths::ConvertRelativePathToFull(FPaths::Combine(FPaths::ProjectDir(), TEXT("Managed/") TEXT(MANAGED_DIRECTORYNAME)));
         return ManagedPath;
     }
 

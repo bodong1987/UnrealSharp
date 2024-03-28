@@ -129,6 +129,37 @@ public class UnrealSharp : ModuleRules
         return Target.Platform.ToString();
     }
 
+    private string GetManagedPlatformName()
+    {
+        if (Target.Platform == UnrealTargetPlatform.Win64)
+        {
+            return "Windows";
+        }
+        else if (Target.Platform == UnrealTargetPlatform.Mac)
+        {
+            return "Mac";
+        }
+        else if (Target.Platform == UnrealTargetPlatform.IOS)
+        {
+            return "IOS";
+        }
+        else if (Target.Platform == UnrealTargetPlatform.Android)
+        {
+            return "Android";
+        }
+        else if (Target.Platform == UnrealTargetPlatform.Linux || Target.Platform == UnrealTargetPlatform.LinuxArm64)
+        {
+            return "Linux";
+        }
+        else if (Target.Platform == UnrealTargetPlatform.TVOS)
+        {
+            return "TVOS";
+        }
+
+        string value = Target.Platform.ToString();
+        return char.ToUpper(value[0]) + value.Substring(1);
+    }
+
     private string GetArchTypeName()
     {
         return Target.Architecture.ToString();
@@ -152,6 +183,7 @@ public class UnrealSharp : ModuleRules
 
         return "libcoreclr.so";
     }
+
 
     private string GetModuleExtension()
     {
@@ -190,11 +222,19 @@ public class UnrealSharp : ModuleRules
         // change this if you want to debug mono code
         System.Console.WriteLine($"BuildConfiguration:{Target.Configuration}");
 
+        // only use debug runtime when use C++ debug config 
         bool bIsDebug = Target.Configuration.ToString().Contains("DEBUG", System.StringComparison.CurrentCultureIgnoreCase);
+
+        // only use release build in Shipping mode
+        bool bIsManagedDebug = !Target.Configuration.ToString().Contains("Shipping", System.StringComparison.CurrentCultureIgnoreCase);
+
         string configurationTag = bIsDebug ? "debug" : "release";
         string configurationTagRaw = bIsDebug ? "Debug" : "Release";
         string platformTag = GetPlatformName();
         string archTypeTag = GetArchTypeName();
+        bool bIsEditor = Target.Type == TargetType.Editor;
+        
+        string ManagedDirectoryName = $"{(bIsManagedDebug?"Debug":"Release")}-{GetManagedPlatformName()}-{(bIsEditor?"Editor":"Game")}";
 
         string platformDirectoryName = $"{platformTag}.{archTypeTag}.{configurationTag}";
         string managedRuntimeDirectoryName = $"{DotnetVersion}-{platformTag}-{configurationTagRaw}-{archTypeTag}";
@@ -245,14 +285,16 @@ public class UnrealSharp : ModuleRules
 
         foreach (var file in runtimeLibs)
         {
-            System.Console.WriteLine($"Add runtime lib file:{file}");
+          //  System.Console.WriteLine($"Add runtime lib file:{file}");
             RuntimeDependencies.Add(file);
         }
 
-        var ManagedDir = Path.Combine(ModuleDirectory, "../../../../Managed/");
+        var ManagedDir = Path.GetFullPath(Path.Combine(ModuleDirectory, $"../../../../Managed/{ManagedDirectoryName}"));
 
         if (Directory.Exists(ManagedDir))
         {
+            System.Console.WriteLine($"Found Managed Directory: {ManagedDir}");
+
             foreach (var file in Directory.GetFiles(ManagedDir))
             {
                 string extension = Path.GetExtension(file);
@@ -264,15 +306,30 @@ public class UnrealSharp : ModuleRules
                 }
             }
         }
+        else
+        {
+            if(!bIsEditor)
+            {
+                throw new System.Exception($"Before packaging the game, please compile the C# code for the corresponding configuration: {ManagedDirectoryName}");
+            }
+
+            System.Console.WriteLine($"Warning: {ManagedDir} is not exists, before running it for the first time, be sure to compile the C# code using build configuration `{ManagedDirectoryName}`.");
+        }
+
+        PublicDefinitions.Add($"MANAGED_DIRECTORYNAME=\"{ManagedDirectoryName}\"");
+        System.Console.WriteLine($"Managed Directory:{ManagedDirectoryName}");
 
         PublicDefinitions.Add($"MONO_LIBRARY_NAME=\"{GetCoreCLRLibName()}\"");
-        System.Console.WriteLine($"MONO_LIBRARY_NAME=\"{GetCoreCLRLibName()}\"");
+        System.Console.WriteLine($"C# runtime library:{GetCoreCLRLibName()}");
 
         if(Target.Platform == UnrealTargetPlatform.IOS ||
             Target.Platform == UnrealTargetPlatform.TVOS ||
             Target.Platform == UnrealTargetPlatform.Android)
         {
             PublicAdditionalLibraries.Add($"{RuntimeLibPath}/{GetCoreCLRLibName()}");
+
+            // try test link with static library, but it need same xcode clang version...
+            // so use dylib ...
             // PublicAdditionalLibraries.Add($"{RuntimeLibPath}/libmonosgen-2.0.a");
         }
     }

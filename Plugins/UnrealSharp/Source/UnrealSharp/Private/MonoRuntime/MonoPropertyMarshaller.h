@@ -54,10 +54,11 @@ namespace UnrealSharp::Mono
         }
 
     public:
-        const IPropertyMarshaller* GetMarshaller(FProperty* InProperty) const;
+        const IPropertyMarshaller* GetMarshaller(const FProperty* InProperty) const;
+        const IPropertyMarshaller* GetMarshaller(const FFieldClass* InFieldClass) const;
 
     private:
-        TMap<FFieldClass*, TSharedPtr<IPropertyMarshaller>>  Marshallers;
+        TMap<const FFieldClass*, TSharedPtr<IPropertyMarshaller>>  Marshallers;
     };
 
     class FPropertyMarshaller : public IPropertyMarshaller

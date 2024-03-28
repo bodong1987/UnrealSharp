@@ -82,7 +82,10 @@ namespace UnrealSharp
         virtual TSharedPtr<ICSharpGCHandle>             CreateCSharpGCHandle(void* InCSharpObject, bool bInWeakReference = false) = 0;        
 
         // get property marshaller interface from Unreal property pointer
-        virtual const IPropertyMarshaller*              GetPropertyMarshaller(FProperty* InProperty) const = 0;
+        virtual const IPropertyMarshaller*              GetPropertyMarshaller(const FProperty* InProperty) const = 0;
+
+        // get property marshaller interface from Unreal property's FieldClass
+        virtual const IPropertyMarshaller*              GetPropertyMarshaller(const FFieldClass* InFieldClass) const = 0;
 
         // force execute GC on runtime
         virtual void                                    ExecuteGarbageCollect(bool bFully) = 0;

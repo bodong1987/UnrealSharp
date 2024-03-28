@@ -81,6 +81,12 @@ namespace UnrealSharp
         virtual void                          AddArgument(void* InArgumentPtr) = 0;
 
         // get c# method parameter count
-        virtual int                           GetCSharpFunctionParameterCount() const = 0;        
+        virtual int                           GetCSharpFunctionParameterCount() const = 0;
+
+        // decode return value
+        // in mono runtime, the return type of Invoke is always MonoObject*
+        // if your return value is value type, you need unbox it.
+        // you can invoke this method to decode it, it will give you the real pointer of the backend data.
+        virtual void*                         DecodeReturnPointer(void* InReturnValue) const = 0;
     };
 }

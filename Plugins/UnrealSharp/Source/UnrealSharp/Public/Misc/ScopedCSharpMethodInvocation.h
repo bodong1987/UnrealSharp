@@ -61,19 +61,58 @@ namespace UnrealSharp
         FScopedCSharpMethodInvocation& operator = (FScopedCSharpMethodInvocation&&) = delete;
 
     public:
+        // invoke C# method with instance(can be null for static method)
         void*                        Invoke(void* InInstance);
+
+        // invoke C# method with instance(can be null for static method), capture exception information
         void*                        Invoke(void* InInstance, TUniquePtr<ICSharpMethodInvocationException>& OutException);
+
+        // decode return value
+        void*                        DecodeReturnValue(void* InReturnValue);
+
+        // invoke C# method with instance(can be null for static method), auto decode return value
+        void*                        DecodedInvoke(void* InInstance);
+
+        // invoke C# method with instance(can be null for static method), capture exception information, auto decode return value
+        void*                        DecodedInvoke(void* InInstance, TUniquePtr<ICSharpMethodInvocationException>& OutException);
 
         ICSharpMethodInvocation*     GetInvocation() { return &Invocation; }
 
         void                         AddArgument(void* InArgumentPtr);
 
+        // Parameters are automatically packaged during compilation, and there is no need to manually AddParameter, making the call easier and more convenient.
         template <typename... T>
         inline void*                 Invoke(void* InInstance, T*... args)
         {
             AddParameter<T...>(args...);
 
             return Invoke(InInstance);
+        }
+
+        // Parameters are automatically packaged during compilation, and there is no need to manually AddParameter, making the call easier and more convenient.
+        // auto decode return value
+        template <typename... T>
+        inline void*                 DecodedInvoke(void* InInstance, T*... args)
+        {
+            AddParameter<T...>(args...);
+
+            return DecodedInvoke(InInstance);
+        }
+
+        // If your C# function returns a simple value type, it is more convenient to use this interface directly.
+        template <typename TReturnType, typename... T>
+        inline TReturnType           Invoke(void* InInstance, T*... args)
+        {
+            static_assert(TIsPODType<TReturnType>::Value, "This interface is only available for value types (same on C# and C++ sides)");
+
+            if constexpr (sizeof...(T) > 0)
+            {
+                AddParameter<T...>(args...);
+            }
+
+            TReturnType* ReturnValuePointer = (TReturnType*)DecodedInvoke(InInstance);
+
+            return *ReturnValuePointer;
         }
 
     private:

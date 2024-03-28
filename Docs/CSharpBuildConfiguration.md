@@ -23,7 +23,7 @@ select your correct build configuration here:
 ![VisualStudioBuildConfiguration](./Images/buildconfiguration.png)
 
 **Please be sure to select the correct and matching configuration when compiling, otherwise an error will be directly triggered when initializing UnrealSharp.  
-Debug and Release can be mixed to facilitate debugging, while others need to match exactly.
-**
+Debug and Release can be mixed to facilitate debugging, while others need to match exactly.**  
+**Before you package your game each time, be sure to select the correct configuration and recompile the C# code. For example, if you want to package a Windows game, you can choose Debug-Windows-Game or Release-Windows-Game, but Debug-Windows-Editor cannot.**
 
 

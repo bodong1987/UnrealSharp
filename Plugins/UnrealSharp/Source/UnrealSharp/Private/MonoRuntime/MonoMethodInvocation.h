@@ -45,6 +45,7 @@ namespace UnrealSharp::Mono
         virtual void* Invoke(void* InInstance) override;
         virtual void* Invoke(void* InInstance, TUniquePtr<ICSharpMethodInvocationException>& OutException) override;
         virtual void  EndInvoke() override;
+        virtual void* DecodeReturnPointer(void* InReturnValue) const override;
 
         virtual void AddArgument(void* InArgumentPtr) override;
         virtual int GetCSharpFunctionParameterCount() const override;

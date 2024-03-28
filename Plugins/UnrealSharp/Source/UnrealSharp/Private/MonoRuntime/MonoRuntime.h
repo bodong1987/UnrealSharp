@@ -51,8 +51,9 @@ namespace UnrealSharp::Mono
         virtual TSharedPtr<ICSharpType>                 LookupType(const FString& InAssemblyName, const FString& InNamespace, const FString& InName) override;        
         virtual TSharedPtr<ICSharpMethodInvocation>     CreateCSharpMethodInvocation(TSharedPtr<ICSharpMethod> InMethod) override;
         virtual TSharedPtr<ICSharpMethodInvocation>     CreateCSharpMethodInvocation(const FString& InAssemblyName, const FString& InFullyQualifiedMethodName) override;
-        virtual const IPropertyMarshaller*              GetPropertyMarshaller(FProperty* InProperty) const override;
-
+        virtual const IPropertyMarshaller*              GetPropertyMarshaller(const FProperty* InProperty) const override;
+        virtual const IPropertyMarshaller*              GetPropertyMarshaller(const FFieldClass* InFieldClass) const override;
+        
         virtual TSharedPtr<ICSharpGCHandle>             CreateCSharpGCHandle(void* InCSharpObject, bool bInWeakReference) override;
         virtual void                                    ExecuteGarbageCollect(bool bFully) override;
         virtual TSharedPtr<ICSharpLibraryAccessor>      CreateCSharpLibraryAccessor() override; 

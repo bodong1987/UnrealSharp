@@ -67,19 +67,9 @@ namespace UnrealSharp
     {
         UNREALSHARP_SCOPED_CSHARP_METHOD_INVOCATION(GetNativePtrInvocation);
 
-        void* Result = GetNativePtrInvocationInvoker.Invoke(InCSharpObject);
+        UObject* Result = GetNativePtrInvocationInvoker.Invoke<UObject*>(InCSharpObject);
         
-        if (Result == nullptr)
-        {
-            return nullptr;
-        }
-
-        // this should be invalid in mono...
-        checkNoEntry();
-
-        UObject* Target = *(UObject**)Result;
-
-        return Target;
+        return Result;
     }
 
     void FCSharpLibraryAccessor::BeforeObjectConstructor(void* InCSharpObject, const FObjectInitializer& InObjectInitializer)

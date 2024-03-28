@@ -80,8 +80,8 @@ namespace UnrealSharp::Mono
         
         ManagedLibraryPath = LibraryPath;
 
-        FString UserPath = FPaths::ConvertRelativePathToFull(FPaths::Combine(FPaths::ProjectDir(), TEXT("Managed/")));
-        check(FPaths::DirectoryExists(UserPath));
+        FString UserPath = FPaths::ConvertRelativePathToFull(FUnrealSharpPaths::GetUnrealSharpManagedLibraryDir());
+        checkf(FPaths::DirectoryExists(UserPath), TEXT("C# output directory is not exists: %s, Please build C# codes first."), *UserPath);
 
         LibrarySearchPaths.Add(UserPath);
         LibrarySearchPaths.Add(LibraryPath);
@@ -829,10 +829,15 @@ namespace UnrealSharp::Mono
         return TSharedPtr<ICSharpMethodInvocation>();
     }
 
-    const IPropertyMarshaller* FMonoRuntime::GetPropertyMarshaller(FProperty* InProperty) const
+    const IPropertyMarshaller* FMonoRuntime::GetPropertyMarshaller(const FProperty* InProperty) const
     {        
         return MarshallerCollectionPtr->GetMarshaller(InProperty);
     }
+
+    const IPropertyMarshaller* FMonoRuntime::GetPropertyMarshaller(const FFieldClass* InFieldClass) const
+    {
+        return MarshallerCollectionPtr->GetMarshaller(InFieldClass);
+    }       
 
     TSharedPtr<ICSharpGCHandle> FMonoRuntime::CreateCSharpGCHandle(void* InCSharpObject, bool bInWeakReference)
     {

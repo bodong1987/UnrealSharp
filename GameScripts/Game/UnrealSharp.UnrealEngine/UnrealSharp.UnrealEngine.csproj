@@ -9,11 +9,9 @@
     <IsTrimmable>True</IsTrimmable>
     <AssemblyVersion>1.0.0.12</AssemblyVersion>
     <FileVersion>1.0.0.12</FileVersion>
-	<OutputPath>../../../Managed</OutputPath>
 	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <Configurations>Debug-Windows-Editor;Release-Windows-Editor;Debug-Windows-Game;Release-Windows-Game;Debug-Mac-Editor;Release-Mac-Editor;Debug-Mac-Game;Release-Mac-Game;Debug-Linux-Editor;Release-Linux-Editor;Debug-Linux-Game;Release-Linux-Game;Debug-IOS-Game;Release-IOS-Game;Debug-Android-Game;Release-Android-Game</Configurations>
+	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>    
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="UnrealSharp.Toolkit" Version="1.0.0.12" />
