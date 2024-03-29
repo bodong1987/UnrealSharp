@@ -412,7 +412,9 @@ namespace UnrealSharp::Mono
         
         if (!bUseTempCoreCLRLibrary)
         {
-            mono_domain_finalize(Domain, -1);
+            // invoke this will cause mono internal error:
+            //     Cannot transition thread 000000??0000???? from STATE_BLOCKING with DO_BLOCKING
+            // mono_domain_finalize(Domain, -1);            
         }        
 
         mono_jit_cleanup(Domain);
