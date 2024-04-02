@@ -44,7 +44,14 @@
 #include <mono/metadata/details/appdomain-types.h>
 #include <mono/metadata/details/loader-types.h>
 
-#if WITH_EDITOR && PLATFORM_MAC || PLATFORM_WINDOWS || PLATFORM_LINUX
+#if PLATFORM_WINDOWS || (WITH_EDITOR && PLATFORM_MAC || PLATFORM_LINUX)
+#define UNREALSHARP_MONO_APIS_DYNAMIC_BINDING 1
+#else
+#define UNREALSHARP_MONO_APIS_DYNAMIC_BINDING 0
+#endif
+
+
+#if UNREALSHARP_MONO_APIS_DYNAMIC_BINDING
 #define MONO_API_FUNCTION(returnType, name, params) \
     namespace UnrealSharp::Mono {\
         extern returnType(*name) params;\

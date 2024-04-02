@@ -171,7 +171,7 @@ namespace UnrealSharp::Mono
         DeleteIntermediateTempFiles(UnrealSharpTempDirectory);
 #endif
 
-#if WITH_EDITOR && PLATFORM_MAC || PLATFORM_WINDOWS || PLATFORM_LINUX
+#if WITH_EDITOR
         if(bUseTempCoreCLRLibrary)
         {
             FString TempDllName = FPaths::Combine(UnrealSharpTempDirectory, UnrealSharpTempFilePrefix + TEXT("coreclr.") + FGuid::NewGuid().ToString() + TEXT(".") + FPlatformProcess::GetModuleExtension());
@@ -185,7 +185,7 @@ namespace UnrealSharp::Mono
         }
 #endif        
 
-#if WITH_EDITOR && PLATFORM_MAC || PLATFORM_WINDOWS || PLATFORM_LINUX
+#if WITH_EDITOR
         LibraryHandle = FPlatformProcess::GetDllHandle(*CoreClrRuntimePath);
 
         checkf(LibraryHandle, TEXT("Failed load corelib from:%s"), *CoreClrRuntimePath);
@@ -224,7 +224,7 @@ namespace UnrealSharp::Mono
 
     FMonoRuntime::~FMonoRuntime()
     {
-#if WITH_EDITOR && PLATFORM_MAC || PLATFORM_WINDOWS || PLATFORM_LINUX
+#if WITH_EDITOR
         FMonoApis::UnImport();
 #endif
 

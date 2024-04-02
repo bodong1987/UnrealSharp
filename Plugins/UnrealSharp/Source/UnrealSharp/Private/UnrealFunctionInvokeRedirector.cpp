@@ -277,9 +277,9 @@ namespace UnrealSharp
         const int ParameterSize = ParameterCount * sizeof(void*);
         void* const UnrealParameterReferencePointers = ParameterCount > 0 ? FMemory_Alloca(ParameterSize) : nullptr;
 
-        FStackMemory ParameterMemory = { ParameterBuffer, Function->PropertiesSize };
-        FStackMemory TempParameterMemory = { TempParameterPointers, TempParameterSize };
-        FStackMemory UnrealParameterReferenceMemory = { UnrealParameterReferencePointers, ParameterSize };
+        const FStackMemory ParameterMemory = { ParameterBuffer, Function->PropertiesSize };
+        const FStackMemory TempParameterMemory = { TempParameterPointers, TempParameterSize };
+        const FStackMemory UnrealParameterReferenceMemory = { UnrealParameterReferencePointers, ParameterSize };
 
         Linker.BeginInvoke(
             Invocation.Get(), 

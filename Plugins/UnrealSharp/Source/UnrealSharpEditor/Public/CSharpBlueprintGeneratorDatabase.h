@@ -48,19 +48,19 @@ namespace UnrealSharp
     struct UNREALSHARPEDITOR_API FCSharpGeneratedTypeInfo
     {
     public:
-        UField*                         Field = nullptr;
-        UCSharpBlueprint*               Blueprint = nullptr;
-        FString                         Name;
-        FString                         CppName;
-        FString                         PackagePath;
-        FString                         FilePath;
-        ECSharpGeneratedTypeState       State = ECSharpGeneratedTypeState::Undefined;
+        UField*                                 Field = nullptr;
+        UCSharpBlueprint*                       Blueprint = nullptr;
+        FString                                 Name;
+        FString                                 CppName;
+        FString                                 PackagePath;
+        FString                                 FilePath;
+        ECSharpGeneratedTypeState               State = ECSharpGeneratedTypeState::Undefined;
 
-        TSharedPtr<FBaseTypeDefinition> Definition;
+        TSharedPtr<FBaseTypeDefinition>         Definition;
 
-        bool                            IsEnum() const;
-        bool                            IsStruct() const;
-        bool                            IsClass() const;
+        bool                                    IsEnum() const;
+        bool                                    IsStruct() const;
+        bool                                    IsClass() const;
     };
 
     /*
@@ -73,33 +73,33 @@ namespace UnrealSharp
         FCSharpBlueprintGeneratorDatabase(TSharedPtr<FTypeDefinitionDocument> InDocument);
         ~FCSharpBlueprintGeneratorDatabase();
 
-        void                            Accept(TFunction<void(FCSharpGeneratedTypeInfo&)> InVisitor);
+        void                                    Accept(TFunction<void(FCSharpGeneratedTypeInfo&)> InVisitor);
 
-        FCSharpGeneratedTypeInfo*       FindTypeByName(const FString& InName);
-        const FCSharpGeneratedTypeInfo* FindTypeByName(const FString& InName) const;
+        FCSharpGeneratedTypeInfo*               FindTypeByName(const FString& InName);
+        const FCSharpGeneratedTypeInfo*         FindTypeByName(const FString& InName) const;
 
-        FCSharpGeneratedTypeInfo*       FindTypeByCppName(const FString& InCppName);
-        const FCSharpGeneratedTypeInfo* FindTypeByCppName(const FString& InCppName) const;
+        FCSharpGeneratedTypeInfo*               FindTypeByCppName(const FString& InCppName);
+        const FCSharpGeneratedTypeInfo*         FindTypeByCppName(const FString& InCppName) const;
 
-        UField*                         FindNativeTypeByPath(const FString& InPath) const;
-        UField*                         FindNativeTypeByName(const FString& InName) const;
-        UField*                         FindNativeTypeByCppName(const FString& InCppName) const;
+        UField*                                 FindNativeTypeByPath(const FString& InPath) const;
+        UField*                                 FindNativeTypeByName(const FString& InName) const;
+        UField*                                 FindNativeTypeByCppName(const FString& InCppName) const;
 
-        UField*                         GetField(const FPropertyDefinition& InPropertyDefinition) const;
-        UField*                         GetField(const FString& InCppName) const;
+        UField*                                 GetField(const FPropertyDefinition& InPropertyDefinition) const;
+        UField*                                 GetField(const FString& InCppName) const;
 
     private:
-        void                            PrepareBuild();
-        void                            CacheNativeTypes();
-        void                            LoadExistsInfo();
-        void                            PrepareTypeStates();
-        void                            PrepareTypes();        
-        void                            CleanCSharpBlueprintType(TSharedPtr<FCSharpGeneratedTypeInfo> InTypeInfo, TSharedPtr<FBaseTypeDefinition> InTypeDefinition);
+        void                                    PrepareBuild();
+        void                                    CacheNativeTypes();
+        void                                    LoadExistsInfo();
+        void                                    PrepareTypeStates();
+        void                                    PrepareTypes();        
+        void                                    CleanCSharpBlueprintType(TSharedPtr<FCSharpGeneratedTypeInfo> InTypeInfo, TSharedPtr<FBaseTypeDefinition> InTypeDefinition);
 
-        void                            NewCSharpBlueprintClassIfNeed(UPackage* InPackage, TSharedPtr<FClassTypeDefinition> InClassDefinition, TSharedPtr<FCSharpGeneratedTypeInfo> InTypeInfo);
-        void                            DeleteAsset(TSharedPtr<FCSharpGeneratedTypeInfo> InTypeInfo);
+        void                                    NewCSharpBlueprintClassIfNeed(UPackage* InPackage, TSharedPtr<FClassTypeDefinition> InClassDefinition, TSharedPtr<FCSharpGeneratedTypeInfo> InTypeInfo);
+        void                                    DeleteAsset(TSharedPtr<FCSharpGeneratedTypeInfo> InTypeInfo);
 
-        TSharedPtr<FCSharpGeneratedTypeInfo> NewCSharpBlueprintType(TSharedPtr<FBaseTypeDefinition> InTypeDefinition);
+        TSharedPtr<FCSharpGeneratedTypeInfo>    NewCSharpBlueprintType(TSharedPtr<FBaseTypeDefinition> InTypeDefinition);
     private:
         TSharedPtr<FTypeDefinitionDocument>                   Document;
         TMap<FString, TSharedPtr<FCSharpGeneratedTypeInfo>>   NameToTypeInfoCaches;

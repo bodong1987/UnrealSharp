@@ -58,10 +58,10 @@ namespace UnrealSharp
     public:
         // default folder of C# generated assets
         // default value: CSharpBlueprints
-        static const FString        CSharpBlueprintClassPrefixPath;
+        static const FString           CSharpBlueprintClassPrefixPath;
 
         // generator version
-        static const int            GeneratorVersion;
+        static const int               GeneratorVersion;
 
         // load exists object
         template <typename TObjectType>
