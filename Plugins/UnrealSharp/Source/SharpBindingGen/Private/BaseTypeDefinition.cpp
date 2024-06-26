@@ -96,22 +96,22 @@ namespace UnrealSharp
 
     void FBaseTypeDefinition::Write(FJsonObject& InObject)
     {        
-        InObject.SetNumberField("Type", Type);
-        InObject.SetStringField("Name", Name);
-        InObject.SetStringField("CppName", CppName);
-        InObject.SetStringField("PathName", PathName);
-        InObject.SetStringField("PackageName", PackageName);
-        InObject.SetStringField("ProjectName", ProjectName);
-        InObject.SetStringField("Namespace", Namespace);
-        InObject.SetStringField("AssemblyName", AssemblyName);
-        InObject.SetStringField("CSharpFullName", CSharpFullName);
-        InObject.SetStringField("FlagsT", FString::Printf(TEXT("%") TEXT(PRIu64), Flags));
-        InObject.SetStringField("CrcCodeT", FString::Printf(TEXT("%") TEXT(PRIi64), CrcCode));
-        InObject.SetNumberField("Size", Size);
+        InObject.SetNumberField(TEXT("Type"), Type);
+        InObject.SetStringField(TEXT("Name"), Name);
+        InObject.SetStringField(TEXT("CppName"), CppName);
+        InObject.SetStringField(TEXT("PathName"), PathName);
+        InObject.SetStringField(TEXT("PackageName"), PackageName);
+        InObject.SetStringField(TEXT("ProjectName"), ProjectName);
+        InObject.SetStringField(TEXT("Namespace"), Namespace);
+        InObject.SetStringField(TEXT("AssemblyName"), AssemblyName);
+        InObject.SetStringField(TEXT("CSharpFullName"), CSharpFullName);
+        InObject.SetStringField(TEXT("FlagsT"), FString::Printf(TEXT("%") TEXT(PRIu64), Flags));
+        InObject.SetStringField(TEXT("CrcCodeT"), FString::Printf(TEXT("%") TEXT(PRIi64), CrcCode));
+        InObject.SetNumberField(TEXT("Size"), Size);
 
         if (Guid.IsValid())
         {
-            InObject.SetStringField("Guid", Guid.ToString(EGuidFormats::DigitsWithHyphensLower));
+            InObject.SetStringField(TEXT("Guid"), Guid.ToString(EGuidFormats::DigitsWithHyphensLower));
         }        
      
         Meta.Write(InObject);
@@ -119,22 +119,22 @@ namespace UnrealSharp
 
     void FBaseTypeDefinition::Read(FJsonObject& InObject)
     {
-        Type = (int)InObject.GetNumberField("Type");
-        Name = InObject.GetStringField("Name");
-        CppName = InObject.GetStringField("CppName");
-        PathName = InObject.GetStringField("PathName");
-        PackageName = InObject.GetStringField("PackageName");
-        ProjectName = InObject.GetStringField("ProjectName");
-        Namespace = InObject.GetStringField("Namespace");
-        InObject.TryGetStringField("AssemblyName", AssemblyName);
-        CSharpFullName = InObject.GetStringField("CSharpFullName");
-        LexFromString(Flags, *InObject.GetStringField("FlagsT"));
-        LexFromString(CrcCode, *InObject.GetStringField("CrcCodeT"));
-        Size = (uint8)InObject.GetNumberField("Size");
+        Type = (int)InObject.GetNumberField(TEXT("Type"));
+        Name = InObject.GetStringField(TEXT("Name"));
+        CppName = InObject.GetStringField(TEXT("CppName"));
+        PathName = InObject.GetStringField(TEXT("PathName"));
+        PackageName = InObject.GetStringField(TEXT("PackageName"));
+        ProjectName = InObject.GetStringField(TEXT("ProjectName"));
+        Namespace = InObject.GetStringField(TEXT("Namespace"));
+        InObject.TryGetStringField(TEXT("AssemblyName"), AssemblyName);
+        CSharpFullName = InObject.GetStringField(TEXT("CSharpFullName"));
+        LexFromString(Flags, *InObject.GetStringField(TEXT("FlagsT")));
+        LexFromString(CrcCode, *InObject.GetStringField(TEXT("CrcCodeT")));
+        Size = (uint8)InObject.GetNumberField(TEXT("Size"));
         
-        if (InObject.HasField("Guid"))
+        if (InObject.HasField(TEXT("Guid")))
         {
-            FGuid::Parse(InObject.GetStringField("Guid"), Guid);
+            FGuid::Parse(InObject.GetStringField(TEXT("Guid")), Guid);
         }        
 
         Meta.Read(InObject);

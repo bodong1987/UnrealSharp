@@ -131,36 +131,36 @@ namespace UnrealSharp
 
     void FPropertyDefinition::Write(FJsonObject& InObject)
     {
-        InObject.SetStringField("CppTypeName", CppTypeName);
-        InObject.SetStringField("TypeName", TypeName);
-        InObject.SetStringField("TypeClass", TypeClass);
-        InObject.SetStringField("Name", Name);
-        InObject.SetStringField("ClassPath", ClassPath);
+        InObject.SetStringField(TEXT("CppTypeName"), CppTypeName);
+        InObject.SetStringField(TEXT("TypeName"), TypeName);
+        InObject.SetStringField(TEXT("TypeClass"), TypeClass);
+        InObject.SetStringField(TEXT("Name"), Name);
+        InObject.SetStringField(TEXT("ClassPath"), ClassPath);
 
         if (!DefaultValue.IsEmpty())
         {
-            InObject.SetStringField("DefaultValue", DefaultValue);
+            InObject.SetStringField(TEXT("DefaultValue"), DefaultValue);
         }
         
-        InObject.SetNumberField("Offset", Offset);
-        InObject.SetStringField("FlagsT", FString::Printf(TEXT("%") TEXT(PRIu64), PropertyFlags));
-        InObject.SetNumberField("Size", Size);
+        InObject.SetNumberField(TEXT("Offset"), Offset);
+        InObject.SetStringField(TEXT("FlagsT"), FString::Printf(TEXT("%") TEXT(PRIu64), PropertyFlags));
+        InObject.SetNumberField(TEXT("Size"), Size);
 
         if (FieldMask != 0xFF)
         {
-            InObject.SetNumberField("FieldMask", FieldMask);
+            InObject.SetNumberField(TEXT("FieldMask"), FieldMask);
         }
         
-        InObject.SetNumberField("ReferenceType", (int)ReferenceType);
+        InObject.SetNumberField(TEXT("ReferenceType"), (int)ReferenceType);
 
         if (Guid.IsValid())
         {
-            InObject.SetStringField("Guid", Guid.ToString(EGuidFormats::DigitsWithHyphensLower));
+            InObject.SetStringField(TEXT("Guid"), Guid.ToString(EGuidFormats::DigitsWithHyphensLower));
         }        
 
         if (!MetaClass.IsEmpty())
         {
-            InObject.SetStringField("MetaClass", MetaClass);
+            InObject.SetStringField(TEXT("MetaClass"), MetaClass);
         }
 
         if (!InnerProperties.IsEmpty())
@@ -173,7 +173,7 @@ namespace UnrealSharp
                 TempInnerProperties.Add(MakeShared<FJsonValueObject>(PropertyObject));
             }
 
-            InObject.SetArrayField("InnerProperties", TempInnerProperties);
+            InObject.SetArrayField(TEXT("InnerProperties"), TempInnerProperties);
         }        
 
         if (SignatureFunction)
@@ -181,7 +181,7 @@ namespace UnrealSharp
             TSharedPtr<FJsonObject> SignatureFunctionObject = MakeShared<FJsonObject>();
             SignatureFunction->Write(*SignatureFunctionObject);
 
-            InObject.SetObjectField("SignatureFunction", SignatureFunctionObject);
+            InObject.SetObjectField(TEXT("SignatureFunction"), SignatureFunctionObject);
         }
 
         Metas.Write(InObject);
@@ -189,32 +189,32 @@ namespace UnrealSharp
 
     void FPropertyDefinition::Read(FJsonObject& InObject)
     {
-        CppTypeName = InObject.GetStringField("CppTypeName");
-        TypeName = InObject.GetStringField("TypeName");
-        TypeClass = InObject.GetStringField("TypeClass");
-        Name = InObject.GetStringField("Name");
-        ClassPath = InObject.GetStringField("ClassPath");
-        Offset = (int)InObject.GetNumberField("Offset");        
-        LexFromString(PropertyFlags, *InObject.GetStringField("FlagsT"));
-        Size = (int)InObject.GetNumberField("Size");
+        CppTypeName = InObject.GetStringField(TEXT("CppTypeName"));
+        TypeName = InObject.GetStringField(TEXT("TypeName"));
+        TypeClass = InObject.GetStringField(TEXT("TypeClass"));
+        Name = InObject.GetStringField(TEXT("Name"));
+        ClassPath = InObject.GetStringField(TEXT("ClassPath"));
+        Offset = (int)InObject.GetNumberField(TEXT("Offset"));        
+        LexFromString(PropertyFlags, *InObject.GetStringField(TEXT("FlagsT")));
+        Size = (int)InObject.GetNumberField(TEXT("Size"));
 
-        if (InObject.HasField("FieldMask"))
+        if (InObject.HasField(TEXT("FieldMask")))
         {
-            FieldMask = (uint8)InObject.GetNumberField("FieldMask");
+            FieldMask = (uint8)InObject.GetNumberField(TEXT("FieldMask"));
         }
         
-        ReferenceType = (EReferenceType)InObject.GetNumberField("ReferenceType");
+        ReferenceType = (EReferenceType)InObject.GetNumberField(TEXT("ReferenceType"));
 
-        InObject.TryGetStringField("DefaultValue", DefaultValue);
-        InObject.TryGetStringField("MetaClass", MetaClass);
+        InObject.TryGetStringField(TEXT("DefaultValue"), DefaultValue);
+        InObject.TryGetStringField(TEXT("MetaClass"), MetaClass);
 
-        if (InObject.HasField("Guid"))
+        if (InObject.HasField(TEXT("Guid")))
         {
-            FGuid::Parse(InObject.GetStringField("Guid"), Guid);
+            FGuid::Parse(InObject.GetStringField(TEXT("Guid")), Guid);
         }        
 
         const TArray< TSharedPtr<FJsonValue> >* InnerPropertiesRefPtr;
-        if (InObject.TryGetArrayField("InnerProperties", InnerPropertiesRefPtr) && InnerPropertiesRefPtr)
+        if (InObject.TryGetArrayField(TEXT("InnerProperties"), InnerPropertiesRefPtr) && InnerPropertiesRefPtr)
         {
             for (auto& PropertyObject : *InnerPropertiesRefPtr)
             {
@@ -229,7 +229,7 @@ namespace UnrealSharp
         }
 
         const TSharedPtr<FJsonObject>* SignatureFunctionObject;
-        if (InObject.TryGetObjectField("SignatureFunction", SignatureFunctionObject) && SignatureFunctionObject)
+        if (InObject.TryGetObjectField(TEXT("SignatureFunction"), SignatureFunctionObject) && SignatureFunctionObject)
         {
             SignatureFunction = MakeShared<FFunctionTypeDefinition>();
 
@@ -242,7 +242,7 @@ namespace UnrealSharp
         Metas.TryGetMeta(TEXT("AttachToComponentName"), AttachToComponentName);
         Metas.TryGetMeta(TEXT("AttachToSocketName"), AttachToSocketName);
         Metas.TryGetMeta(TEXT("ReplicatedUsing"), ReplicatedUsing);
-        Metas.TryGetMeta("ReplicationCondition", *(int*)&ReplicationCondition);
+        Metas.TryGetMeta(TEXT("ReplicationCondition"), *(int*)&ReplicationCondition);
     }
 
     bool FPropertyDefinition::IsReference() const

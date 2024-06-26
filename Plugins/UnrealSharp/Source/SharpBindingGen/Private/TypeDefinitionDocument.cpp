@@ -170,19 +170,19 @@ namespace UnrealSharp
             return false;
         }
 
-        JsonObject->TryGetNumberField("UnrealMajorVersion", UnrealMajorVersion);
-        JsonObject->TryGetNumberField("UnrealMinorVersion", UnrealMinorVersion);
-        JsonObject->TryGetNumberField("UnrealPatchVersion", UnrealPatchVersion);
-        JsonObject->TryGetNumberField("DocumentAttributes", DocumentAttributes);
+        JsonObject->TryGetNumberField(TEXT("UnrealMajorVersion"), UnrealMajorVersion);
+        JsonObject->TryGetNumberField(TEXT("UnrealMinorVersion"), UnrealMinorVersion);
+        JsonObject->TryGetNumberField(TEXT("UnrealPatchVersion"), UnrealPatchVersion);
+        JsonObject->TryGetNumberField(TEXT("DocumentAttributes"), DocumentAttributes);
 
-        const TArray< TSharedPtr<FJsonValue> >& TempTypes = JsonObject->GetArrayField("Types");
+        const TArray< TSharedPtr<FJsonValue> >& TempTypes = JsonObject->GetArrayField(TEXT("Types"));
 
         for (auto& jsonValuePtr : TempTypes)
         {
             TSharedPtr<FJsonObject>* typedJsonObject;
             if (jsonValuePtr->TryGetObject(typedJsonObject) && typedJsonObject)
             {
-                EDefinitionType type = (EDefinitionType)(*typedJsonObject)->GetNumberField("Type");
+                EDefinitionType type = (EDefinitionType)(*typedJsonObject)->GetNumberField(TEXT("Type"));
 
                 auto typeDefinition = CreateTypeDefinition(type);
 

@@ -396,7 +396,13 @@ namespace UnrealSharp::Mono
 
     FClassPropertyMarshaller::FClassPropertyMarshaller()
     {
-        MatchedTypes = { FClassProperty::StaticClass(), FClassPtrProperty::StaticClass() };
+        MatchedTypes = 
+        { 
+            FClassProperty::StaticClass()
+#if ENGINE_MAJOR_VERSION < 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION < 4)
+            ,FClassPtrProperty::StaticClass() 
+#endif
+        };
     }
 
     int FClassPropertyMarshaller::GetTempParameterBufferSize() const

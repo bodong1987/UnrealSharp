@@ -152,6 +152,14 @@ TSubclassOf<UUnrealSharpTestsBaseObjectInCpp> UUnrealSharpTestsFunctionLibraryIn
     return UUnrealSharpTestsObjectInCpp::StaticClass();
 }
 
+UClass* UUnrealSharpTestsFunctionLibraryInCpp::CppGetClassAndReturnByRef(UClass* a, UClass* b, UClass*& outA, UClass*& outB)
+{
+    outA = a;
+    outB = b;
+
+    return UUnrealSharpTestsBaseObjectInCpp::StaticClass();
+}
+
 TArray<FString> UUnrealSharpTestsFunctionLibraryInCpp::CppGetStringArrayAndReturnByRef(const TArray<FString>& a, const TArray<FString>& b, TArray<FString>& outA, TArray<FString>& outB)
 {
     outA = a;

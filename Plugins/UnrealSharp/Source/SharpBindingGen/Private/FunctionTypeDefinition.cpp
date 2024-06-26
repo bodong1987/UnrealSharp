@@ -63,8 +63,8 @@ namespace UnrealSharp
         Super::Read(InObject);
                 
         // only valid for C# method...
-        InObject.TryGetBoolField("IsOverrideFunction", bIsOverrideFunction);
-        InObject.TryGetStringField("Signature", Signature);
+        InObject.TryGetBoolField(TEXT("IsOverrideFunction"), bIsOverrideFunction);
+        InObject.TryGetStringField(TEXT("Signature"), Signature);
     }
 
     bool FFunctionTypeDefinition::IsExportAsEvent() const

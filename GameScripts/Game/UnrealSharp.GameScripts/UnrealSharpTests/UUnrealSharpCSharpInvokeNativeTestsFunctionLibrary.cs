@@ -51,6 +51,7 @@ namespace UnrealSharp.GameScripts.UnrealSharpTests
             CheckFUnrealSharpTestsBaseStructValue();
             CheckGetObjectAndRef();
             CheckTSubclassOf();
+            CheckUClass();
             CheckStringArray();
             CheckNameHashSet();
             CheckInt64DoubleDictionary();
@@ -281,11 +282,32 @@ namespace UnrealSharp.GameScripts.UnrealSharpTests
 
             var result = UUnrealSharpTestsFunctionLibraryInCpp.CppGetSubclassOfAndReturnByRef(a, b, ref oa, ref ob);
 
+            // Logger.Log("a = {0:X}, b = {1:X}, oa = {2:X}, ob = {3:X}", a.GetNativePtr(), b.GetNativePtr(), oa.GetNativePtr(), ob.GetNativePtr());
+
             CheckResult(result);
             CheckResult(oa == a);
             CheckResult(ob == b);
             CheckResult(result.GetClass() != null);
             CheckResult(result.GetClass() == UUnrealSharpTestsObjectInCpp.StaticClass());
+        }
+
+        private static void CheckUClass()
+        {
+            TSubclassOf<UObject> a = (TSubclassOf<UObject>)UUnrealSharpTestsBaseObjectInCpp.StaticClass();
+            TSubclassOf<UObject> b = (TSubclassOf<UObject>)UUnrealSharpTestsObjectInCpp.StaticClass();
+
+            TSubclassOf<UObject> oa = default;
+            TSubclassOf<UObject> ob = default;
+
+            var result = UUnrealSharpTestsFunctionLibraryInCpp.CppGetClassAndReturnByRef(a, b, ref oa, ref ob);
+
+            // Logger.Log("a = {0:X}, b = {1:X}, oa = {2:X}, ob = {3:X}", a.GetNativePtr(), b.GetNativePtr(), oa.GetNativePtr(), ob.GetNativePtr());
+
+            CheckResult(result);
+            CheckResult(oa == a);
+            CheckResult(ob == b);
+            CheckResult(result.GetClass() != null);
+            CheckResult(result.GetClass() == UUnrealSharpTestsBaseObjectInCpp.StaticClass());
         }
 
         private static void CheckStringArray()

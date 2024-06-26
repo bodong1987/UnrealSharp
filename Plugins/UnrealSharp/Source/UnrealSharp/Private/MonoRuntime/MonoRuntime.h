@@ -109,7 +109,7 @@ namespace UnrealSharp::Mono
         TUniquePtr<FPropertyMarshallerCollection>       MarshallerCollectionPtr;
 
         bool                                            bUseTempCoreCLRLibrary = false;
-        static bool                                     bIsDebuggerAvaialble;    
+        static bool                                     bIsDebuggerAvailable;    
         
 #if PLATFORM_MAC
         TArray<void*>                                   ExtraLibraryHandles;

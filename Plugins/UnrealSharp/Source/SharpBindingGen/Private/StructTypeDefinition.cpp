@@ -78,7 +78,7 @@ namespace UnrealSharp
                 TempNamespaces.Add(JsonValue);
             }
 
-            InObject.SetArrayField("DependNamespaces", TempNamespaces);
+            InObject.SetArrayField(TEXT("DependNamespaces"), TempNamespaces);
         }
     }
 
@@ -88,7 +88,7 @@ namespace UnrealSharp
 
         const TArray< TSharedPtr<FJsonValue> >* PropertiesRefPtr = nullptr;
 
-        if (InObject.TryGetArrayField("Properties", PropertiesRefPtr) && PropertiesRefPtr)
+        if (InObject.TryGetArrayField(TEXT("Properties"), PropertiesRefPtr) && PropertiesRefPtr)
         {
             for (auto& PropertyObject : *PropertiesRefPtr)
             {
@@ -233,7 +233,9 @@ namespace UnrealSharp
             InProperty->IsA<FNameProperty>() ||
             InProperty->IsA<FTextProperty>() ||
             InProperty->IsA<FClassProperty>() ||
+#if ENGINE_MAJOR_VERSION < 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION < 4)
             InProperty->IsA<FClassPtrProperty>() ||
+#endif
              InProperty->IsA<FSoftObjectProperty>() ||
              InProperty->IsA<FSoftClassProperty>();
     }

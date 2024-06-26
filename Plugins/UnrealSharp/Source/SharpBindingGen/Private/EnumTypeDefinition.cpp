@@ -29,14 +29,14 @@ namespace UnrealSharp
 {
     void FEnumFieldDefinition::Write(FJsonObject& InObject)
     {        
-        InObject.SetStringField("Name", Name);
-        InObject.SetNumberField("Value", Value);        
+        InObject.SetStringField(TEXT("Name"), Name);
+        InObject.SetNumberField(TEXT("Value"), Value);
     }
 
     void FEnumFieldDefinition::Read(FJsonObject& InObject)
     {
-        Name = InObject.GetStringField("Name");
-        Value = InObject.GetNumberField("Value");
+        Name = InObject.GetStringField(TEXT("Name"));
+        Value = InObject.GetNumberField(TEXT("Value"));
     }
 
     FEnumTypeDefinition::FEnumTypeDefinition()
@@ -102,7 +102,7 @@ namespace UnrealSharp
     {
         Super::Read(InObject);
 
-        const auto& FieldsRef = InObject.GetArrayField("Fields");
+        const auto& FieldsRef = InObject.GetArrayField(TEXT("Fields"));
 
         for (auto& FieldObject : FieldsRef)
         {

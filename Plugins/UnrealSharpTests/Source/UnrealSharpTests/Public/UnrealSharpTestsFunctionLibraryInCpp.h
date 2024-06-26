@@ -82,6 +82,9 @@ public:
     static TSubclassOf<UUnrealSharpTestsBaseObjectInCpp> CppGetSubclassOfAndReturnByRef(TSubclassOf<UUnrealSharpTestsBaseObjectInCpp> a, TSubclassOf<UUnrealSharpTestsBaseObjectInCpp> b, TSubclassOf<UUnrealSharpTestsBaseObjectInCpp>& outA, TSubclassOf<UUnrealSharpTestsBaseObjectInCpp>& outB);
 
     UFUNCTION(BlueprintCallable, Category = "UnrealSharp_CPP")
+    static UClass* CppGetClassAndReturnByRef(UClass* a, UClass* b, UClass*& outA, UClass*& outB);
+
+    UFUNCTION(BlueprintCallable, Category = "UnrealSharp_CPP")
     static TArray<FString> CppGetStringArrayAndReturnByRef(const TArray<FString>& a, const TArray<FString>& b, TArray<FString>& outA, TArray<FString>& outB);
 
     UFUNCTION(BlueprintCallable, Category = "UnrealSharp_CPP")

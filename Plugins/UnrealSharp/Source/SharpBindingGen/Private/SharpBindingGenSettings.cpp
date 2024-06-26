@@ -61,6 +61,11 @@ USharpBindingGenSettings::USharpBindingGenSettings(const FObjectInitializer& Obj
     FastFunctionInvokeModuleNames.Add(FApp::GetProjectName());
 
     // ignore methods
+    /*
+    * Although these functions can be accessed through blueprints, 
+    * they cannot be accessed directly in C++ because their classes or methods do not use export tags, 
+    * so they must be shielded here, otherwise the generated quick access code will not compile and will encounter link errors. 
+    */
     FastFunctionInvokeIgnoreNames.Add("UAnimMontage::IsValidAdditiveSlot");
     FastFunctionInvokeIgnoreNames.Add("APlanarReflection::OnInterpToggle");
     FastFunctionInvokeIgnoreNames.Add("ASceneCapture2D::OnInterpToggle");
@@ -83,6 +88,14 @@ USharpBindingGenSettings::USharpBindingGenSettings(const FObjectInitializer& Obj
     FastFunctionInvokeIgnoreNames.Add("UParticleSystem::ContainsEmitterType");
     FastFunctionInvokeIgnoreNames.Add("UPhysicsObjectBlueprintLibrary::ApplyRadialImpulse");    
     FastFunctionInvokeIgnoreNames.Add("UWorldPartitionBlueprintLibrary::GetDataLayerManager");
+
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 4
+    FastFunctionInvokeIgnoreNames.Add("UAudioComponent::SetOverrideAttenuation");
+    FastFunctionInvokeIgnoreNames.Add("UAudioComponent::SetAttenuationSettings");
+    FastFunctionInvokeIgnoreNames.Add("UGameplayStatics::BlueprintSuggestProjectileVelocity");
+    FastFunctionInvokeIgnoreNames.Add("USkinnedMeshComponent::GetMeshDeformerInstance");
+    FastFunctionInvokeIgnoreNames.Add("UPhysicsConstraintComponent::IsProjectionEnabled");
+#endif
 
     FastFunctionInvokeIgnoreClassNames.Add("UExporter");
     FastFunctionInvokeIgnoreClassNames.Add("UVisualLoggerKismetLibrary");

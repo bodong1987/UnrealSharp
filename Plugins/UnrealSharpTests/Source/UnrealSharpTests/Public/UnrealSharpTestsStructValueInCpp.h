@@ -38,7 +38,7 @@ enum class EUnrealSharpProjectsEnumTypeInCpp : uint8
 };
 
 UENUM(BlueprintType, meta=(Bitflags))
-enum class EUnrealSharpLanguageTypesInCpp
+enum class EUnrealSharpLanguageTypesInCpp : uint8
 {
     None = 0,
     CSharp = 1 << 0,

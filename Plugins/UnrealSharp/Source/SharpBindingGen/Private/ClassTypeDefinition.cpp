@@ -159,12 +159,12 @@ namespace UnrealSharp
     {
         Super::Read(InObject);
 
-        SuperName = InObject.GetStringField("SuperName");
-        ConfigName = InObject.GetStringField("ConfigName");
+        SuperName = InObject.GetStringField(TEXT("SuperName"));
+        ConfigName = InObject.GetStringField(TEXT("ConfigName"));
 
         const TArray< TSharedPtr<FJsonValue> >* FunctionsRefPtr = nullptr;
 
-        if (InObject.TryGetArrayField("Functions", FunctionsRefPtr) && FunctionsRefPtr)
+        if (InObject.TryGetArrayField(TEXT("Functions"), FunctionsRefPtr) && FunctionsRefPtr)
         {
             for (auto& FunctionObject : *FunctionsRefPtr)
             {
@@ -180,7 +180,7 @@ namespace UnrealSharp
         }
         
         const TArray<TSharedPtr<FJsonValue>>* InterfacesRefPtr = nullptr;
-        if (InObject.TryGetArrayField("Interfaces", InterfacesRefPtr) && InterfacesRefPtr)
+        if (InObject.TryGetArrayField(TEXT("Interfaces"), InterfacesRefPtr) && InterfacesRefPtr)
         {
             for (auto& InterfaceObject : *InterfacesRefPtr)
             {

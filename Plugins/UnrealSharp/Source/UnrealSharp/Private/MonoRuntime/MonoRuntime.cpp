@@ -26,14 +26,9 @@
 #include "MonoRuntime/MonoRuntime.h"
 #include "MonoRuntime/MonoInteropUtils.h"
 #include "Classes/UnrealSharpSettings.h"
-#include "Classes/CSharpClass.h"
 #include "Misc/UnrealSharpLog.h"
 #include "Misc/ScopedExit.h"
 #include "Misc/UnrealSharpPaths.h"
-#include "Misc/UnrealSharpUtils.h"
-#include "Misc/StackMemory.h"
-#include "Misc/ScopedCSharpMethodInvocation.h"
-#include "Misc/UnrealInteropFunctions.h"
 
 #if WITH_MONO
 #include "MonoRuntime/MonoMethod.h"
@@ -43,6 +38,7 @@
 #include "MonoRuntime/MonoGCHandle.h"
 #include "MonoRuntime/MonoApis.h"
 #include "MonoRuntime/MonoLibraryAccessor.h"
+#include <string>
 
 #define LOCTEXT_NAMESPACE "MonoRuntime"
 
@@ -51,7 +47,7 @@ namespace UnrealSharp::Mono
     FString FMonoRuntime::NativeLibraryPath;
     FString FMonoRuntime::ManagedLibraryPath;
     TArray<FString> FMonoRuntime::LibrarySearchPaths;
-    bool FMonoRuntime::bIsDebuggerAvaialble = false;
+    bool FMonoRuntime::bIsDebuggerAvailable = false;
 
     void FMonoRuntime::InitLibrarySearchPaths()
     {
@@ -155,7 +151,7 @@ namespace UnrealSharp::Mono
 #if WITH_EDITOR
         bUseTempCoreCLRLibrary = true;
 #endif
-        bIsDebuggerAvaialble = false;
+        bIsDebuggerAvailable = false;
 
         if (LibrarySearchPaths.IsEmpty())
         {
@@ -247,7 +243,7 @@ namespace UnrealSharp::Mono
         ExtraLibraryHandles.Empty();
 #endif
 
-        bIsDebuggerAvaialble = false;
+        bIsDebuggerAvailable = false;
     }
 
     const FName& FMonoRuntime::GetRuntimeType() const
@@ -277,7 +273,7 @@ namespace UnrealSharp::Mono
         * Try Fix: mono_coop_mutex_lock Cannot transition thread 000000??0000???? from STATE_BLOCKING with DO_BLOCKING
         * https://www.cnblogs.com/bodong/p/18027808
         */
-        if(bIsDebuggerAvaialble && GetDefault<UUnrealSharpSettings>()->bWaitDebugger)
+        if(bIsDebuggerAvailable && GetDefault<UUnrealSharpSettings>()->bWaitDebugger)
         {
             //
             const float SleepTime = GetDefault<UUnrealSharpSettings>()->DelayMonoStartTimeWhenWaitDebugger;
@@ -302,15 +298,14 @@ namespace UnrealSharp::Mono
 #endif
 
             // hack for Visual Studio Tools for unity
-            int DebuggerPort = Settings->bEnableRiderDebuggerSupport ? Settings->RiderDebuggerDefaultPort : (56000 + FPlatformProcess::GetCurrentProcessId() % 1000);
-            int logLevel = 0;
+            int DebuggerPort = Settings->bEnableRiderDebuggerSupport ? Settings->RiderDebuggerDefaultPort : (56000 + FPlatformProcess::GetCurrentProcessId() % 1000);            
             FString LogFileArguments;
             FString LogLevelArguments;
 
             // if we use log file, it will not send to debugger
             if(Settings->bUseMonoLogFile)
             {
-                logLevel = Settings->MonoLogLevel;
+                const int logLevel = Settings->MonoLogLevel;
                 LogLevelArguments = FString::Printf(TEXT(",loglevel=%d"), logLevel);
 
                 auto UnrealSharpTempDirectory = FUnrealSharpPaths::GetUnrealSharpIntermediateDir();
@@ -341,7 +336,7 @@ namespace UnrealSharp::Mono
             mono_jit_parse_options(sizeof(options)/sizeof(options[0]), (char**)options);
             mono_debug_init(MONO_DEBUG_FORMAT_MONO);
 
-            bIsDebuggerAvaialble = true;
+            bIsDebuggerAvailable = true;
         }
     }
 
@@ -350,7 +345,7 @@ namespace UnrealSharp::Mono
         if (InFatal || 0 == FCStringAnsi::Strncmp("error", InLogLevel, 5))
         {
             // fatal error
-            UE_LOG(UnrealSharpLog, Fatal, TEXT("[Mono]%s%s%s"), InDomainName != nullptr ? ANSI_TO_TCHAR(InDomainName) : TEXT(""), InDomainName != nullptr ? TEXT(": ") : TEXT(""), ANSI_TO_TCHAR(InMessage));
+            UE_LOG(UnrealSharpLog, Fatal, TEXT("[Mono]%s%s%s"), InDomainName != nullptr ? ANSI_TO_TCHAR(InDomainName) : TEXT(""), InDomainName != nullptr ? TEXT(": ") : TEXT(""), ANSI_TO_TCHAR(InMessage)); // NOLINT
         }
 #if NO_LOGGING
 #else
@@ -530,7 +525,7 @@ namespace UnrealSharp::Mono
         FString AsmName = FPaths::GetBaseFilename(InAssemblyPath);
 
         MonoImageOpenStatus status;
-        MonoAssembly* LoadedAssembly = nullptr;
+        MonoAssembly* LoadedAssembly = nullptr; // NOLINT
 
         // direct load library by file
         if (!AsmName.StartsWith(TEXT("UnrealSharp.")))
@@ -544,7 +539,7 @@ namespace UnrealSharp::Mono
             }
         }
 #if PLATFORM_MAC || PLATFORM_WINDOWS || PLATFORM_LINUX
-        else if(bIsDebuggerAvaialble)
+        else if(bIsDebuggerAvailable)
         {
             // create temp files for them
             FString SourceAssemblyPath = AbsoluteAssemblyPath;

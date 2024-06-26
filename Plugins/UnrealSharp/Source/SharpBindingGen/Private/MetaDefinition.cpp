@@ -36,8 +36,8 @@ namespace UnrealSharp
             for (auto& pair : Metas)
             {
                 TSharedPtr<FJsonObject> MetaPtr = MakeShared<FJsonObject>();
-                MetaPtr->SetStringField("Name", pair.Key);
-                MetaPtr->SetStringField("Value", pair.Value);
+                MetaPtr->SetStringField(TEXT("Name"), pair.Key);
+                MetaPtr->SetStringField(TEXT("Value"), pair.Value);
 
                 MetaValues.Add(MakeShared<FJsonValueObject>(MetaPtr));
             }
@@ -49,15 +49,15 @@ namespace UnrealSharp
     void FMetaDefinition::Read(FJsonObject& InObject)
     {
         const TArray< TSharedPtr<FJsonValue> >* MetasRefPtr = nullptr;
-        if (InObject.TryGetArrayField("Metas", MetasRefPtr) && MetasRefPtr)
+        if (InObject.TryGetArrayField(TEXT("Metas"), MetasRefPtr) && MetasRefPtr)
         {
             for (auto& MetaObject : *MetasRefPtr)
             {
                 TSharedPtr<FJsonObject>* ObjectPtr = nullptr;
                 if (MetaObject->TryGetObject(ObjectPtr) && ObjectPtr != nullptr)
                 {
-                    FString Key = (*ObjectPtr)->GetStringField("Name");
-                    FString Value = (*ObjectPtr)->GetStringField("Value");
+                    FString Key = (*ObjectPtr)->GetStringField(TEXT("Name"));
+                    FString Value = (*ObjectPtr)->GetStringField(TEXT("Value"));
 
                     Metas.Add(Key, Value);
                 }
