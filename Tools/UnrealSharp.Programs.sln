@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34601.278
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnrealSharp.Utils", "Utils\UnrealSharp.Utils\UnrealSharp.Utils.csproj", "{5421F6E7-A760-4DFE-817B-041C6236A31E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utils", "Utils", "{FA530AC0-492C-40C9-BA56-564E2A2C5846}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Programs", "Programs", "{60FA4992-2073-4740-9DC2-79291CCCA6FA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnrealSharpTool.Core", "Programs\UnrealSharpTool.Core\UnrealSharpTool.Core.csproj", "{786D3BE7-0C8B-4C6A-BEA1-521C084DCDA0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnrealSharpTool", "Programs\UnrealSharpTool\UnrealSharpTool.csproj", "{501F226C-DFAA-45A9-BE7A-18D4598A15E1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5421F6E7-A760-4DFE-817B-041C6236A31E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5421F6E7-A760-4DFE-817B-041C6236A31E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5421F6E7-A760-4DFE-817B-041C6236A31E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5421F6E7-A760-4DFE-817B-041C6236A31E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{786D3BE7-0C8B-4C6A-BEA1-521C084DCDA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{786D3BE7-0C8B-4C6A-BEA1-521C084DCDA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{786D3BE7-0C8B-4C6A-BEA1-521C084DCDA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{786D3BE7-0C8B-4C6A-BEA1-521C084DCDA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{501F226C-DFAA-45A9-BE7A-18D4598A15E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{501F226C-DFAA-45A9-BE7A-18D4598A15E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{501F226C-DFAA-45A9-BE7A-18D4598A15E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{501F226C-DFAA-45A9-BE7A-18D4598A15E1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5421F6E7-A760-4DFE-817B-041C6236A31E} = {FA530AC0-492C-40C9-BA56-564E2A2C5846}
+		{786D3BE7-0C8B-4C6A-BEA1-521C084DCDA0} = {60FA4992-2073-4740-9DC2-79291CCCA6FA}
+		{501F226C-DFAA-45A9-BE7A-18D4598A15E1} = {60FA4992-2073-4740-9DC2-79291CCCA6FA}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D3CD944C-92D4-4062-86A4-7F6C8DD0022F}
+	EndGlobalSection
+EndGlobal
