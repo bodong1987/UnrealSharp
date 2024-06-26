@@ -4,4 +4,4 @@
 **/bin/
 *.log
 *.csproj.user
-
+/Tools/Publish/
