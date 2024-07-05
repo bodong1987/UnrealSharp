@@ -32,266 +32,277 @@
 #include "Misc/UnrealSharpUtils.h"
 
 namespace UnrealSharp
-{   
-    FTypeDefinitionDocument::FTypeDefinitionDocument()
-    {
-    }
+{
+	FTypeDefinitionDocument::FTypeDefinitionDocument()
+	{
+	}
 
-    FTypeDefinitionDocument::~FTypeDefinitionDocument()
-    {
-    }
+	FTypeDefinitionDocument::~FTypeDefinitionDocument()
+	{
+	}
 
-    FTypeDefinitionDocument::FTypeDefinitionPtr FTypeDefinitionDocument::GetType(const FString& InCppName)
-    {
-        auto* Ptr = Types.Find(InCppName);
+	FTypeDefinitionDocument::FTypeDefinitionPtr FTypeDefinitionDocument::GetType(const FString& InCppName)
+	{
+		auto* Ptr = Types.Find(InCppName);
 
-        return Ptr != nullptr?*Ptr:FTypeDefinitionPtr();
-    }
+		return Ptr != nullptr ? *Ptr : FTypeDefinitionPtr();
+	}
 
-    bool FTypeDefinitionDocument::LoadFromEngine(const ETypeValidationFlags InFlags)
-    {
-        FTypeValidation TypeValidation;
+	bool FTypeDefinitionDocument::LoadFromEngine(const ETypeValidationFlags InFlags)
+	{
+		FTypeValidation TypeValidation;
 
-        return LoadFromEngine(&TypeValidation, InFlags);
-    }
+		return LoadFromEngine(&TypeValidation, InFlags);
+	}
 
-    bool FTypeDefinitionDocument::LoadFromEngine(FTypeValidation* InTypeValidation, const ETypeValidationFlags InFlags)
-    {
-        Reset();
+	bool FTypeDefinitionDocument::LoadFromEngine(FTypeValidation* InTypeValidation, const ETypeValidationFlags InFlags)
+	{
+		Reset();
 
-        const auto Settings = GetDefault<USharpBindingGenSettings>();
+		const auto Settings = GetDefault<USharpBindingGenSettings>();
 
-        for (UField* Field : InTypeValidation->GetSupportedFields())
-        {
-            if (!InTypeValidation->IsNeedExport(Field))
-            {
-                continue;
-            }
+		for (UField* Field : InTypeValidation->GetSupportedFields())
+		{
+			if (!InTypeValidation->IsNeedExport(Field))
+			{
+				continue;
+			}
 
-            const bool bIsNativeField = FUnrealSharpUtils::IsNativeField(Field);
+			const bool bIsNativeField = FUnrealSharpUtils::IsNativeField(Field);
 
-            if (const bool bIsBlueprintField = FUnrealSharpUtils::IsBlueprintField(Field); (bIsNativeField && (InFlags & ETypeValidationFlags::WithNativeType)) ||
-                (bIsBlueprintField && (InFlags & ETypeValidationFlags::WithBlueprintType))
-                )
-            {
-                if (auto TypeDefinition = CreateTypeDefinition(Field, InTypeValidation); TypeDefinition != nullptr)
-                {
-                    Types.Add(TypeDefinition->CppName, TypeDefinition);
-                }
-            }
-        }
+			// ReSharper disable CppRedundantParentheses
+			if (const bool bIsBlueprintField = FUnrealSharpUtils::IsBlueprintField(Field);
+				(bIsNativeField && (InFlags & ETypeValidationFlags::WithNativeType)) || (bIsBlueprintField && (InFlags &
+					ETypeValidationFlags::WithBlueprintType))
+			)
+			// ReSharper restore CppRedundantParentheses
+			{
+				if (auto TypeDefinition = CreateTypeDefinition(Field, InTypeValidation); TypeDefinition != nullptr)
+				{
+					Types.Add(TypeDefinition->CppName, TypeDefinition);
+				}
+			}
+		}
 
-        FastAccessStructTypes = Settings->FastAccessStructTypeNames;
-        FastFunctionInvokeModuleNames = Settings->FastFunctionInvokeModuleNames;
-        FastFunctionInvokeIgnoreNames = Settings->FastFunctionInvokeIgnoreNames;
-        FastFunctionInvokeIgnoreClassNames = Settings->FastFunctionInvokeIgnoreClassNames;
+		FastAccessStructTypes = Settings->FastAccessStructTypeNames;
+		FastFunctionInvokeModuleNames = Settings->FastFunctionInvokeModuleNames;
+		FastFunctionInvokeIgnoreNames = Settings->FastFunctionInvokeIgnoreNames;
+		FastFunctionInvokeIgnoreClassNames = Settings->FastFunctionInvokeIgnoreClassNames;
 
-        if (Settings->bEnableFastFunctionInvoke)
-        {
-            DocumentAttributes |= static_cast<int>(ETypeDefinitionDocumentAttributes::AllowFastInvokeGeneration);
-        }
+		if (Settings->bEnableFastFunctionInvoke)
+		{
+			DocumentAttributes |= static_cast<int>(ETypeDefinitionDocumentAttributes::AllowFastInvokeGeneration);
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    FTypeDefinitionDocument::FTypeDefinitionPtr FTypeDefinitionDocument::CreateTypeDefinition(UField* InField, FTypeValidation* InTypeValidation) const
-    {
-        if (UEnum* Enum = Cast<UEnum>(InField))
-        {
-            return MakeShared<FEnumTypeDefinition>(Enum, InTypeValidation);
-        }
+	FTypeDefinitionDocument::FTypeDefinitionPtr FTypeDefinitionDocument::CreateTypeDefinition(
+		UField* InField, FTypeValidation* InTypeValidation) const
+	{
+		if (UEnum* Enum = Cast<UEnum>(InField))
+		{
+			return MakeShared<FEnumTypeDefinition>(Enum, InTypeValidation);
+		}
 
-        if (UScriptStruct* Struct = Cast<UScriptStruct>(InField))
-        {
-            return MakeShared<FScriptStructTypeDefinition>(Struct, InTypeValidation);
-        }
+		if (UScriptStruct* Struct = Cast<UScriptStruct>(InField))
+		{
+			return MakeShared<FScriptStructTypeDefinition>(Struct, InTypeValidation);
+		}
 
-        if (UClass* Class = Cast<UClass>(InField))
-        {
-            return MakeShared<FClassTypeDefinition>(Class, InTypeValidation);
-        }
+		if (UClass* Class = Cast<UClass>(InField))
+		{
+			return MakeShared<FClassTypeDefinition>(Class, InTypeValidation);
+		}
 
-        return FTypeDefinitionPtr();
-    }
+		return FTypeDefinitionPtr();
+	}
 
-    template <typename T>
-    void FTypeDefinitionDocument::SaveStringCollection(TSharedPtr<FJsonObject>& InDocument, const T& InCollectionRef, const FString& InName)
-    {
-        if (!InCollectionRef.IsEmpty())
-        {
-            TArray<TSharedPtr<FJsonValue>> TempTypes;
+	template <typename T>
+	void FTypeDefinitionDocument::SaveStringCollection(TSharedPtr<FJsonObject>& InDocument, const T& InCollectionRef,
+	                                                   const FString& InName)
+	{
+		if (!InCollectionRef.IsEmpty())
+		{
+			TArray<TSharedPtr<FJsonValue>> TempTypes;
 
-            for (auto& Name : InCollectionRef)
-            {
-                TSharedRef<FJsonValue> JsonValue = MakeShareable(new FJsonValueString(Name));
-                TempTypes.Add(JsonValue);
-            }
+			for (auto& Name : InCollectionRef)
+			{
+				TSharedRef<FJsonValue> JsonValue = MakeShareable(new FJsonValueString(Name));
+				TempTypes.Add(JsonValue);
+			}
 
-            InDocument->SetArrayField(InName, TempTypes);
-        }
-    }
+			InDocument->SetArrayField(InName, TempTypes);
+		}
+	}
 
-    template <typename T>
-    void FTypeDefinitionDocument::ReadStringCollection(TSharedPtr<FJsonObject>& InDocument, T& InCollectionRef, const FString& InName)
-    {
-        if (InDocument->HasField(InName))
-        {
-            for (const TArray< TSharedPtr<FJsonValue> >& TempArray = InDocument->GetArrayField(InName); auto& JsonValue : TempArray)
-            {
-                FString Name = JsonValue->AsString();
+	template <typename T>
+	void FTypeDefinitionDocument::ReadStringCollection(TSharedPtr<FJsonObject>& InDocument, T& InCollectionRef,
+	                                                   const FString& InName)
+	{
+		if (InDocument->HasField(InName))
+		{
+			for (const TArray<TSharedPtr<FJsonValue>>& TempArray = InDocument->GetArrayField(InName); auto& JsonValue :
+			     TempArray)
+			{
+				FString Name = JsonValue->AsString();
 
-                InCollectionRef.Add(Name);
-            }
-        }
-    }
+				InCollectionRef.Add(Name);
+			}
+		}
+	}
 
-    bool FTypeDefinitionDocument::LoadFromFile(const TCHAR* InFilePath)
-    {
-        Reset();
+	bool FTypeDefinitionDocument::LoadFromFile(const TCHAR* InFilePath)
+	{
+		Reset();
 
-        FString JsonString;
-        if (!FFileHelper::LoadFileToString(JsonString, InFilePath))
-        {
-            return false;
-        }
+		FString JsonString;
+		if (!FFileHelper::LoadFileToString(JsonString, InFilePath))
+		{
+			return false;
+		}
 
-        TSharedPtr<FJsonObject> JsonObject;
+		TSharedPtr<FJsonObject> JsonObject;
 
-        if (const TSharedPtr<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonString);
-            !JsonReader ||
-            !FJsonSerializer::Deserialize(JsonReader.ToSharedRef(), JsonObject) ||
-            !JsonObject.IsValid())
-        {
-            return false;
-        }
+		if (const TSharedPtr<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonString);
+			!JsonReader ||
+			!FJsonSerializer::Deserialize(JsonReader.ToSharedRef(), JsonObject) ||
+			!JsonObject.IsValid())
+		{
+			return false;
+		}
 
-        JsonObject->TryGetNumberField(TEXT("UnrealMajorVersion"), UnrealMajorVersion);
-        JsonObject->TryGetNumberField(TEXT("UnrealMinorVersion"), UnrealMinorVersion);
-        JsonObject->TryGetNumberField(TEXT("UnrealPatchVersion"), UnrealPatchVersion);
-        JsonObject->TryGetNumberField(TEXT("DocumentAttributes"), DocumentAttributes);
+		JsonObject->TryGetNumberField(TEXT("UnrealMajorVersion"), UnrealMajorVersion);
+		JsonObject->TryGetNumberField(TEXT("UnrealMinorVersion"), UnrealMinorVersion);
+		JsonObject->TryGetNumberField(TEXT("UnrealPatchVersion"), UnrealPatchVersion);
+		JsonObject->TryGetNumberField(TEXT("DocumentAttributes"), DocumentAttributes);
 
-        for (const TArray< TSharedPtr<FJsonValue> >& TempTypes = JsonObject->GetArrayField(TEXT("Types"));
-            auto& JSONValuePtr : TempTypes)
-        {
-            if (TSharedPtr<FJsonObject>* TypedJsonObject; JSONValuePtr->TryGetObject(TypedJsonObject) && TypedJsonObject)
-            {
-                const EDefinitionType Type = static_cast<EDefinitionType>((*TypedJsonObject)->GetNumberField(TEXT("Type")));
+		for (const TArray<TSharedPtr<FJsonValue>>& TempTypes = JsonObject->GetArrayField(TEXT("Types"));
+		     auto& JSONValuePtr : TempTypes)
+		{
+			if (TSharedPtr<FJsonObject>* TypedJsonObject; JSONValuePtr->TryGetObject(TypedJsonObject) &&
+				TypedJsonObject)
+			{
+				const EDefinitionType Type = static_cast<EDefinitionType>((*TypedJsonObject)->GetNumberField(
+					TEXT("Type")));
 
-                if (auto TypeDefinition = CreateTypeDefinition(Type))
-                {
-                    TypeDefinition->Read(**TypedJsonObject);
+				if (auto TypeDefinition = CreateTypeDefinition(Type))
+				{
+					TypeDefinition->Read(**TypedJsonObject);
 
-                    Types.Add(TypeDefinition->CppName, TypeDefinition);
-                }
-            }
-        }
+					Types.Add(TypeDefinition->CppName, TypeDefinition);
+				}
+			}
+		}
 
-        ReadStringCollection(JsonObject, FastAccessStructTypes, TEXT("FastAccessStructTypes"));
-        ReadStringCollection(JsonObject, FastFunctionInvokeModuleNames, TEXT("FastFunctionInvokeModuleNames"));
-        ReadStringCollection(JsonObject, FastFunctionInvokeIgnoreClassNames, TEXT("FastFunctionInvokeIgnoreClassNames"));
-        ReadStringCollection(JsonObject, FastFunctionInvokeIgnoreNames, TEXT("FastFunctionInvokeIgnoreNames"));
+		ReadStringCollection(JsonObject, FastAccessStructTypes, TEXT("FastAccessStructTypes"));
+		ReadStringCollection(JsonObject, FastFunctionInvokeModuleNames, TEXT("FastFunctionInvokeModuleNames"));
+		ReadStringCollection(JsonObject, FastFunctionInvokeIgnoreClassNames,
+		                     TEXT("FastFunctionInvokeIgnoreClassNames"));
+		ReadStringCollection(JsonObject, FastFunctionInvokeIgnoreNames, TEXT("FastFunctionInvokeIgnoreNames"));
 
-        return true;
-    }
+		return true;
+	}
 
-    FTypeDefinitionDocument::FTypeDefinitionPtr FTypeDefinitionDocument::CreateTypeDefinition(const EDefinitionType InType) const
-    {
-        switch (InType)
-        {
-        case EDefinitionType::None:
-            break;
-        case EDefinitionType::Enum:
-            return MakeShared<FEnumTypeDefinition>();
-        case EDefinitionType::Struct:
-            return MakeShared<FScriptStructTypeDefinition>();
-        case EDefinitionType::Class:
-            return MakeShared<FClassTypeDefinition>();
-        case EDefinitionType::Function:
-            return MakeShared<FFunctionTypeDefinition>();
-        default:
-            break;
-        }
+	FTypeDefinitionDocument::FTypeDefinitionPtr FTypeDefinitionDocument::CreateTypeDefinition(
+		const EDefinitionType InType) const
+	{
+		switch (InType)
+		{
+		case EDefinitionType::None:
+			break;
+		case EDefinitionType::Enum:
+			return MakeShared<FEnumTypeDefinition>();
+		case EDefinitionType::Struct:
+			return MakeShared<FScriptStructTypeDefinition>();
+		case EDefinitionType::Class:
+			return MakeShared<FClassTypeDefinition>();
+		case EDefinitionType::Function:
+			return MakeShared<FFunctionTypeDefinition>();
+		default:
+			break;
+		}
 
-        return FTypeDefinitionPtr();
-    }
+		return FTypeDefinitionPtr();
+	}
 
-    void FTypeDefinitionDocument::Reset()
-    {
-        Types.Empty();
-        FastAccessStructTypes.Empty();
-        FastFunctionInvokeModuleNames.Empty();
-        FastFunctionInvokeIgnoreClassNames.Empty();
-        FastFunctionInvokeIgnoreNames.Empty();
-    }
+	void FTypeDefinitionDocument::Reset()
+	{
+		Types.Empty();
+		FastAccessStructTypes.Empty();
+		FastFunctionInvokeModuleNames.Empty();
+		FastFunctionInvokeIgnoreClassNames.Empty();
+		FastFunctionInvokeIgnoreNames.Empty();
+	}
 
-    bool FTypeDefinitionDocument::SaveToFile(const TCHAR* InFilePath)
-    {
-        TSharedPtr<FJsonObject> Doc = MakeShared<FJsonObject>();
+	bool FTypeDefinitionDocument::SaveToFile(const TCHAR* InFilePath)
+	{
+		TSharedPtr<FJsonObject> Doc = MakeShared<FJsonObject>();
 
-        TArray<TSharedPtr<FJsonValue>> TempTypes;
-        
-        for (const auto& Pair : Types)
-        {
-            TSharedPtr<FJsonObject> TypeObject = MakeShared<FJsonObject>();
-            Pair.Value->Write(*TypeObject);
+		TArray<TSharedPtr<FJsonValue>> TempTypes;
 
-            TempTypes.Add(MakeShared<FJsonValueObject>(TypeObject));
-        }
+		for (const auto& Pair : Types)
+		{
+			TSharedPtr<FJsonObject> TypeObject = MakeShared<FJsonObject>();
+			Pair.Value->Write(*TypeObject);
 
-        Doc->SetNumberField("UnrealMajorVersion", UnrealMajorVersion);
-        Doc->SetNumberField("UnrealMinorVersion", UnrealMinorVersion);
-        Doc->SetNumberField("UnrealPatchVersion", UnrealPatchVersion);
-        Doc->SetNumberField("DocumentAttributes", DocumentAttributes);
-        Doc->SetArrayField("Types", TempTypes);
+			TempTypes.Add(MakeShared<FJsonValueObject>(TypeObject));
+		}
 
-        SaveStringCollection(Doc, FastAccessStructTypes, TEXT("FastAccessStructTypes"));
-        SaveStringCollection(Doc, FastFunctionInvokeModuleNames, TEXT("FastFunctionInvokeModuleNames"));
-        SaveStringCollection(Doc, FastFunctionInvokeIgnoreClassNames, TEXT("FastFunctionInvokeIgnoreClassNames"));
-        SaveStringCollection(Doc, FastFunctionInvokeIgnoreNames, TEXT("FastFunctionInvokeIgnoreNames"));
+		Doc->SetNumberField("UnrealMajorVersion", UnrealMajorVersion);
+		Doc->SetNumberField("UnrealMinorVersion", UnrealMinorVersion);
+		Doc->SetNumberField("UnrealPatchVersion", UnrealPatchVersion);
+		Doc->SetNumberField("DocumentAttributes", DocumentAttributes);
+		Doc->SetArrayField("Types", TempTypes);
 
-        FString JsonString;
+		SaveStringCollection(Doc, FastAccessStructTypes, TEXT("FastAccessStructTypes"));
+		SaveStringCollection(Doc, FastFunctionInvokeModuleNames, TEXT("FastFunctionInvokeModuleNames"));
+		SaveStringCollection(Doc, FastFunctionInvokeIgnoreClassNames, TEXT("FastFunctionInvokeIgnoreClassNames"));
+		SaveStringCollection(Doc, FastFunctionInvokeIgnoreNames, TEXT("FastFunctionInvokeIgnoreNames"));
 
-        if (const TSharedPtr<TJsonWriter<>> JsonWriter = TJsonWriterFactory<>::Create(&JsonString);
-            FJsonSerializer::Serialize(Doc.ToSharedRef(), JsonWriter.ToSharedRef()))
-        {
-            return FFileHelper::SaveStringToFile(JsonString, InFilePath);
-        }
+		FString JsonString;
 
-        return false;
-    }
+		if (const TSharedPtr<TJsonWriter<>> JsonWriter = TJsonWriterFactory<>::Create(&JsonString);
+			FJsonSerializer::Serialize(Doc.ToSharedRef(), JsonWriter.ToSharedRef()))
+		{
+			return FFileHelper::SaveStringToFile(JsonString, InFilePath);
+		}
 
-    void FTypeDefinitionDocument::Merge(const FTypeDefinitionDocument& InDocument)
-    {
-        for (auto& Pair : InDocument.Types)
-        {
-            if (Types.Contains(Pair.Key))
-            {
-                UE_LOG(LogTemp, Warning, TEXT("[UnrealSharp]Skip type:%s, already exists!"), *Pair.Key);
-            }
-            else
-            {
-                Types.Add(Pair.Key, Pair.Value);
-            }
-        }
+		return false;
+	}
 
-        for (auto& Type : InDocument.FastAccessStructTypes)
-        {
-            FastAccessStructTypes.Add(Type);
-        }
+	void FTypeDefinitionDocument::Merge(const FTypeDefinitionDocument& InDocument)
+	{
+		for (auto& Pair : InDocument.Types)
+		{
+			if (Types.Contains(Pair.Key))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[UnrealSharp]Skip type:%s, already exists!"), *Pair.Key);
+			}
+			else
+			{
+				Types.Add(Pair.Key, Pair.Value);
+			}
+		}
 
-        for (auto& Type : InDocument.FastFunctionInvokeModuleNames)
-        {
-            FastFunctionInvokeModuleNames.Add(Type);
-        }
+		for (auto& Type : InDocument.FastAccessStructTypes)
+		{
+			FastAccessStructTypes.Add(Type);
+		}
 
-        for (auto& Type : InDocument.FastFunctionInvokeIgnoreNames)
-        {
-            FastFunctionInvokeIgnoreNames.Add(Type);
-        }
+		for (auto& Type : InDocument.FastFunctionInvokeModuleNames)
+		{
+			FastFunctionInvokeModuleNames.Add(Type);
+		}
 
-        for (auto& Type : InDocument.FastFunctionInvokeIgnoreClassNames)
-        {
-            FastFunctionInvokeIgnoreClassNames.Add(Type);
-        }
-    }
+		for (auto& Type : InDocument.FastFunctionInvokeIgnoreNames)
+		{
+			FastFunctionInvokeIgnoreNames.Add(Type);
+		}
+
+		for (auto& Type : InDocument.FastFunctionInvokeIgnoreClassNames)
+		{
+			FastFunctionInvokeIgnoreClassNames.Add(Type);
+		}
+	}
 }
