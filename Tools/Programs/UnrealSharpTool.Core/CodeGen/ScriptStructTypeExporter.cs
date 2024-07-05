@@ -426,7 +426,7 @@ public class ScriptStructTypeExporter : StructTypeExporter
     {
         Writer.Write("#region Constructor");
 
-        Writer.WriteComment($"Initializes a new instance of the <see cref=\"StructView\"/> struct.\nDo not use this function directly unless you know exactly what you are doing.");
+        Writer.WriteComment("Initializes a new instance of the <see cref=\"StructView\"/> struct.\nDo not use this function directly unless you know exactly what you are doing.");
         Writer.WriteComment("The native pointer value.", "param", "name=\"nativePtr\"");
         Writer.Write("public StructView(IntPtr nativePtr)");
         {
@@ -536,7 +536,7 @@ public class ScriptStructTypeExporter : StructTypeExporter
         {
             using var funcScope = new ScopedCodeWriter(Writer);
 
-            Writer.Write($"return FromNative(view.NativePtr, 0);");
+            Writer.Write("return FromNative(view.NativePtr, 0);");
         }
 
         Writer.WriteNewLine();
@@ -544,7 +544,7 @@ public class ScriptStructTypeExporter : StructTypeExporter
         {
             using var funcScope = new ScopedCodeWriter(Writer);
 
-            Writer.Write($"return FromNative(NativePtr, 0);");
+            Writer.Write("return FromNative(NativePtr, 0);");
         }
 
         Writer.WriteNewLine();
@@ -552,7 +552,7 @@ public class ScriptStructTypeExporter : StructTypeExporter
         {
             using var funcScope = new ScopedCodeWriter(Writer);
 
-            Writer.Write($"ToNative(NativePtr, 0, ref value);");
+            Writer.Write("ToNative(NativePtr, 0, ref value);");
         }
 
         Writer.Write("#endregion");

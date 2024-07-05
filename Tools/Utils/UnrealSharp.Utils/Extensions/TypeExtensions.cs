@@ -68,6 +68,7 @@ public static class TypeExtensions
         switch (memberInfo.MemberType)
         {
             case MemberTypes.Event:
+                // ReSharper disable once RedundantSuppressNullableWarningExpression
                 return ((EventInfo)memberInfo).EventHandlerType!;
             case MemberTypes.Field:
                 return ((FieldInfo)memberInfo).FieldType;
@@ -319,6 +320,7 @@ public static class TypeExtensions
                 if (TryGetTypeByName(genericTypeString, out var genericMainType))
                 {
                     // make generic type                        
+                    // ReSharper disable once RedundantSuppressNullableWarningExpression
                     type = genericMainType?.MakeGenericType(genericArgumentTypes!);
                 }
             }
