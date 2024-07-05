@@ -16,6 +16,7 @@ resharper_unused_member_in_super_global_highlighting = none
 dotnet_diagnostic.CA1051.severity = none
 dotnet_diagnostic.CA1707.severity = none
 dotnet_diagnostic.CA1720.severity = none
+dotnet_diagnostic.CA1711.severity = none
 
 [*.def.cs]
 dotnet_diagnostic.CA1822.severity = none
@@ -41,6 +42,7 @@ resharper_unassigned_field_global_highlighting = none
 dotnet_diagnostic.CA1069.severity = none
 dotnet_diagnostic.IDE0005.severity = none
 dotnet_diagnostic.IDE0055.severity = none
+dotnet_diagnostic.CA1712.severity = none
 resharper_redundant_type_declaration_body_highlighting = none
 resharper_grammar_mistake_in_comment_highlighting = none
 resharper_redundant_using_directive_highlighting = none

@@ -43,14 +43,14 @@ partial struct FRotator : IEquatable<FRotator>
     /// <summary>
     /// Equals the specified r.
     /// </summary>
-    /// <param name="otherRotator">The r.</param>
+    /// <param name="other">The r.</param>
     /// <returns><c>true</c> if equal, <c>false</c> otherwise.</returns>
-    public bool Equals(FRotator otherRotator)
+    public bool Equals(FRotator other)
     {
         // same with unreal engine C++
         // so disable this warning
         // ReSharper disable CompareOfFloatsByEqualityOperator
-        return Pitch == otherRotator.Pitch && Yaw == otherRotator.Yaw && Roll == otherRotator.Roll;
+        return Pitch == other.Pitch && Yaw == other.Yaw && Roll == other.Roll;
         // ReSharper restore CompareOfFloatsByEqualityOperator
     }
 

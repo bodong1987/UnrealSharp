@@ -126,14 +126,14 @@ public abstract class BaseTypeExporter
         // provide them by .editorconfig
         
         // disable some rider static code check types 
-        // Writer.Write("// ReSharper disable GrammarMistakeInComment");
+        Writer.Write("// ReSharper disable GrammarMistakeInComment");
         // Writer.Write("// ReSharper disable RedundantUsingDirective");
         // Writer.Write("// ReSharper disable InconsistentNaming");
         Writer.Write("// ReSharper disable IdentifierTypo");
         // Writer.Write("// ReSharper disable RedundantUnsafeContext");
         // Writer.Write("// ReSharper disable RedundantArgumentDefaultValue");
         // Writer.Write("// ReSharper disable ArrangeAccessorOwnerBody");
-        // Writer.Write("// ReSharper disable StringLiteralTypo");
+        Writer.Write("// ReSharper disable StringLiteralTypo");
         // Writer.Write("// ReSharper disable RedundantTypeArgumentsOfMethod");
         // Writer.Write("// ReSharper disable RedundantCast");
         // Writer.Write("// ReSharper disable ParameterHidesMember");

@@ -141,12 +141,8 @@ public partial struct FGuid
 
         var bytes = guid.ToByteArray();
         
-        // ReSharper disable once UseStringInterpolation
-        var formattedGuid = string.Format("{0:X8}-{1:X8}-{2:X8}-{3:X8}",
-            BitConverter.ToInt32(bytes, 0),
-            BitConverter.ToInt32(bytes, 4),
-            BitConverter.ToInt32(bytes, 8),
-            BitConverter.ToInt32(bytes, 12));
+        var formattedGuid =
+            $"{BitConverter.ToInt32(bytes, 0):X8}-{BitConverter.ToInt32(bytes, 4):X8}-{BitConverter.ToInt32(bytes, 8):X8}-{BitConverter.ToInt32(bytes, 12):X8}";
 
         return new FGuid(formattedGuid);
     }

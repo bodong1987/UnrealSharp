@@ -46,12 +46,12 @@ partial struct FVector : IEquatable<FVector>
     /// <summary>
     /// Equals the specified v.
     /// </summary>
-    /// <param name="otherVector">The v.</param>
+    /// <param name="other">The v.</param>
     /// <returns><c>true</c> if equal, <c>false</c> otherwise.</returns>
-    public bool Equals(FVector otherVector)
+    public bool Equals(FVector other)
     {
         // ReSharper disable CompareOfFloatsByEqualityOperator
-        return X == otherVector.X && Y == otherVector.Y && Z == otherVector.Z;
+        return X == other.X && Y == other.Y && Z == other.Z;
         // ReSharper restore CompareOfFloatsByEqualityOperator
     }
 
