@@ -10,7 +10,7 @@
     <FileVersion>1.2.0.0</FileVersion>	
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="UnrealSharp.Toolkit" Version="1.2.1.0" />
+    <PackageReference Include="UnrealSharp.Toolkit" Version="1.2.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UnrealSharp.UnrealEngine\UnrealSharp.UnrealEngine.csproj" />
