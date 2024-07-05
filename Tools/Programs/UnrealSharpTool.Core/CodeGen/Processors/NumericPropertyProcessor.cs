@@ -1,4 +1,5 @@
-﻿using UnrealSharp.Utils.Extensions;
+﻿using System.Globalization;
+using UnrealSharp.Utils.Extensions;
 using UnrealSharpTool.Core.TypeInfo;
 
 namespace UnrealSharpTool.Core.CodeGen.Processors;
@@ -25,7 +26,8 @@ internal class NumericPropertyProcessor : PropertyProcessor
     /// <returns>System.String[].</returns>
     public override string[] GetMatchedTypeClass()
     {
-        return [ 
+        return
+        [
             "Int8Property",
             "ByteProperty",
             "Int16Property",
@@ -63,6 +65,7 @@ internal class NumericPropertyProcessor : PropertyProcessor
             _ => base.GetCSharpTypeName(property, usage)
         };
     }
+
     /// <summary>
     /// Gets the interop get value text.
     /// </summary>
@@ -104,7 +107,8 @@ internal class NumericPropertyProcessor : PropertyProcessor
         // ReSharper disable once ConvertIfStatementToReturnStatement
         if (property.IsByteEnum)
         {
-            return $"InteropUtils.SetEnum<{property.GetCSharpTypeName(Context)}>({address}, {offset}, {property.Size}, {variable})";
+            return
+                $"InteropUtils.SetEnum<{property.GetCSharpTypeName(Context)}>({address}, {offset}, {property.Size}, {variable})";
         }
 
         return $"InteropUtils.SetNumeric({address}, {offset}, {variable})";
@@ -117,11 +121,12 @@ internal class NumericPropertyProcessor : PropertyProcessor
     /// <param name="value">The value.</param>
     /// <param name="usage">The usage.</param>
     /// <returns>System.Nullable&lt;System.String&gt;.</returns>
-    public override string? DecorateDefaultValueText(PropertyDefinition property, string value, ELocalUsageScenarioType usage)
+    public override string? DecorateDefaultValueText(PropertyDefinition property, string value,
+        ELocalUsageScenarioType usage)
     {
-        if(usage.HasFlag(ELocalUsageScenarioType.Field))
+        if (usage.HasFlag(ELocalUsageScenarioType.Field))
         {
-            if(value.All(x=>x is '0' or '.'))
+            if (value.All(x => x is '0' or '.'))
             {
                 return null;
             }
@@ -131,7 +136,7 @@ internal class NumericPropertyProcessor : PropertyProcessor
         {
             case "IntProperty":
             {
-                if(int.TryParse(value, out _))
+                if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
                 {
                     return value.Trim();
                 }
@@ -140,7 +145,7 @@ internal class NumericPropertyProcessor : PropertyProcessor
             }
             case "UInt32Property":
             {
-                if(uint.TryParse(value, out _))
+                if (uint.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
                 {
                     return value.Trim();
                 }
@@ -149,7 +154,7 @@ internal class NumericPropertyProcessor : PropertyProcessor
             }
             case "Int64Property":
             {
-                if(long.TryParse(value, out _))
+                if (long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
                 {
                     return value.Trim();
                 }
@@ -158,7 +163,7 @@ internal class NumericPropertyProcessor : PropertyProcessor
             }
             case "UInt64Property":
             {
-                if(ulong.TryParse(value, out _))
+                if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
                 {
                     return value.Trim();
                 }
@@ -167,7 +172,7 @@ internal class NumericPropertyProcessor : PropertyProcessor
             }
             case "Int8Property":
             {
-                if(sbyte.TryParse(value, out _))
+                if (sbyte.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
                 {
                     return value.Trim();
                 }
@@ -176,7 +181,7 @@ internal class NumericPropertyProcessor : PropertyProcessor
             }
             case "Int16Property":
             {
-                if(short.TryParse(value, out _))
+                if (short.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
                 {
                     return value.Trim();
                 }
@@ -185,7 +190,7 @@ internal class NumericPropertyProcessor : PropertyProcessor
             }
             case "UInt16Property":
             {
-                if(ushort.TryParse(value, out _))
+                if (ushort.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
                 {
                     return value.Trim();
                 }
@@ -194,7 +199,7 @@ internal class NumericPropertyProcessor : PropertyProcessor
             }
             case "FloatProperty":
             {
-                if (float.TryParse(value, out _))
+                if (float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out _))
                 {
                     return $"{value}f";
                 }
@@ -203,7 +208,7 @@ internal class NumericPropertyProcessor : PropertyProcessor
             }
             case "DoubleProperty":
             {
-                if(double.TryParse(value, out _))
+                if (double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out _))
                 {
                     return $"{value}d";
                 }
@@ -212,7 +217,7 @@ internal class NumericPropertyProcessor : PropertyProcessor
             }
             default:
             {
-                if(property.IsByteEnum)
+                if (property.IsByteEnum)
                 {
                     return value == "(INVALID)" ? null : $"{property.ByteEnumName}.{value}";
                 }

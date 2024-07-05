@@ -3,6 +3,7 @@ using UnrealSharp.Utils.Extensions;
 using UnrealSharp.Utils.Misc;
 using UnrealSharp.Utils.UnrealEngine;
 using UnrealSharpTool.Core.ErrorReports;
+using System.Globalization;
 
 namespace UnrealSharpTool.Core.TypeInfo.MonoCecil;
 
@@ -75,7 +76,7 @@ internal static class MonoTypeDefinitionFactory
 
                 if (exportFlagsProperty.Argument.Value != null && exportFlagsProperty.Argument.Value.ToString().IsNotNullOrEmpty())
                 {
-                    if (int.TryParse(exportFlagsProperty.Argument.Value.ToString(), out var v))
+                    if (int.TryParse(exportFlagsProperty.Argument.Value.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var v))
                     {
                         baseTypeDefinition.ExportFlags = v;    
                     }

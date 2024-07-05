@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnrealSharp.Utils.Extensions;
@@ -85,7 +86,7 @@ public class MetaDefinition : IEnumerable<KeyValuePair<string, string>>
     public bool TryGetMeta(string key, out int value)
     {
         value = 0;
-        return Metas.TryGetValue(key, out var temp) && int.TryParse(temp, out value);
+        return Metas.TryGetValue(key, out var temp) && int.TryParse(temp, NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
     }
 
     /// <summary>
