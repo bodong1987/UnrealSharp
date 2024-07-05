@@ -1,6 +1,6 @@
 # How to work without UnrealSharp.Toolkit
 I encapsulated the C# and C++ code generation tool chain into UnrealSharp.Toolkit as a NUGET package. The main purpose is to facilitate integration. You can also compile the tool chain yourself without using UnrealSharp.Toolkit and modify the relevant configuration into the csproj file.
-* First you need to open the UnrealSharp.Programs.sln project in the Tools directory, which is the source code of the tools and UnrealSharp.Utils. Compile it and you will get the code generator.
+* First you need copy 'Tools' directory to your project root along with GameScripts，and then open the UnrealSharp.Programs.sln project in the Tools directory, which is the source code of the tools and UnrealSharp.Utils. Compile it and you will get the code generator.
 * You need to remove UnrealSharp.Toolkit's NUGET package dependency from the project.
 * Then you need to refer to the csproj configuration below to modify your local csproj so that you can use your locally compiled tool chain.
 
