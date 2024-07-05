@@ -23,34 +23,33 @@
 
     Project URL: https://github.com/bodong1987/UnrealSharp
 */
-namespace UnrealSharp.UnrealEngine
+namespace UnrealSharp.UnrealEngine;
+
+/// <summary>
+/// Class USceneComponent.
+/// Implements the <see cref="UnrealSharp.UnrealEngine.UActorComponent" />
+/// </summary>
+/// <seealso cref="UnrealSharp.UnrealEngine.UActorComponent" />
+public partial class USceneComponent
 {
     /// <summary>
-    /// Class USceneComponent.
-    /// Implements the <see cref="UnrealSharp.UnrealEngine.UActorComponent" />
+    /// Setups the attachment.
     /// </summary>
-    /// <seealso cref="UnrealSharp.UnrealEngine.UActorComponent" />
-    public partial class USceneComponent
+    /// <param name="parent">The parent.</param>
+    /// <returns><c>true</c> if setup attachment success, <c>false</c> otherwise.</returns>
+    public bool SetupAttachment(USceneComponent? parent)
     {
-        /// <summary>
-        /// Setups the attachment.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        public bool SetupAttachment(USceneComponent? parent)
-        {
-            return K2_AttachTo(parent, FName.NAME_None);
-        }
+        return K2_AttachTo(parent, FName.NAME_None);
+    }
 
-        /// <summary>
-        /// Setups the attachment.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <param name="socketName">Name of the socket.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        public bool SetupAttachment(USceneComponent? parent, FName socketName)
-        {
-            return K2_AttachTo(parent, socketName);
-        }
+    /// <summary>
+    /// Setups the attachment.
+    /// </summary>
+    /// <param name="parent">The parent.</param>
+    /// <param name="socketName">Name of the socket.</param>
+    /// <returns><c>true</c> if setup attachment success, <c>false</c> otherwise.</returns>
+    public bool SetupAttachment(USceneComponent? parent, FName socketName)
+    {
+        return K2_AttachTo(parent, socketName);
     }
 }

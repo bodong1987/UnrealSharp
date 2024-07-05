@@ -27,156 +27,155 @@ using UnrealSharp.UnrealEngine.InteropService;
 using UnrealSharp.Utils.Misc;
 using UnrealSharp.Utils.UnrealEngine;
 
-namespace UnrealSharp.UnrealEngine
+namespace UnrealSharp.UnrealEngine;
+
+/// <summary>
+/// Class FObjectInitializer.
+/// </summary>
+[UnrealBuiltin]
+public class FObjectInitializer
 {
     /// <summary>
-    /// Class FObjectInitializer.
+    /// The native PTR
     /// </summary>
-    [UnrealBuiltin]
-    public class FObjectInitializer
+    public readonly IntPtr NativePtr;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FObjectInitializer"/> class.
+    /// </summary>
+    /// <param name="nativePtr">The native PTR.</param>
+    internal FObjectInitializer(IntPtr nativePtr)
     {
-        /// <summary>
-        /// The native PTR
-        /// </summary>
-        public readonly IntPtr NativePtr;
+        NativePtr = nativePtr;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FObjectInitializer"/> class.
-        /// </summary>
-        /// <param name="nativePtr">The native PTR.</param>
-        internal FObjectInitializer(IntPtr nativePtr)
-        {
-            NativePtr = nativePtr;
-        }
+    /// <summary>
+    /// Gets the object.
+    /// </summary>
+    /// <returns>System.Nullable&lt;UObject&gt;.</returns>
+    public UObject? GetObj()
+    {
+        Logger.Assert(NativePtr != IntPtr.Zero);
 
-        /// <summary>
-        /// Gets the object.
-        /// </summary>
-        /// <returns>System.Nullable&lt;UObject&gt;.</returns>
-        public UObject? GetObj()
-        {
-            Logger.Assert(NativePtr != IntPtr.Zero);
+        var obj = ObjectInitializerInteropUtils.GetObject(NativePtr);
 
-            var Obj = ObjectInitializerInteropUtils.GetObject(NativePtr);
+        return obj;
+    }
 
-            return Obj;
-        }
+    /// <summary>
+    /// Gets the class.
+    /// </summary>
+    /// <returns>System.Nullable&lt;UClass&gt;.</returns>
+    public UClass? GetClass()
+    {
+        Logger.Assert(NativePtr != IntPtr.Zero);
 
-        /// <summary>
-        /// Gets the class.
-        /// </summary>
-        /// <returns>System.Nullable&lt;UClass&gt;.</returns>
-        public UClass? GetClass()
-        {
-            Logger.Assert(NativePtr != IntPtr.Zero);
+        var classPtr = ObjectInitializerInteropUtils.GetClass(NativePtr);
 
-            var ClassPtr = ObjectInitializerInteropUtils.GetClass(NativePtr);
+        return classPtr != IntPtr.Zero ? new UClass(classPtr) : null;
+    }
 
-            return ClassPtr != IntPtr.Zero ? new UClass(ClassPtr) : null;
-        }
+    /// <summary>
+    /// Creates the default subobject.
+    /// </summary>
+    /// <param name="outer">The outer.</param>
+    /// <param name="subobjectName">Name of the subobject.</param>
+    /// <param name="returnType">Type of the return.</param>
+    /// <param name="classToCreateByDefault">The class to create by default.</param>
+    /// <param name="isRequired">if set to <c>true</c> [is required].</param>
+    /// <param name="isTransient">if set to <c>true</c> [is transient].</param>
+    /// <returns>System.Nullable&lt;UObject&gt;.</returns>
+    public UObject? CreateDefaultSubobject(UObject? outer, string subobjectName, UClass? returnType, UClass? classToCreateByDefault, bool isRequired = true, bool isTransient = false)
+    {
+        Logger.Assert(NativePtr != IntPtr.Zero);
 
-        /// <summary>
-        /// Creates the default subobject.
-        /// </summary>
-        /// <param name="outer">The outer.</param>
-        /// <param name="subobjectName">Name of the subobject.</param>
-        /// <param name="returnType">Type of the return.</param>
-        /// <param name="classToCreateByDefault">The class to create by default.</param>
-        /// <param name="isRequired">if set to <c>true</c> [is required].</param>
-        /// <param name="isTransient">if set to <c>true</c> [is transient].</param>
-        /// <returns>System.Nullable&lt;UObject&gt;.</returns>
-        public UObject? CreateDefaultSubobject(UObject? outer, string subobjectName, UClass? returnType, UClass? classToCreateByDefault, bool isRequired = true, bool isTransient = false)
-        {
-            Logger.Assert(NativePtr != IntPtr.Zero);
+        return ObjectInitializerInteropUtils.CreateDefaultSubobject(
+            NativePtr,
+            outer?.GetNativePtr() ?? IntPtr.Zero,
+            subobjectName,
+            returnType != null ? returnType.GetNativePtr() : IntPtr.Zero,
+            classToCreateByDefault != null ? classToCreateByDefault.GetNativePtr() : IntPtr.Zero,
+            isRequired,
+            isTransient                
+        );
+    }
 
-            return ObjectInitializerInteropUtils.CreateDefaultSubobject(
-                NativePtr,
-                outer != null ? outer.GetNativePtr() : IntPtr.Zero,
-                subobjectName,
-                returnType != null ? returnType.GetNativePtr() : IntPtr.Zero,
-                classToCreateByDefault != null ? classToCreateByDefault.GetNativePtr() : IntPtr.Zero,
-                isRequired,
-                isTransient                
-            );
-        }
+    /// <summary>
+    /// Creates the editor only default subobject.
+    /// </summary>
+    /// <param name="outer">The outer.</param>
+    /// <param name="subObjectName">Name of the subObject.</param>
+    /// <param name="returnType">Type of the return.</param>
+    /// <param name="isTransient">if set to <c>true</c> [is transient].</param>
+    /// <returns>System.Nullable&lt;UObject&gt;.</returns>
+    public UObject? CreateEditorOnlyDefaultSubobject(UObject? outer, string subObjectName, UClass? returnType, bool isTransient = false)
+    {
+        Logger.Assert(NativePtr != IntPtr.Zero);
 
-        /// <summary>
-        /// Creates the editor only default subobject.
-        /// </summary>
-        /// <param name="outer">The outer.</param>
-        /// <param name="subbjectName">Name of the subbject.</param>
-        /// <param name="returnType">Type of the return.</param>
-        /// <param name="isTransient">if set to <c>true</c> [is transient].</param>
-        /// <returns>System.Nullable&lt;UObject&gt;.</returns>
-        public UObject? CreateEditorOnlyDefaultSubobject(UObject? outer, string subbjectName, UClass? returnType, bool isTransient = false)
-        {
-            Logger.Assert(NativePtr != IntPtr.Zero);
+        return ObjectInitializerInteropUtils.CreateEditorOnlyDefaultSubobject(
+            NativePtr,
+            outer?.GetNativePtr() ?? IntPtr.Zero,
+            subObjectName,
+            returnType != null ? returnType.GetNativePtr() : IntPtr.Zero,
+            isTransient                
+        );
+    }
 
-            return ObjectInitializerInteropUtils.CreateEditorOnlyDefaultSubobject(
-                NativePtr,
-                outer != null ? outer.GetNativePtr() : IntPtr.Zero,
-                subbjectName,
-                returnType != null ? returnType.GetNativePtr() : IntPtr.Zero,
-                isTransient                
-            );
-        }
+    /// <summary>
+    /// Sets the default subobject class.
+    /// </summary>
+    /// <param name="subobjectName">Name of the subobject.</param>
+    /// <param name="class">The class.</param>
+    /// <returns>FObjectInitializer.</returns>
+    public FObjectInitializer SetDefaultSubobjectClass(string subobjectName, UClass? @class)
+    {
+        Logger.Assert(NativePtr != IntPtr.Zero);
 
-        /// <summary>
-        /// Sets the default subobject class.
-        /// </summary>
-        /// <param name="subobjectName">Name of the subobject.</param>
-        /// <param name="class">The class.</param>
-        /// <returns>FObjectInitializer.</returns>
-        public FObjectInitializer SetDefaultSubobjectClass(string subobjectName, UClass? @class)
-        {
-            Logger.Assert(NativePtr != IntPtr.Zero);
+        ObjectInitializerInteropUtils.SetDefaultSubobjectClass(NativePtr, subobjectName, @class != null ? @class.GetNativePtr() : IntPtr.Zero);
 
-            ObjectInitializerInteropUtils.SetDefaultSubobjectClass(NativePtr, subobjectName, @class != null ? @class.GetNativePtr() : IntPtr.Zero);
+        return this;
+    }
 
-            return this;
-        }
+    /// <summary>
+    /// Does the not create default subobject.
+    /// </summary>
+    /// <param name="subobjectName">Name of the subobject.</param>
+    /// <returns>FObjectInitializer.</returns>
+    public FObjectInitializer DoNotCreateDefaultSubobject(string subobjectName)
+    {
+        Logger.Assert(NativePtr != IntPtr.Zero);
 
-        /// <summary>
-        /// Does the not create default subobject.
-        /// </summary>
-        /// <param name="subobjectName">Name of the subobject.</param>
-        /// <returns>FObjectInitializer.</returns>
-        public FObjectInitializer DoNotCreateDefaultSubobject(string subobjectName)
-        {
-            Logger.Assert(NativePtr != IntPtr.Zero);
+        ObjectInitializerInteropUtils.DoNotCreateDefaultSubobject(NativePtr, subobjectName);
 
-            ObjectInitializerInteropUtils.DoNotCreateDefaultSubobject(NativePtr, subobjectName);
+        return this;
+    }
 
-            return this;
-        }
+    /// <summary>
+    /// Sets the nested default subobject class.
+    /// </summary>
+    /// <param name="subobjectName">Name of the subobject.</param>
+    /// <param name="class">The class.</param>
+    /// <returns>FObjectInitializer.</returns>
+    public FObjectInitializer SetNestedDefaultSubobjectClass(string subobjectName, UClass? @class)
+    {
+        Logger.Assert(NativePtr != IntPtr.Zero);
 
-        /// <summary>
-        /// Sets the nested default subobject class.
-        /// </summary>
-        /// <param name="subobjectName">Name of the subobject.</param>
-        /// <param name="class">The class.</param>
-        /// <returns>FObjectInitializer.</returns>
-        public FObjectInitializer SetNestedDefaultSubobjectClass(string subobjectName, UClass? @class)
-        {
-            Logger.Assert(NativePtr != IntPtr.Zero);
+        ObjectInitializerInteropUtils.SetNestedDefaultSubobjectClass(NativePtr, subobjectName, @class != null ? @class.GetNativePtr() : IntPtr.Zero);
 
-            ObjectInitializerInteropUtils.SetNestedDefaultSubobjectClass(NativePtr, subobjectName, @class != null ? @class.GetNativePtr() : IntPtr.Zero);
+        return this;
+    }
 
-            return this;
-        }
+    /// <summary>
+    /// Does the not create nested default subobject.
+    /// </summary>
+    /// <param name="subobjectName">Name of the subobject.</param>
+    /// <returns>FObjectInitializer.</returns>
+    public FObjectInitializer DoNotCreateNestedDefaultSubobject(string subobjectName)
+    {
+        Logger.Assert(NativePtr != IntPtr.Zero);
 
-        /// <summary>
-        /// Does the not create nested default subobject.
-        /// </summary>
-        /// <param name="subobjectName">Name of the subobject.</param>
-        /// <returns>FObjectInitializer.</returns>
-        public FObjectInitializer DoNotCreateNestedDefaultSubobject(string subobjectName)
-        {
-            Logger.Assert(NativePtr != IntPtr.Zero);
+        ObjectInitializerInteropUtils.DoNotCreateNestedDefaultSubobject(NativePtr, subobjectName);
 
-            ObjectInitializerInteropUtils.DoNotCreateNestedDefaultSubobject(NativePtr, subobjectName);
-
-            return this;
-        }
+        return this;
     }
 }

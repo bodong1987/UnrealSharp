@@ -103,5 +103,5 @@ namespace UnrealSharp
     };
 
     // convert C# marshal string to FString or const TCHAR*
-#define UNREALSHARP_STRING_TO_TCHAR(str) UTF8_TO_TCHAR(str)
+#define US_STRING_TO_TCHAR(str) UTF8_TO_TCHAR(str)
 }

@@ -46,10 +46,10 @@ namespace UnrealSharp
         // stop runtime running
         virtual void                                            Shutdown() override final;
 
-        virtual TSharedPtr<ICSharpMethodInvocation>             CreateCSharpMethodInvocation(TSharedPtr<ICSharpMethod> InMethod) = 0;
-        virtual TSharedPtr<ICSharpMethodInvocation>             CreateCSharpMethodInvocation(const FString& InAssemblyName, const FString& InFullyQualifiedMethodName) = 0;
+        virtual TSharedPtr<ICSharpMethodInvocation>             CreateCSharpMethodInvocation(TSharedPtr<ICSharpMethod> InMethod) override = 0;
+        virtual TSharedPtr<ICSharpMethodInvocation>             CreateCSharpMethodInvocation(const FString& InAssemblyName, const FString& InFullyQualifiedMethodName) override = 0;
 
-        virtual TSharedPtr<ICSharpType>                         LookupType(const FString& InAssemblyName, const FString& InNamespace, const FString& InName) = 0;
+        virtual TSharedPtr<ICSharpType>                         LookupType(const FString& InAssemblyName, const FString& InNamespace, const FString& InName) override = 0;
         virtual TSharedPtr<ICSharpType>                         LookupType(const FString& InAssemblyName, const FString& InFullName) override;
 
         virtual ICSharpLibraryAccessor*                         GetCSharpLibraryAccessor() override;

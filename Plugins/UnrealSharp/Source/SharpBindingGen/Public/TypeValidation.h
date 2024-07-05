@@ -38,12 +38,12 @@ namespace UnrealSharp
 
     inline bool operator & (ETypeValidationFlags InFlags, ETypeValidationFlags InFlags2)
     {
-        return ((int)InFlags & (int)InFlags2) != 0;
+        return (static_cast<int>(InFlags) & static_cast<int>(InFlags2)) != 0;
     }
 
     inline ETypeValidationFlags operator | (ETypeValidationFlags InFlags, ETypeValidationFlags InFlags2)
     {
-        return (ETypeValidationFlags)((int)InFlags | (int)InFlags2);
+        return static_cast<ETypeValidationFlags>(static_cast<int>(InFlags) | static_cast<int>(InFlags2));
     }
 
     /*
@@ -54,13 +54,13 @@ namespace UnrealSharp
     class SHARPBINDINGGEN_API FTypeValidation
     {
     public:
-        FTypeValidation(bool bAutoCheck = true);
+        explicit FTypeValidation(const bool bAutoCheck = true);
 
-        bool                                IsSupported(UField* InField) const;
-        bool                                IsNeedExport(UField* InField) const;
-        static FString                      GetFieldCheckedName(UField* InField);
+        bool                                IsSupported(const UField* InField) const;
+        bool                                IsNeedExport(const UField* InField) const;
+        static FString                      GetFieldCheckedName(const UField* InField);
 
-        void                                Reset(bool bAutoCheck = false);
+        void                                Reset(const bool bAutoCheck = false);
 
         const TSet<UField*>&                GetSupportedFields() const { return SupportedFields; }
         const TSet<UField*>&                GetUnSupportedFields() const { return UnSupportedFields; }
@@ -75,8 +75,8 @@ namespace UnrealSharp
             Failure
         };
 
-        ECheckResult                        GetCheckResult(UField* InField) const;
-        bool                                AllowPackage(UPackage* InPackage) const;
+        ECheckResult                        GetCheckResult(const UField* InField) const;
+        bool                                AllowPackage(const UPackage* InPackage) const;
 
     private:
         const USharpBindingGenSettings*     GenSettings;

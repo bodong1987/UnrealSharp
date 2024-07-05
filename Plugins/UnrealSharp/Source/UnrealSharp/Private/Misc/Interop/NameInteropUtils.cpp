@@ -36,7 +36,7 @@ namespace UnrealSharp
 
         // can only be in one thread
         // ensure(IsInGameThread());
-        static thread_local FString TempString;
+        static thread_local FString TempString; // NOLINT
 
         TempString = InNamePtr->ToString();
 
@@ -45,8 +45,8 @@ namespace UnrealSharp
 
     FName FInteropUtils::GetNameOfString(const char* InCSharpNameString)
     {
-        FName name = InCSharpNameString ? FName(UNREALSHARP_STRING_TO_TCHAR(InCSharpNameString)) : NAME_None;
+        const FName Name = InCSharpNameString ? FName(US_STRING_TO_TCHAR(InCSharpNameString)) : NAME_None;
 
-        return name;
+        return Name;
     }
 }

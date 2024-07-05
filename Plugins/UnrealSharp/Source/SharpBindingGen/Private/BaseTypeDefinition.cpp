@@ -36,20 +36,20 @@ namespace UnrealSharp
     {
     }
 
-    FBaseTypeDefinition::FBaseTypeDefinition(UField* InField, FTypeValidation* InTypeValidation) :
+    FBaseTypeDefinition::FBaseTypeDefinition(UField* InField, FTypeValidation* /*InTypeValidation*/) :
         ProjectName(FUnrealSharpUtils::GetDefaultExportProjectName(InField)),        
         Namespace(FUnrealSharpUtils::GetDefaultExportNamespace(InField)),
         AssemblyName(FUnrealSharpUtils::GetAssemblyName(InField))
     {
         Name = InField->GetName();
-        CppName = CppName = FUnrealSharpUtils::GetCppTypeName(InField);;
+        CppName = CppName = FUnrealSharpUtils::GetCppTypeName(InField);
         PathName = InField->GetPathName();
         
-        if (auto Struct = Cast<UStruct>(InField))
+        if (const auto Struct = Cast<UStruct>(InField))
         {
             Size = Struct->GetStructureSize();
         }
-        else if (auto Enum = Cast<UEnum>(InField))
+        else if (const auto Enum = Cast<UEnum>(InField))
         {
             Size = FUnrealSharpUtils::CalcEnumUnderlyingTypeSize(Enum);
         }
@@ -119,7 +119,7 @@ namespace UnrealSharp
 
     void FBaseTypeDefinition::Read(FJsonObject& InObject)
     {
-        Type = (int)InObject.GetNumberField(TEXT("Type"));
+        Type = static_cast<int>(InObject.GetNumberField(TEXT("Type")));
         Name = InObject.GetStringField(TEXT("Name"));
         CppName = InObject.GetStringField(TEXT("CppName"));
         PathName = InObject.GetStringField(TEXT("PathName"));
@@ -130,7 +130,7 @@ namespace UnrealSharp
         CSharpFullName = InObject.GetStringField(TEXT("CSharpFullName"));
         LexFromString(Flags, *InObject.GetStringField(TEXT("FlagsT")));
         LexFromString(CrcCode, *InObject.GetStringField(TEXT("CrcCodeT")));
-        Size = (uint8)InObject.GetNumberField(TEXT("Size"));
+        Size = static_cast<uint8>(InObject.GetNumberField(TEXT("Size")));
         
         if (InObject.HasField(TEXT("Guid")))
         {
@@ -140,7 +140,7 @@ namespace UnrealSharp
         Meta.Read(InObject);
     }
 
-    FString FBaseTypeDefinition::GetCppTypeName(UField* InField)
+    FString FBaseTypeDefinition::GetCppTypeName(const UField* InField)
     {
         return FUnrealSharpUtils::GetCppTypeName(InField);
     }

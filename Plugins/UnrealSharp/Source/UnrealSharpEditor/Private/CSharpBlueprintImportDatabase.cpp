@@ -24,8 +24,6 @@
     Project URL: https://github.com/bodong1987/UnrealSharp
 */
 #include "CSharpBlueprintImportDatabase.h"
-#include "Misc/UnrealSharpPaths.h"
-#include "Misc/UnrealSharpLog.h"
 
 namespace UnrealSharp
 {
@@ -50,7 +48,7 @@ namespace UnrealSharp
 
         TSharedPtr<FJsonObject> JsonObject;
 
-        TSharedPtr<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonString);
+        const TSharedPtr<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonString);
 
         if (!JsonReader ||
             !FJsonSerializer::Deserialize(JsonReader.ToSharedRef(), JsonObject) ||
@@ -59,16 +57,16 @@ namespace UnrealSharp
             return false;
         }
 
-        const TArray< TSharedPtr<FJsonValue> >& Files = JsonObject->GetArrayField("Files");
+        const TArray< TSharedPtr<FJsonValue> >& Files = JsonObject->GetArrayField(TEXT("Files"));
 
-        for (auto& jsonValuePtr : Files)
+        for (auto& JSONValuePtr : Files)
         {
-            TSharedPtr<FJsonObject>* typedJsonObject;
-            if (jsonValuePtr->TryGetObject(typedJsonObject) && typedJsonObject)
+            TSharedPtr<FJsonObject>* TypedJsonObject;
+            if (JSONValuePtr->TryGetObject(TypedJsonObject) && TypedJsonObject)
             {
-                FString File = typedJsonObject->Get()->GetStringField(TEXT("File"));
-                uint32 Value = (uint32)typedJsonObject->Get()->GetNumberField(TEXT("Crc"));
-                Records.Add(TKeyValuePair<FString, uint32>(File, Value));
+                FString File = TypedJsonObject->Get()->GetStringField(TEXT("File"));
+                uint32 Value = static_cast<uint32>(TypedJsonObject->Get()->GetNumberField(TEXT("Crc")));
+                Records.Add(TKeyValuePair(File, Value));
             }
         }
 
@@ -77,16 +75,16 @@ namespace UnrealSharp
 
     bool FCSharpBlueprintImportDatabase::SaveToFile(const TCHAR* InFilePath)
     {
-        TSharedPtr<FJsonObject> Doc = MakeShared<FJsonObject>();
+        const TSharedPtr<FJsonObject> Doc = MakeShared<FJsonObject>();
 
         TArray<TSharedPtr<FJsonValue>> Files;
 
-        for (auto& pair : Records)
+        for (auto& Pair : Records)
         {
             TSharedPtr<FJsonObject> FileObject = MakeShared<FJsonObject>();
             
-            FileObject->SetStringField("File", pair.Key);
-            FileObject->SetNumberField("Crc", pair.Value);
+            FileObject->SetStringField("File", Pair.Key);
+            FileObject->SetNumberField("Crc", Pair.Value);
 
             Files.Add(MakeShared<FJsonValueObject>(FileObject));
         }
@@ -94,7 +92,7 @@ namespace UnrealSharp
         Doc->SetArrayField("Files", Files);
 
         FString JsonString;
-        TSharedPtr<TJsonWriter<>> JsonWriter = TJsonWriterFactory<>::Create(&JsonString);
+        const TSharedPtr<TJsonWriter<>> JsonWriter = TJsonWriterFactory<>::Create(&JsonString);
 
         if (FJsonSerializer::Serialize(Doc.ToSharedRef(), JsonWriter.ToSharedRef()))
         {
@@ -111,13 +109,13 @@ namespace UnrealSharp
             return false;
         }
 
-        for (auto pair : Records)
+        for (auto Pair : Records)
         {
             auto* Result = InDatabase.Records.FindByPredicate([&](const TKeyValuePair<FString, uint32>& Target) {
-                return Target.Key == pair.Key;
+                return Target.Key == Pair.Key;
             });
 
-            if (Result == nullptr || Result->Value != pair.Value)
+            if (Result == nullptr || Result->Value != Pair.Value)
             {
                 return false;
             }
@@ -138,19 +136,20 @@ namespace UnrealSharp
 
     bool FCSharpBlueprintImportDatabase::LoadFromDirectory(const TCHAR* InDirectoryPath)
     {
+        check(InDirectoryPath != nullptr);
+        
         Reset();
 
         TArray<FString> Result;
         IFileManager& FileManager = IFileManager::Get();
-        FString ManagedDirectory = FUnrealSharpPaths::GetUnrealSharpManagedLibraryDir();
 
-        FileManager.FindFiles(Result, *ManagedDirectory, TEXT(".tdb"));
+        FileManager.FindFiles(Result, InDirectoryPath, TEXT(".tdb"));
 
         for (auto& FileName : Result)
         {
-            FString FullPath = FPaths::Combine(ManagedDirectory, FileName);
+            FString FullPath = FPaths::Combine(InDirectoryPath, FileName);
 
-            TKeyValuePair<FString, uint32> Data(FileName, CalcFileCrc32(*FullPath));
+            TKeyValuePair Data(FileName, CalcFileCrc32(*FullPath));
             Records.Add(Data);
         }
 

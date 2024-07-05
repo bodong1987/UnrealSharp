@@ -41,7 +41,7 @@ namespace UnrealSharp
 
         check(Runtime);
 
-        return Runtime->GetCSharpLibraryAccessor()->GetUnrealObject((UObject*)InCSharpObject);
+        return Runtime->GetCSharpLibraryAccessor()->GetUnrealObject((UObject*)InCSharpObject); // NOLINT
     }
 
 
@@ -56,7 +56,7 @@ namespace UnrealSharp
 
         check(Runtime);
 
-        return { Runtime->GetObjectTable()->GetCSharpObject((UObject*)InObject) };
+        return { Runtime->GetObjectTable()->GetCSharpObject(const_cast<UObject*>(InObject)) };
     }
 
     FCSharpObjectMarshalValue FInteropUtils::GetOuterOfUnrealObject(const UObject* InObject)
@@ -66,7 +66,7 @@ namespace UnrealSharp
             return { nullptr };
         }
 
-        UObject* OuterObject = InObject->GetOuter();
+        const UObject* OuterObject = InObject->GetOuter();
 
         if (OuterObject == nullptr)
         {
@@ -84,7 +84,7 @@ namespace UnrealSharp
         }
 
         // ensure(IsInGameThread());
-        static thread_local FString NameText;
+        static thread_local FString NameText; // NOLINT
         NameText = InObject->GetName();
 
         return *NameText;
@@ -98,7 +98,7 @@ namespace UnrealSharp
         }
 
         //ensure(IsInGameThread());
-        static thread_local FString NameText;
+        static thread_local FString NameText; // NOLINT
         NameText = InObject->GetPathName();
 
         return *NameText;
@@ -107,8 +107,8 @@ namespace UnrealSharp
     FCSharpObjectMarshalValue FInteropUtils::CreateDefaultSubobject(UObject* InObject, const char* InCSharpSubobjectNameString, UClass* ReturnType, UClass* ClassToCreateByDefault, bool bIsRequired, bool bIsTransient)
     {
         check(InObject);
-                
-        UObject* ObjectResult = InObject->CreateDefaultSubobject(UNREALSHARP_STRING_TO_TCHAR(InCSharpSubobjectNameString), ReturnType, ClassToCreateByDefault, bIsRequired, bIsTransient);
+
+        const UObject* ObjectResult = InObject->CreateDefaultSubobject(US_STRING_TO_TCHAR(InCSharpSubobjectNameString), ReturnType, ClassToCreateByDefault, bIsRequired, bIsTransient);
 
         return GetCSharpObjectOfUnrealObject(ObjectResult);
     }
@@ -117,13 +117,13 @@ namespace UnrealSharp
     {
         check(InObject);
 
-        return {InObject->GetDefaultSubobjectByName((InCSharpSubobjectNameString))};
+        return {InObject->GetDefaultSubobjectByName(InCSharpSubobjectNameString)};
     }
 
-    FCSharpObjectMarshalValue FInteropUtils::NewUnrealObject(UObject* InOuter, UClass* InClass, const FName* InName, EObjectFlags InFlags, UObject* InTemplate, bool bInCopyTransientsFromClassDefaults)
+    FCSharpObjectMarshalValue FInteropUtils::NewUnrealObject(UObject* InOuter, UClass* InClass, const FName* InName, EObjectFlags InFlags, UObject* InTemplate, bool bInCopyTransientsFromClassDefaults) // NOLINT
     {
-        UObject* Result = NewObject<UObject>(
-            InOuter != nullptr ? InOuter : (UObject*)GetTransientPackage(), 
+        const UObject* Result = NewObject<UObject>(
+            InOuter != nullptr ? InOuter : static_cast<UObject*>(GetTransientPackage()), 
             InClass,             
             InName != nullptr ? *InName : NAME_None, 
             InFlags,
@@ -182,47 +182,47 @@ namespace UnrealSharp
         }
     }
 
-    bool FInteropUtils::IsUnrealObjectRooted(UObject* InObject)
+    bool FInteropUtils::IsUnrealObjectRooted(UObject* InObject) // NOLINT
     {
         return InObject != nullptr && InObject->IsRooted();
     }
 
-    bool FInteropUtils::IsUnrealObjectValid(UObject* InObject)
+    bool FInteropUtils::IsUnrealObjectValid(UObject* InObject) // NOLINT
     {
-        return ::IsValid(InObject);
+        return ::IsValid(InObject);// NOLINT
     }
 
     FCSharpObjectMarshalValue FInteropUtils::FindUnrealObjectFast(UClass* InClass, UObject* InOuter, const FName* InName, bool bInExactClass, EObjectFlags InExclusiveFlags)
     {
-        UObject* Result = StaticFindObjectFast(InClass, InOuter, InName != nullptr ? *InName : NAME_None, bInExactClass, InExclusiveFlags);
+        const UObject* Result = StaticFindObjectFast(InClass, InOuter, InName != nullptr ? *InName : NAME_None, bInExactClass, InExclusiveFlags);
         
         return GetCSharpObjectOfUnrealObject(Result);
     }
 
     FCSharpObjectMarshalValue FInteropUtils::FindUnrealObject(UClass* InClass, UObject* InOuter, const char* InName, bool bInExactClass)
     {
-        UObject* Result = StaticFindObject(InClass, InOuter, UNREALSHARP_STRING_TO_TCHAR(InName), bInExactClass);
+        const UObject* Result = StaticFindObject(InClass, InOuter, US_STRING_TO_TCHAR(InName), bInExactClass);
 
         return GetCSharpObjectOfUnrealObject(Result);
     }
 
     FCSharpObjectMarshalValue FInteropUtils::FindUnrealObjectChecked(UClass* InClass, UObject* InOuter, const char* InName, bool bInExactClass)
     {
-        UObject* Result = StaticFindObjectChecked(InClass, InOuter, UNREALSHARP_STRING_TO_TCHAR(InName), bInExactClass);
+        const UObject* Result = StaticFindObjectChecked(InClass, InOuter, US_STRING_TO_TCHAR(InName), bInExactClass);
 
         return GetCSharpObjectOfUnrealObject(Result);
     }
 
     FCSharpObjectMarshalValue FInteropUtils::FindUnrealObjectSafe(UClass* InClass, UObject* InOuter, const char* InName, bool bInExactClass)
     {
-        UObject* Result = StaticFindObjectSafe(InClass, InOuter, UNREALSHARP_STRING_TO_TCHAR(InName), bInExactClass);
+        const UObject* Result = StaticFindObjectSafe(InClass, InOuter, US_STRING_TO_TCHAR(InName), bInExactClass);
 
         return GetCSharpObjectOfUnrealObject(Result);
     }
 
     FCSharpObjectMarshalValue FInteropUtils::LoadUnrealObject(UClass* InClass, UObject* InOuter, const char* InName, const char* InFileName, uint32 InLoadFlags, UPackageMap* InSandbox)
     {
-        UObject* Result = StaticLoadObject(InClass, InOuter, UNREALSHARP_STRING_TO_TCHAR(InName), UNREALSHARP_STRING_TO_TCHAR(InFileName), InLoadFlags, InSandbox);
+        const UObject* Result = StaticLoadObject(InClass, InOuter, US_STRING_TO_TCHAR(InName), US_STRING_TO_TCHAR(InFileName), InLoadFlags, InSandbox);
 
         return GetCSharpObjectOfUnrealObject(Result);
     }

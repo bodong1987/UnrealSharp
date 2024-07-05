@@ -1,21 +1,21 @@
-﻿namespace UnrealSharp.Utils.UnrealEngine
+﻿namespace UnrealSharp.Utils.UnrealEngine;
+
+/// <summary>
+/// Class UENUMAttribute.
+/// </summary>
+[AttributeUsage(AttributeTargets.Enum)]
+// ReSharper disable once InconsistentNaming
+public class UENUMAttribute : UUnrealAttribute<EEnumFlags> 
 {
     /// <summary>
-    /// Class UENUMAttribute.
+    /// Initializes a new instance of the <see cref="UENUMAttribute"/> class.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Enum)]
-    public class UENUMAttribute : UUnrealAttribute<EEnumFlags>
+    public UENUMAttribute() { }
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UENUMAttribute"/> class.
+    /// </summary>
+    /// <param name="flags">The flags.</param>
+    public UENUMAttribute(EEnumFlags flags) : base(flags)
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UENUMAttribute"/> class.
-        /// </summary>
-        public UENUMAttribute() { }
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UENUMAttribute"/> class.
-        /// </summary>
-        /// <param name="flags">The flags.</param>
-        public UENUMAttribute(EEnumFlags flags) : base(flags)
-        {
-        }
     }
 }

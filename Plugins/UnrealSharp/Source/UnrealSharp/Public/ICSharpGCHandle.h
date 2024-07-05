@@ -28,7 +28,7 @@
 namespace UnrealSharp
 {
     /*
-    * GChandle's public encapsulation can be used to force a C# Object to be held to avoid the object being GC. 
+    * GC handle's public encapsulation can be used to force a C# Object to be held to avoid the object being GC. 
     * Whether it is a weak reference or not is optional.
     */
     class UNREALSHARP_API ICSharpGCHandle

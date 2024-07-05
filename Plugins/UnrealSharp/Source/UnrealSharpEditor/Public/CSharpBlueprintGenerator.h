@@ -55,8 +55,8 @@ namespace UnrealSharp
         void            Process();
 
     private:
-        bool            ProcessEnum(FCSharpGeneratedTypeInfo* InInfo);
-        bool            ProcessStruct(FCSharpGeneratedTypeInfo* InInfo);
+        bool            ProcessEnum(const FCSharpGeneratedTypeInfo* InInfo);
+        bool            ProcessStruct(const FCSharpGeneratedTypeInfo* InInfo);
         bool            ProcessClass(FCSharpGeneratedTypeInfo* InInfo);
         bool            ProcessFunction(FCSharpGeneratedTypeInfo* InInfo, const FFunctionTypeDefinition& InFunctionDefinition);
         bool            ProcessDelegate(FCSharpGeneratedTypeInfo* InInfo, const FPropertyDefinition& InPropertyDefinition);

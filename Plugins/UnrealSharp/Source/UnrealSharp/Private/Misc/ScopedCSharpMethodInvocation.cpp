@@ -33,7 +33,7 @@ namespace UnrealSharp
         Invocation.BeginInvoke(InParameterBuffer);
     }
 
-    FScopedCSharpMethodInvocation::FScopedCSharpMethodInvocation(TSharedPtr<ICSharpMethodInvocation> InInvocationPtr, const FStackMemory& InParameterBuffer) :
+    FScopedCSharpMethodInvocation::FScopedCSharpMethodInvocation(const TSharedPtr<ICSharpMethodInvocation>& InInvocationPtr, const FStackMemory& InParameterBuffer) :
         Invocation(*InInvocationPtr)
     {
         Invocation.BeginInvoke(InParameterBuffer);
@@ -50,17 +50,17 @@ namespace UnrealSharp
         Invocation.EndInvoke();
     }
 
-    void* FScopedCSharpMethodInvocation::Invoke(void* InInstance)
+    void* FScopedCSharpMethodInvocation::Invoke(void* InInstance) // NOLINT
     {
         return Invocation.Invoke(InInstance);
     }
 
-    void* FScopedCSharpMethodInvocation::Invoke(void* InInstance, TUniquePtr<ICSharpMethodInvocationException>& OutException)
+    void* FScopedCSharpMethodInvocation::Invoke(void* InInstance, TUniquePtr<ICSharpMethodInvocationException>& OutException) // NOLINT
     {
         return Invocation.Invoke(InInstance, OutException);
     }
 
-    void* FScopedCSharpMethodInvocation::DecodeReturnValue(void* InReturnValue)
+    void* FScopedCSharpMethodInvocation::DecodeReturnValue(void* InReturnValue) // NOLINT
     {
         return Invocation.DecodeReturnPointer(InReturnValue);
     }
@@ -75,7 +75,7 @@ namespace UnrealSharp
         return DecodeReturnValue(Invoke(InInstance, OutException));
     }
 
-    void FScopedCSharpMethodInvocation::AddArgument(void* InArgumentPtr)
+    void FScopedCSharpMethodInvocation::AddArgument(void* InArgumentPtr) // NOLINT
     {
         Invocation.AddArgument(InArgumentPtr);
     }

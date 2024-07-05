@@ -26,12 +26,8 @@
 #include "CSharpRuntimeBase.h"
 #include "CSharpObjectTable.h"
 #include "CSharpLibraryAccessor.h"
-#include "Classes/CSharpStruct.h"
 #include "Misc/UnrealSharpUtils.h"
-#include "Misc/ScopedExit.h"
 #include "ICSharpMethodInvocation.h"
-#include "Classes/CSharpClass.h"
-#include "Classes/CSharpEnum.h"
 #include "Misc/ScopedCSharpMethodInvocation.h"
 #include "Misc/UnrealSharpPaths.h"
 #include "Misc/UnrealInteropFunctions.h"
@@ -93,10 +89,10 @@ namespace UnrealSharp
 
     TSharedPtr<ICSharpType> FCSharpRuntimeBase::LookupType(const FString& InAssemblyName, const FString& InFullName)
     {
-        int index = 0;
-        if (InFullName.FindLastChar('.', index))
+        int Index = 0;
+        if (InFullName.FindLastChar('.', Index))
         {
-            return LookupType(InAssemblyName, InFullName.Left(index), InFullName.Right(InFullName.Len()-index-1));
+            return LookupType(InAssemblyName, InFullName.Left(Index), InFullName.Right(InFullName.Len()-Index-1));
         }
 
         static const FString Z_Empty = TEXT("");
@@ -105,11 +101,11 @@ namespace UnrealSharp
 
     void FCSharpRuntimeBase::InvokeMain()
     {
-        auto Invocation = CreateCSharpMethodInvocation(*FUnrealSharpUtils::UnrealSharpEngineAssemblyName, TEXT("UnrealSharp.UnrealEngine.Main.UnrealSharpEntry:Main (intptr,intptr)"));
+        const auto Invocation = CreateCSharpMethodInvocation(*FUnrealSharpUtils::UnrealSharpEngineAssemblyName, TEXT("UnrealSharp.UnrealEngine.Main.UnrealSharpEntry:Main (intptr,intptr)"));
 
         checkf(Invocation, TEXT("Failed find method UnrealSharpEntry:Main"));
 
-        UNREALSHARP_SCOPED_CSHARP_METHOD_INVOCATION(Invocation);
+        US_SCOPED_CSHARP_METHOD_INVOCATION(Invocation);
 
         const TCHAR* CmdLine = FCommandLine::Get();
         FString CommandArguments = FString::Printf(TEXT("--app=\"%s\""), CmdLine);

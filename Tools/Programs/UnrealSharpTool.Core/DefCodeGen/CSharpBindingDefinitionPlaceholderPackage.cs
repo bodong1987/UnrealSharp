@@ -3,171 +3,175 @@ using UnrealSharpTool.Core.CodeGen;
 using UnrealSharpTool.Core.Generation;
 using UnrealSharpTool.Core.TypeInfo;
 
-namespace UnrealSharpTool.Core.DefCodeGen
+namespace UnrealSharpTool.Core.DefCodeGen;
+
+/// <summary>
+/// Class CSharpBindingDefinitionPlaceholderPackage.
+/// </summary>
+internal class CSharpBindingDefinitionPlaceholderPackage
 {
     /// <summary>
-    /// Class CSharpBindingDefinitionPlaceholderPackage.
+    /// The target directory
     /// </summary>
-    class CSharpBindingDefinitionPlaceholderPackage
+    public readonly string TargetDirectory;
+        
+    /// <summary>
+    /// The name
+    /// </summary>
+    public readonly string ProjectName;
+
+    /// <summary>
+    /// Gets the short name.
+    /// </summary>
+    /// <value>The short name.</value>
+    public string ShortName
     {
-        /// <summary>
-        /// The target directory
-        /// </summary>
-        public readonly string TargetDirectory;
-        /// <summary>
-        /// The name
-        /// </summary>
-        public readonly string ProjectName;
-
-        /// <summary>
-        /// Gets the short name.
-        /// </summary>
-        /// <value>The short name.</value>
-        public string ShortName
+        get
         {
-            get
+            var shortProjectName = ProjectName;
+            var index = shortProjectName.LastIndexOf('.');
+
+            if (index != -1)
             {
-                string ShortProjectName = ProjectName;
-                int index = ShortProjectName.LastIndexOf('.');
-
-                if (index != -1)
-                {
-                    ShortProjectName = ShortProjectName.Substring(index + 1);
-                }
-
-                return ShortProjectName;
+                shortProjectName = shortProjectName[(index + 1)..];
             }
+
+            return shortProjectName;
         }
+    }
 
-        public readonly IEnumerable<string>? DependProjects;
+    public readonly IEnumerable<string>? DependencyProjects;
 
-        /// <summary>
-        /// The context
-        /// </summary>
-        public readonly BindingContext Context;
+    /// <summary>
+    /// The context
+    /// </summary>
+    public readonly BindingContext Context;
 
-        /// <summary>
-        /// The enum writer
-        /// </summary>
-        CSharpBindingDefinitionPlaceholderCodeWriter? EnumWriter;
-        /// <summary>
-        /// The structure writer
-        /// </summary>
-        CSharpBindingDefinitionPlaceholderCodeWriter? StructWriter;
-        /// <summary>
-        /// The class writer
-        /// </summary>
-        CSharpBindingDefinitionPlaceholderCodeWriter? ClassWriter;
-        /// <summary>
-        /// The writers
-        /// </summary>
-        List<CSharpBindingDefinitionPlaceholderCodeWriter> Writers = new List<CSharpBindingDefinitionPlaceholderCodeWriter>();
+    /// <summary>
+    /// The enum writer
+    /// </summary>
+    private CSharpBindingDefinitionPlaceholderCodeWriter? _enumWriter;
+        
+    /// <summary>
+    /// The structure writer
+    /// </summary>
+    private CSharpBindingDefinitionPlaceholderCodeWriter? _structWriter;
+        
+    /// <summary>
+    /// The class writer
+    /// </summary>
+    private CSharpBindingDefinitionPlaceholderCodeWriter? _classWriter;
+        
+    /// <summary>
+    /// The writers
+    /// </summary>
+    private readonly List<CSharpBindingDefinitionPlaceholderCodeWriter> _writers = [];
 
-        /// <summary>
-        /// Gets the exported pathes.
-        /// </summary>
-        /// <value>The exported pathes.</value>
-        public string[] ExportedPathes => Writers.Select(x => x.TargetPath).ToArray()!;
+    /// <summary>
+    /// Gets the exported paths.
+    /// </summary>
+    /// <value>The exported paths.</value>
+    public string[] ExportedPaths => _writers.Select(x => x.TargetPath).ToArray()!;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DefCodeExportPackage"/> class.
-        /// </summary>
-        /// <param name="context">The context.</param>
-        /// <param name="targetDirectory">The target directory.</param>
-        /// <param name="name">The name.</param>
-        public CSharpBindingDefinitionPlaceholderPackage(
-            BindingContext context, 
-            string targetDirectory, 
-            string projectName,
-            IEnumerable<string>? dependProjects
-            )
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CSharpBindingDefinitionPlaceholderPackage"/> class.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="targetDirectory">The target directory.</param>
+    /// <param name="projectName"></param>
+    /// <param name="dependencyProjects"></param>
+    public CSharpBindingDefinitionPlaceholderPackage(
+        BindingContext context, 
+        string targetDirectory, 
+        string projectName,
+        IEnumerable<string>? dependencyProjects
+    )
+    {
+        Context = context;
+        TargetDirectory = targetDirectory;
+        ProjectName = projectName;
+        DependencyProjects = dependencyProjects;
+
+        if(!TargetDirectory.IsDirectoryExists())
         {
-            Context = context;
-            TargetDirectory = targetDirectory;
-            ProjectName = projectName;
-            DependProjects = dependProjects;
-
-            if(!TargetDirectory.IsDirectoryExists())
-            {
-                Directory.CreateDirectory(TargetDirectory);
-            }
+            Directory.CreateDirectory(TargetDirectory);
         }
+    }
 
-        /// <summary>
-        /// Processes the specified type definition.
-        /// </summary>
-        /// <param name="typeDefinition">The type definition.</param>
-        public void Process(BaseTypeDefinition typeDefinition)
+    /// <summary>
+    /// Processes the specified type definition.
+    /// </summary>
+    /// <param name="typeDefinition">The type definition.</param>
+    public void Process(BaseTypeDefinition typeDefinition)
+    {
+        if (typeDefinition.IsEnum)
         {
-            if (typeDefinition.IsEnum)
+            if (_enumWriter == null)
             {
-                if (EnumWriter == null)
-                {
-                    EnumWriter = new CSharpBindingDefinitionPlaceholderCodeWriter(Path.Combine(TargetDirectory, $"{ShortName}.{Context.SchemaType.ToString().ToLower()}.placeholders.enums.cs"), ProjectName);
-                    Writers.Add(EnumWriter);
-                }
-
-                EnumWriter.Write("[BindingDefinition]");
-                EnumWriter.Write($"public enum {typeDefinition.CppName}{{}}");
+                _enumWriter = new CSharpBindingDefinitionPlaceholderCodeWriter(Path.Combine(TargetDirectory, $"{ShortName}.{Context.SchemaType.ToString().ToLower()}.placeholders.enums.cs"), ProjectName);
+                _writers.Add(_enumWriter);
             }
-            else if (typeDefinition.IsStruct)
-            {
-                if (StructWriter == null)
-                {
-                    StructWriter = new CSharpBindingDefinitionPlaceholderCodeWriter(Path.Combine(TargetDirectory, $"{ShortName}.{Context.SchemaType.ToString().ToLower()}.placeholders.structs.cs"), ProjectName, DependProjects);
-                    Writers.Add(StructWriter);
-                }
 
-                StructWriter.Write("[BindingDefinition]");
-                StructWriter.Write($"public struct {typeDefinition.CppName}{{}}");
+            _enumWriter.Write("[BindingDefinition]");
+            _enumWriter.Write($"public enum {typeDefinition.CppName}{{}}");
+        }
+        else if (typeDefinition.IsStruct)
+        {
+            if (_structWriter == null)
+            {
+                _structWriter = new CSharpBindingDefinitionPlaceholderCodeWriter(Path.Combine(TargetDirectory, $"{ShortName}.{Context.SchemaType.ToString().ToLower()}.placeholders.structs.cs"), ProjectName, DependencyProjects);
+                _writers.Add(_structWriter);
             }
-            else if (typeDefinition.IsClass || typeDefinition.IsInterface)
+
+            _structWriter.Write("[BindingDefinition]");
+            _structWriter.Write($"public struct {typeDefinition.CppName}{{}}");
+        }
+        else if (typeDefinition.IsClass || typeDefinition.IsInterface)
+        {
+            if (_classWriter == null)
             {
-                if (ClassWriter == null)
-                {
-                    ClassWriter = new CSharpBindingDefinitionPlaceholderCodeWriter(Path.Combine(TargetDirectory, $"{ShortName}.{Context.SchemaType.ToString().ToLower()}.placeholders.classes.cs"), ProjectName, DependProjects);
-                    Writers.Add(ClassWriter);
-                }
+                _classWriter = new CSharpBindingDefinitionPlaceholderCodeWriter(Path.Combine(TargetDirectory, $"{ShortName}.{Context.SchemaType.ToString().ToLower()}.placeholders.classes.cs"), ProjectName, DependencyProjects);
+                _writers.Add(_classWriter);
+            }
 
-                ClassWriter.Write("[BindingDefinition]");
-                if (typeDefinition.IsClass)
-                {
-                    ClassWriter.Write($"public abstract class {typeDefinition.CppName} : {(typeDefinition as ClassTypeDefinition)!.SuperName}");
+            _classWriter.Write("[BindingDefinition]");
+            if (typeDefinition.IsClass)
+            {
+                _classWriter.Write($"public abstract class {typeDefinition.CppName} : {(typeDefinition as ClassTypeDefinition)!.SuperName}");
 
+                {
+                    using var defScope = new ScopedCodeWriter(_classWriter);
+
+                    foreach (var function in (typeDefinition as ClassTypeDefinition)!.Functions)
                     {
-                        using ScopedCodeWriter DefScope = new ScopedCodeWriter(ClassWriter);
-
-                        foreach (var function in (typeDefinition as ClassTypeDefinition)!.Functions)
+                        if (function.IsEvent)
                         {
-                            if (function.IsEvent)
-                            {
-                                string returnType = function.GetReturnTypeName(Context);
-                                string paramList = function.GetExportParameters(Context);
+                            var returnType = function.GetReturnTypeName(Context);
+                            var paramList = function.GetExportParameters(Context);
 
-                                ClassWriter.Write("[UEVENT()]");
-                                ClassWriter.Write($"public virtual {returnType} {function.Name}({paramList}){{{(function.HasReturnType() ? " return default; " : "")}}}");
-                            }
+                            _classWriter.Write("[UEVENT()]");
+                            _classWriter.Write($"public virtual {returnType} {function.Name}({paramList}){{{(function.HasReturnType() ? " return default; " : "")}}}");
                         }
                     }
                 }
-                else
-                {
-                    var superName = (typeDefinition as ClassTypeDefinition)!.SuperName;
-                    var superInterface = superName == "UInterface" ? "IUnrealObject" : "I" + superName.Substring(1);
-
-                    ClassWriter.Write($"public interface {"I" + typeDefinition.CppName!.Substring(1)} : {superInterface}{{}}");
-                }
-
-                ClassWriter.WriteNewLine();
             }
-        }
+            else
+            {
+                var superName = (typeDefinition as ClassTypeDefinition)!.SuperName;
+                var superInterface = superName == "UInterface" ? "IUnrealObject" : string.Concat("I", superName.AsSpan(1));
 
-        /// <summary>
-        /// Saves this instance.
-        /// </summary>
-        public void Save()
-        {
-            Writers.ForEach(x => x.Save());
+                _classWriter.Write($"public interface {string.Concat("I", typeDefinition.CppName!.AsSpan(1))} : {superInterface}{{}}");
+            }
+
+            _classWriter.WriteNewLine();
         }
+    }
+
+    /// <summary>
+    /// Saves this instance.
+    /// </summary>
+    public void Save()
+    {
+        _writers.ForEach(x => x.Save());
     }
 }

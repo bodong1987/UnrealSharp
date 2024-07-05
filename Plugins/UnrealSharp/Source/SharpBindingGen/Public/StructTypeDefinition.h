@@ -53,7 +53,7 @@ namespace UnrealSharp
         void                                    AddDependNamespace(const UField* InField);
 
     protected:
-        void                                    LoadProperties(UStruct* InStruct, void* InDefaultObjectPtr, EFieldIterationFlags InFlags, FTypeValidation* InTypeValidation, TFunction<bool(FProperty*)> InAccessFunc);
+        void                                    LoadProperties(UStruct* InStruct, const void* InDefaultObjectPtr, const EFieldIterationFlags InFlags, FTypeValidation* InTypeValidation, const TFunction<bool(FProperty*)>& InAccessFunc);
 
     public:
         TArray<FPropertyDefinition>             Properties;

@@ -24,123 +24,125 @@
     Project URL: https://github.com/bodong1987/UnrealSharp
 */
 using UnrealSharp.Utils.Misc;
+// ReSharper disable MemberHidesStaticFromOuterClass
 
-namespace UnrealSharp.UnrealEngine.InteropService
+namespace UnrealSharp.UnrealEngine.InteropService;
+
+/// <summary>
+/// Class ActorInteropUtils.
+/// </summary>
+public static unsafe class ActorInteropUtils
 {
+    #region Interop Function Pointers
+        
     /// <summary>
-    /// Class ActorInteropUtils.
+    /// Class InteropFunctionPointers
+    /// Since mono does not support setting delegate* unmanaged type fields directly through reflection,
+    /// Therefore we cannot directly declare delegate* unmanaged fields and set them through reflection
+    /// So we use this method to set it indirectly, first save the external function pointer to these IntPtr,
+    /// and then solve it through forced type conversion when calling.Although this is a bit inconvenient,
+    /// there is currently no other way unless Mono supports it in the future.
+    /// ReSharper disable once CommentTypo
+    /// @reference check here: https://github.com/dotnet/runtime/blob/main/src/mono/mono/metadata/icall.c#L2134  ves_icall_RuntimeFieldInfo_SetValueInternal
     /// </summary>
-    public unsafe static class ActorInteropUtils
+    private static class InteropFunctionPointers
     {
-        #region Interop Function Pointers     
-        /// <summary>
-        /// Class InteropFunctionPointers.
-        /// Since mono does not support setting delegate* unamaged type fields directly through reflection,
-        /// Therefore we cannot directly declare delegate* unmanged fields and set them through reflection
-        /// So we use this method to set it indirectly, first save the external function pointer to these IntPtrs,
-        /// and then solve it through forced type conversion when calling.Although this is a bit inconvenient,
-        /// there is currently no other way unless Mono supports it in the future.
-        /// @reference check here: https://github.com/dotnet/runtime/blob/main/src/mono/mono/metadata/icall.c#L2134  ves_icall_RuntimeFieldInfo_SetValueInternal
-        /// </summary>
-        private static class InteropFunctionPointers
-        {
 #pragma warning disable CS0649 // The compiler detected an uninitialized private or internal field declaration that is never assigned a value. [We use reflection to bind all fields of this class]            
-            public readonly static IntPtr GetActorWorld;            
-            public readonly static IntPtr GetActorGameInstance;            
-            public readonly static IntPtr SpawnActorByTransform;
-            public readonly static IntPtr SpawnActor;
+        public static readonly IntPtr GetActorWorld;            
+        public static readonly IntPtr GetActorGameInstance;            
+        public static readonly IntPtr SpawnActorByTransform;
+        public static readonly IntPtr SpawnActor;
 #pragma warning restore CS0649
 
-            /// <summary>
-            /// Cctors this instance.
-            /// </summary>
-            static InteropFunctionPointers()
-            {
-                InteropFunctions.BindInteropFunctionPointers(typeof(InteropFunctionPointers));
-            }
-        }
-        #endregion
-
         /// <summary>
-        /// Gets the world.
+        /// static constructor
         /// </summary>
-        /// <param name="actor">The actor.</param>
-        /// <returns>UnrealSharp.UnrealEngine.UWorld?.</returns>
-        public static UWorld? GetWorld(AActor actor)
+        static InteropFunctionPointers()
         {
-            if(!actor.IsBindingToUnreal)
-            {
-                return null;
-            }
+            InteropFunctions.BindInteropFunctionPointers(typeof(InteropFunctionPointers));
+        }
+    }
+    #endregion
 
-            var value = ((delegate* unmanaged[Cdecl]<IntPtr, FCSharpObjectMarshalValue>)InteropFunctionPointers.GetActorWorld)(actor.GetNativePtr());
-
-            return ObjectInteropUtils.MarshalObject<UWorld>(value);
+    /// <summary>
+    /// Gets the world.
+    /// </summary>
+    /// <param name="actor">The actor.</param>
+    /// <returns>UnrealSharp.UnrealEngine.UWorld?.</returns>
+    public static UWorld? GetWorld(AActor actor)
+    {
+        if(!actor.IsBindingToUnreal)
+        {
+            return null;
         }
 
-        /// <summary>
-        /// Gets the game instance.
-        /// </summary>
-        /// <param name="actor">The actor.</param>
-        /// <returns>UnrealSharp.UnrealEngine.UGameInstance?.</returns>
-        public static UGameInstance? GetGameInstance(AActor actor)
+        var value = ((delegate* unmanaged[Cdecl]<IntPtr, FCSharpObjectMarshalValue>)InteropFunctionPointers.GetActorWorld)(actor.GetNativePtr());
+
+        return ObjectInteropUtils.MarshalObject<UWorld>(value);
+    }
+
+    /// <summary>
+    /// Gets the game instance.
+    /// </summary>
+    /// <param name="actor">The actor.</param>
+    /// <returns>UnrealSharp.UnrealEngine.UGameInstance?.</returns>
+    public static UGameInstance? GetGameInstance(AActor actor)
+    {
+        if (!actor.IsBindingToUnreal)
         {
-            if (!actor.IsBindingToUnreal)
-            {
-                return null;
-            }
-
-            var value = ((delegate* unmanaged[Cdecl]<IntPtr, FCSharpObjectMarshalValue>)InteropFunctionPointers.GetActorGameInstance)(actor.GetNativePtr());
-
-            return ObjectInteropUtils.MarshalObject<UGameInstance>(value);
+            return null;
         }
 
-        /// <summary>
-        /// Spawns the actor.
-        /// </summary>
-        /// <param name="world">The world.</param>
-        /// <param name="class">The class.</param>
-        /// <param name="transform">The transform.</param>
-        /// <returns>UnrealSharp.UnrealEngine.AActor?.</returns>
-        public static AActor? SpawnActor(UWorld world, UClass? @class, ref FTransform transform)
+        var value = ((delegate* unmanaged[Cdecl]<IntPtr, FCSharpObjectMarshalValue>)InteropFunctionPointers.GetActorGameInstance)(actor.GetNativePtr());
+
+        return ObjectInteropUtils.MarshalObject<UGameInstance>(value);
+    }
+
+    /// <summary>
+    /// Spawns the actor.
+    /// </summary>
+    /// <param name="world">The world.</param>
+    /// <param name="class">The class.</param>
+    /// <param name="transform">The transform.</param>
+    /// <returns>UnrealSharp.UnrealEngine.AActor?.</returns>
+    public static AActor? SpawnActor(UWorld world, UClass? @class, ref FTransform transform)
+    {
+        if(!world.IsBindingToUnreal)
         {
-            if(!world.IsBindingToUnreal)
-            {
-                return null;
-            }
-
-            Logger.EnsureNotNull(@class);
-
-            FTransform __transform = transform;
-
-            var value = ((delegate* unmanaged[Cdecl]<IntPtr, IntPtr, FTransform*, int, FCSharpObjectMarshalValue>)InteropFunctionPointers.SpawnActorByTransform)(world.GetNativePtr(), @class!.GetNativePtr(), &__transform, sizeof(FTransform));
-
-            return ObjectInteropUtils.MarshalObject<AActor>(value);
+            return null;
         }
 
-        /// <summary>
-        /// Spawns the actor.
-        /// </summary>
-        /// <param name="world">The world.</param>
-        /// <param name="class">The class.</param>
-        /// <param name="location">The location.</param>
-        /// <param name="rotation">The rotation.</param>
-        /// <returns>UnrealSharp.UnrealEngine.AActor?.</returns>
-        public static AActor? SpawnActor(UWorld world, UClass? @class, FVector location, FRotator rotation)
+        Logger.EnsureNotNull(@class);
+
+        var stackTransform = transform;
+
+        var value = ((delegate* unmanaged[Cdecl]<IntPtr, IntPtr, FTransform*, int, FCSharpObjectMarshalValue>)InteropFunctionPointers.SpawnActorByTransform)(world.GetNativePtr(), @class.GetNativePtr(), &stackTransform, sizeof(FTransform));
+
+        return ObjectInteropUtils.MarshalObject<AActor>(value);
+    }
+
+    /// <summary>
+    /// Spawns the actor.
+    /// </summary>
+    /// <param name="world">The world.</param>
+    /// <param name="class">The class.</param>
+    /// <param name="location">The location.</param>
+    /// <param name="rotation">The rotation.</param>
+    /// <returns>UnrealSharp.UnrealEngine.AActor?.</returns>
+    public static AActor? SpawnActor(UWorld world, UClass? @class, FVector location, FRotator rotation)
+    {
+        if (!world.IsBindingToUnreal)
         {
-            if (!world.IsBindingToUnreal)
-            {
-                return null;
-            }
-
-            Logger.EnsureNotNull(@class);
-
-            FVector __location = location;
-            FRotator __rotation = rotation;
-
-            var value = ((delegate* unmanaged[Cdecl]<IntPtr, IntPtr, FVector*, FRotator*, FCSharpObjectMarshalValue>)InteropFunctionPointers.SpawnActorByTransform)(world.GetNativePtr(), @class!.GetNativePtr(), &__location, &__rotation);
-
-            return ObjectInteropUtils.MarshalObject<AActor>(value);
+            return null;
         }
+
+        Logger.EnsureNotNull(@class);
+
+        var localLocation = location;
+        var localRotation = rotation;
+
+        var value = ((delegate* unmanaged[Cdecl]<IntPtr, IntPtr, FVector*, FRotator*, FCSharpObjectMarshalValue>)InteropFunctionPointers.SpawnActorByTransform)(world.GetNativePtr(), @class.GetNativePtr(), &localLocation, &localRotation);
+
+        return ObjectInteropUtils.MarshalObject<AActor>(value);
     }
 }

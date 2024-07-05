@@ -1,105 +1,93 @@
-﻿using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 using UnrealSharp.Utils.Extensions.IO;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.CodeDom.Compiler;
 
-namespace UnrealSharpTool.Core.TypeInfo.Roslyn
+namespace UnrealSharpTool.Core.TypeInfo.Roslyn;
+
+internal class RoslynSymbolInfo : SymbolIdentifier
 {
-    internal class RoslynSymbolInfo : SymbolIdentifier
+    public MemberDeclarationSyntax? MemberDeclaration;
+    public readonly List<SymbolSourceInfo> SourceInfos = [];
+}
+
+internal class RoslynDebugInformation : IDebugInformation
+{
+    // ReSharper disable once CollectionNeverQueried.Global
+    public readonly List<CSharpSourceFile> SourceFiles = [];
+    public readonly Dictionary<string, RoslynSymbolInfo> Symbols = new();
+                        
+    public RoslynDebugInformation(IEnumerable<string> sourceFiles)
     {
-        public MemberDeclarationSyntax? MemberDeclaration;
-        public readonly List<SymbolSourceInfo> SourceInfos = new List<SymbolSourceInfo>();
+        foreach(var file in sourceFiles)
+        {
+            if(file.IsFileExists())
+            {
+                var sourceFile = new CSharpSourceFile(file, "");
+                SourceFiles.Add(sourceFile);
+
+                BuildSymbolDictionary(sourceFile);
+            }
+        }
     }
 
-    internal class RoslynDebugInformation : IDebugInformation
+    private void BuildSymbolDictionary(CSharpSourceFile sourceFile)
     {
-        public readonly List<CSharpSourceFile> SourceFiles = new List<CSharpSourceFile>();
-        public readonly Dictionary<string, RoslynSymbolInfo> Symbols = new Dictionary<string, RoslynSymbolInfo>();
-                        
-        public RoslynDebugInformation(IEnumerable<string> sourceFiles)
+        foreach(var member in sourceFile.GetDeclarationMembers())
         {
-            foreach(var file in sourceFiles)
-            {
-                if(file.IsFileExists())
-                {
-                    var sourceFile = new CSharpSourceFile(file, "");
-                    SourceFiles.Add(sourceFile);
-
-                    BuildSymbolDictionary(sourceFile);
-                }
-            }
-        }
-
-        private void BuildSymbolDictionary(CSharpSourceFile sourceFile)
-        {
-            foreach(var member in sourceFile.GetDeclarationMembers())
-            {
-                RoslynSymbolInfo identifier = new RoslynSymbolInfo();
+            var identifier = new RoslynSymbolInfo();
                 
-                if (member is ClassDeclarationSyntax)
-                {
+            switch (member)
+            {
+                case ClassDeclarationSyntax:
                     identifier.Type = SymbolIdentifierType.Class;
-                }
-                else if (member is StructDeclarationSyntax)
-                {
+                    break;
+                case StructDeclarationSyntax:
                     identifier.Type = SymbolIdentifierType.Struct;
-                }
-                else if (member is EnumDeclarationSyntax)
-                {
+                    break;
+                case EnumDeclarationSyntax:
                     identifier.Type = SymbolIdentifierType.Enum;
-                }
-                else if (member is InterfaceDeclarationSyntax)
-                {
+                    break;
+                case InterfaceDeclarationSyntax:
                     identifier.Type = SymbolIdentifierType.Interface;
-                }
-                else if (member is PropertyDeclarationSyntax)
-                {
+                    break;
+                case PropertyDeclarationSyntax:
                     identifier.Type = SymbolIdentifierType.Property;
                     identifier.OwnerName = (member.Parent as MemberDeclarationSyntax)!.GetIdentifierName();
-                }
-                else if (member is FieldDeclarationSyntax)
-                {
+                    break;
+                case FieldDeclarationSyntax:
                     identifier.Type = SymbolIdentifierType.Field;
                     identifier.OwnerName = (member.Parent as MemberDeclarationSyntax)!.GetIdentifierName();
-                }
-                else if (member is MethodDeclarationSyntax)
-                {
+                    break;
+                case MethodDeclarationSyntax:
                     identifier.Type = SymbolIdentifierType.Method;
                     identifier.OwnerName = (member.Parent as MemberDeclarationSyntax)!.GetIdentifierName();
-                }
-
-                if(identifier.Type != SymbolIdentifierType.None)
-                {
-                    identifier.MemberDeclaration = member;
-                    identifier.Name = member.GetIdentifierName();
-
-                    string key = identifier.ToString();
-
-                    if(!Symbols.TryGetValue(key, out var value))
-                    {
-                        value = identifier;
-                        Symbols.Add(key, value);
-                    }
-
-                    value.SourceInfos.Add(new SymbolSourceInfo()
-                    {
-                        FilePath = sourceFile.FilePath,
-                        Line = member.GetIdentifierLineNumber()
-                    });
-                }
+                    break;
             }
-        }
 
-
-        public IEnumerable<SymbolSourceInfo>? ResolveSourceInfo(SymbolIdentifier symbol)
-        {
-            if(Symbols.TryGetValue(symbol.ToString(), out var value))
+            if(identifier.Type != SymbolIdentifierType.None)
             {
-                return value.SourceInfos;
-            }
+                identifier.MemberDeclaration = member;
+                identifier.Name = member.GetIdentifierName();
 
-            return default;
+                var key = identifier.ToString();
+
+                if(!Symbols.TryGetValue(key, out var value))
+                {
+                    value = identifier;
+                    Symbols.Add(key, value);
+                }
+
+                value.SourceInfos.Add(new SymbolSourceInfo
+                {
+                    FilePath = sourceFile.FilePath,
+                    Line = member.GetIdentifierLineNumber()
+                });
+            }
         }
+    }
+
+
+    public IEnumerable<SymbolSourceInfo>? ResolveSourceInfo(SymbolIdentifier symbol)
+    {
+        return Symbols.TryGetValue(symbol.ToString(), out var value) ? value.SourceInfos : default(IEnumerable<SymbolSourceInfo>?);
     }
 }

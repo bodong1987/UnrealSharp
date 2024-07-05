@@ -58,7 +58,7 @@ protected:
     int64                                       CrcCode = 0;
 
     UPROPERTY()
-    int                                         GeneratorVersion;
+    int                                         GeneratorVersion = 0;
 
     UPROPERTY()
     FString                                     CSharpFullName;

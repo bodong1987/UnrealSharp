@@ -36,9 +36,9 @@ namespace UnrealSharp::Mono
 
         Flags = mono_method_get_flags(InMethod, nullptr);
 
-        MonoMethodSignature* signature = mono_method_signature(InMethod);
+        MonoMethodSignature* Signature = mono_method_signature(InMethod);
 
-        ParamCount = mono_signature_get_param_count(signature);
+        ParamCount = mono_signature_get_param_count(Signature);
 
 #if UE_BUILD_DEBUG
         AssemblyName = GetMethodAssemblyName(InMethod);
@@ -74,29 +74,29 @@ namespace UnrealSharp::Mono
     {
         check(InMonoMethod != nullptr);
 
-        MonoClass* klass = mono_method_get_class(InMonoMethod);
-        check(klass != nullptr);
+        MonoClass* Klass = mono_method_get_class(InMonoMethod);
+        check(Klass != nullptr);
 
-        MonoImage* image = mono_class_get_image(klass);
-        check(image != nullptr);
+        MonoImage* Image = mono_class_get_image(Klass);
+        check(Image != nullptr);
 
-        MonoAssembly* assembly = mono_image_get_assembly(image);
-        check(assembly != nullptr);
+        MonoAssembly* Assembly = mono_image_get_assembly(Image);
+        check(Assembly != nullptr);
 
-        MonoAssemblyName* AssemblyName = mono_assembly_get_name(assembly);
-        const char* assemblyName = mono_assembly_name_get_name(AssemblyName);
+        MonoAssemblyName* AssemblyName = mono_assembly_get_name(Assembly);
+        const char* assemblyName = mono_assembly_name_get_name(AssemblyName); // NOLINT
 
         FString Result = ANSI_TO_TCHAR(assemblyName);
 
         return Result;
     }
 
-    FString FMonoMethod::GetMethodFullName(MonoMethod* InMonoMethod, bool bSignatrure)
+    FString FMonoMethod::GetMethodFullName(MonoMethod* InMonoMethod, bool bSignature)
     {
-        char* fullname = mono_method_full_name(InMonoMethod, bSignatrure);
-        UNREALSHARP_SCOPED_EXIT(mono_free(fullname));
+        char* Fullname = mono_method_full_name(InMonoMethod, bSignature);
+        US_SCOPED_EXIT(mono_free(Fullname));
 
-        FString Result = ANSI_TO_TCHAR(fullname);
+        FString Result = ANSI_TO_TCHAR(Fullname);
 
         return Result;
     }

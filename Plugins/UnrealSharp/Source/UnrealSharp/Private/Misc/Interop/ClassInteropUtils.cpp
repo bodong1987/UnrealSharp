@@ -51,7 +51,7 @@ namespace UnrealSharp
             return nullptr;
         }
 
-        UField* Result = LoadObject<UField>(nullptr, UNREALSHARP_STRING_TO_TCHAR(InCSharpFieldPathName));
+        const UField* Result = LoadObject<UField>(nullptr, US_STRING_TO_TCHAR(InCSharpFieldPathName));
 
         return Result;
     }
@@ -81,11 +81,11 @@ namespace UnrealSharp
             return nullptr;
         }
 
-        const FName TargetName = UNREALSHARP_STRING_TO_TCHAR(InCSharpPropertyName);
+        const FName TargetName = US_STRING_TO_TCHAR(InCSharpPropertyName);
 
         if (const UUserDefinedStruct* UserDefinedStruct = Cast<UUserDefinedStruct>(InStruct))
         {
-            for (FProperty* Property = UserDefinedStruct->PropertyLink; Property != nullptr; Property = Property->PropertyLinkNext)
+            for (const FProperty* Property = UserDefinedStruct->PropertyLink; Property != nullptr; Property = Property->PropertyLinkNext)
             {                
                 const FName PropertyName = FUnrealSharpUtils::ExtraUserDefinedStructPropertyName(Property);
 
@@ -106,14 +106,14 @@ namespace UnrealSharp
             return nullptr;
         }
 
-        return InClass != nullptr ? InClass->FindFunctionByName(UNREALSHARP_STRING_TO_TCHAR(InCSharpFunctionName)) : nullptr;
+        return InClass != nullptr ? InClass->FindFunctionByName(US_STRING_TO_TCHAR(InCSharpFunctionName)) : nullptr;
     }
 
     void FInteropUtils::InitializeStructData(const UStruct* InStruct, const void* InAddressOfStructData)
     {
         if (InStruct && InAddressOfStructData)
         {
-            InStruct->InitializeStruct((void*)InAddressOfStructData);
+            InStruct->InitializeStruct(const_cast<void*>(InAddressOfStructData));
         }
     }
 
@@ -121,7 +121,7 @@ namespace UnrealSharp
     {
         if (InStruct && InAddressOfStructData)
         {
-            InStruct->DestroyStruct((void*)InAddressOfStructData);
+            InStruct->DestroyStruct(const_cast<void*>(InAddressOfStructData));
         }
     }
 
@@ -130,11 +130,11 @@ namespace UnrealSharp
         check(InField);
         // ensure(IsInGameThread());
 
-        static thread_local FString s_Temp;
+        static thread_local FString S_Temp;// NOLINT
 
-        s_Temp = FUnrealSharpUtils::GetCSharpFullPath(InField);
+        S_Temp = FUnrealSharpUtils::GetCSharpFullPath(InField);
 
-        return *s_Temp;
+        return *S_Temp;
     }
 
     EClassFlags FInteropUtils::GetClassFlags(const UClass* InClass)

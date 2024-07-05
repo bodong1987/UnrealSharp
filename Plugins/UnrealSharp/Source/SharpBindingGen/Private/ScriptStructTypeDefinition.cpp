@@ -31,19 +31,19 @@ namespace UnrealSharp
 {
     FScriptStructTypeDefinition::FScriptStructTypeDefinition()
     {
-        Type = (int)EDefinitionType::Struct;
+        Type = static_cast<int>(EDefinitionType::Struct);
     }
 
     FScriptStructTypeDefinition::FScriptStructTypeDefinition(UScriptStruct* InStruct, FTypeValidation* InTypeValidation) :
         Super(InStruct, InTypeValidation)
     {
-        Type = (int)EDefinitionType::Struct;
+        Type = static_cast<int>(EDefinitionType::Struct);
         Flags = InStruct->StructFlags;
 
         void* StructInstance = FMemory::Malloc(InStruct->GetStructureSize());
-        InStruct->InitializeDefaultValue((uint8*)StructInstance);
+        InStruct->InitializeDefaultValue(static_cast<uint8*>(StructInstance));
 
-        UNREALSHARP_SCOPED_EXIT(
+        US_SCOPED_EXIT(
             InStruct->DestroyStruct(StructInstance);
             FMemory::Free(StructInstance);
         );

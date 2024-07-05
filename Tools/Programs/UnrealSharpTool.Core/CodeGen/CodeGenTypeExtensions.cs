@@ -3,159 +3,152 @@ using UnrealSharp.Utils.Extensions;
 using UnrealSharp.Utils.Misc;
 using UnrealSharpTool.Core.TypeInfo;
 
-namespace UnrealSharpTool.Core.CodeGen
+namespace UnrealSharpTool.Core.CodeGen;
+
+/// <summary>
+/// Class CodeGenTypeExtensions.
+/// </summary>
+public static class CodeGenTypeExtensions
 {
     /// <summary>
-    /// Class CodeGenTypeExtensions.
+    /// Gets the name of the return type.
     /// </summary>
-    public static class CodeGenTypeExtensions
+    /// <param name="function">The function.</param>
+    /// <param name="context">The context.</param>
+    /// <returns>System.String.</returns>
+    public static string GetReturnTypeName(this FunctionTypeDefinition function, BindingContext context)
     {
-        /// <summary>
-        /// Gets the name of the return type.
-        /// </summary>
-        /// <param name="function">The function.</param>
-        /// <param name="context">The context.</param>
-        /// <returns>System.String.</returns>
-        public static string GetReturnTypeName(this FunctionTypeDefinition function, BindingContext context)
+        var rType = function.GetReturnType();
+
+        if (rType == null)
         {
-            var rType = function.GetReturnType();
-
-            if (rType == null)
-            {
-                return "void";
-            }
-
-            if (rType.IsByteEnum)
-            {
-                // force convert some byte property to enum
-                return rType.ByteEnumName;
-            }
-
-            return rType.GetCSharpTypeName(context, ELocalUsageScenarioType.Method|ELocalUsageScenarioType.ReturnValue);
+            return "void";
         }
 
-        /// <summary>
-        /// Gets the export parameters.
-        /// </summary>
-        /// <param name="function">The function.</param>
-        /// <param name="context">The context.</param>
-        /// <param name="withDefaultValue">if set to <c>true</c> [with default value].</param>
-        /// <returns>System.String.</returns>
-        public static string GetExportParameters(this FunctionTypeDefinition function, BindingContext context, bool withDefaultValue = false)
-        {
-            StringBuilder stringBuilder = new StringBuilder();
+        return rType.IsByteEnum ?
+            // force convert some byte property to enum
+            rType.ByteEnumName : rType.GetCSharpTypeName(context, ELocalUsageScenarioType.Method|ELocalUsageScenarioType.ReturnValue);
+    }
 
-            var outTag = function.IsEvent || context.SchemaType == EBindingSchemaType.NativeBinding ? "ref " : "out ";
+    /// <summary>
+    /// Gets the export parameters.
+    /// </summary>
+    /// <param name="function">The function.</param>
+    /// <param name="context">The context.</param>
+    /// <param name="withDefaultValue">if set to <c>true</c> [with default value].</param>
+    /// <returns>System.String.</returns>
+    public static string GetExportParameters(this FunctionTypeDefinition function, BindingContext context, bool withDefaultValue = false)
+    {
+        var stringBuilder = new StringBuilder();
 
-            bool StopSearchDefaultValue = !withDefaultValue;
+        var outTag = function.IsEvent || context.SchemaType == EBindingSchemaType.NativeBinding ? "ref " : "out ";
+
+        var stopSearchDefaultValue = !withDefaultValue;
             
-            foreach (var p in function.Properties.FindAll(x => !x.IsReturnParam).Reverse<PropertyDefinition>())
+        foreach (var p in function.Properties.FindAll(x => !x.IsReturnParam).Reverse<PropertyDefinition>())
+        {
+            var type = p.GetCSharpTypeName(context, ELocalUsageScenarioType.Parameter|ELocalUsageScenarioType.Method);
+            var name = p.SafeName;
+
+            // ReSharper disable once ArrangeRedundantParentheses
+            var referenceFlag = p is { IsOutParam: true, IsConstParam: false } ? outTag : (p.IsReference ? "ref " : "");
+            var defaultValueTag = "";
+
+            if(!stopSearchDefaultValue)
             {
-                string type = p.GetCSharpTypeName(context, ELocalUsageScenarioType.Parameter|ELocalUsageScenarioType.Method);
-                string name = p.SafeName;
-
-                string referenceFlag = p.IsOutParam && !p.IsConstParam ? outTag : (p.IsReference ? "ref " : "");
-                string defaultValueTag = "";
-
-                if(!StopSearchDefaultValue)
+                var value = function.Metas.GetMeta($"CPP_Default_{p.Name}");
+                if(value != null)
                 {
-                    var value = function.Metas.GetMeta($"CPP_Default_{p.Name}");
-                    if(value != null)
+                    var processor = context.GetProcessor(p);
+
+                    Logger.EnsureNotNull(processor);
+
+                    value = processor.DecorateDefaultValueText(p, value, ELocalUsageScenarioType.Method|ELocalUsageScenarioType.Parameter);
+
+                    if(value.IsNotNullOrEmpty())
                     {
-                        var processor = context.GetProcessor(p);
-
-                        Logger.EnsureNotNull(processor);
-
-                        value = processor.DecorateDefaultValueText(p, value, ELocalUsageScenarioType.Method|ELocalUsageScenarioType.Parameter);
-
-                        if(value.IsNotNullOrEmpty())
-                        {
-                            defaultValueTag = $" = {value}";
-                        }
-                        else
-                        {
-                            StopSearchDefaultValue = true;
-                        }
+                        defaultValueTag = $" = {value}";
                     }
                     else
                     {
-                        StopSearchDefaultValue = true;
+                        stopSearchDefaultValue = true;
                     }
                 }
-
-                stringBuilder.Insert(0, $", {referenceFlag}{type} {name}{defaultValueTag}");
+                else
+                {
+                    stopSearchDefaultValue = true;
+                }
             }
 
-            string result = stringBuilder.ToString();
-
-            if(result.StartsWith(", "))
-            {
-                return result.Substring(2);
-            }
-
-            return result;
+            stringBuilder.Insert(0, $", {referenceFlag}{type} {name}{defaultValueTag}");
         }
 
-        /// <summary>
-        /// Gets the export invoke parameters.
-        /// </summary>
-        /// <param name="function">The function.</param>
-        /// <param name="context">The context.</param>
-        /// <returns>System.String.</returns>
-        public static string GetExportInvokeParameters(this FunctionTypeDefinition function, BindingContext context)
+        var result = stringBuilder.ToString();
+
+        return result.StartsWith(", ") ? result[2..] : result;
+    }
+
+    /// <summary>
+    /// Gets the export invoke parameters.
+    /// </summary>
+    /// <param name="function">The function.</param>
+    /// <param name="context">The context.</param>
+    /// <returns>System.String.</returns>
+    public static string GetExportInvokeParameters(this FunctionTypeDefinition function, BindingContext context)
+    {
+        var stringBuilder = new StringBuilder();
+
+        var outTag = function.IsEvent || context.SchemaType == EBindingSchemaType.NativeBinding ? "ref " : "out ";
+
+        foreach (var p in function.Properties.FindAll(x => !x.IsReturnParam))
         {
-            StringBuilder stringBuilder = new StringBuilder();
+            // var type = p.GetCSharpTypeName(context, ELocalUsageScenarioType.Parameter | ELocalUsageScenarioType.Method);
+                
+            var name = p.SafeName;
 
-            var outTag = function.IsEvent || context.SchemaType == EBindingSchemaType.NativeBinding ? "ref " : "out ";
+            var semicolon = p == function.Properties.First() ? "" : ", ";
 
-            foreach (var p in function.Properties.FindAll(x => !x.IsReturnParam))
-            {
-                string type = p.GetCSharpTypeName(context, ELocalUsageScenarioType.Parameter | ELocalUsageScenarioType.Method);
-                string name = p.SafeName;
+            // ReSharper disable once ArrangeRedundantParentheses
+            var referenceFlag = p is { IsOutParam: true, IsConstParam: false } ? outTag : (p.IsReference ? "ref " : "");
 
-                string semicolon = p == function.Properties.First() ? "" : ", ";
-
-                string referenceFlag = p.IsOutParam && !p.IsConstParam ? outTag : (p.IsReference ? "ref " : "");
-
-                stringBuilder.Append($"{semicolon}{referenceFlag}{name}");
-            }
-
-            return stringBuilder.ToString();
+            stringBuilder.Append($"{semicolon}{referenceFlag}{name}");
         }
 
-        /// <summary>
-        /// Gets the name of the c sharp type.
-        /// </summary>
-        /// <param name="property">The property.</param>
-        /// <param name="context">The context.</param>
-        /// <param name="usage">The usage.</param>
-        /// <returns>System.String.</returns>
-        public static string GetCSharpTypeName(this PropertyDefinition property, BindingContext context, ELocalUsageScenarioType usage = ELocalUsageScenarioType.Common)
+        return stringBuilder.ToString();
+    }
+
+    /// <summary>
+    /// Gets the name of the c sharp type.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="context">The context.</param>
+    /// <param name="usage">The usage.</param>
+    /// <returns>System.String.</returns>
+    public static string GetCSharpTypeName(this PropertyDefinition property, BindingContext context, ELocalUsageScenarioType usage = ELocalUsageScenarioType.Common)
+    {
+        var processor = context.GetProcessor(property);
+
+        Logger.EnsureNotNull(processor, $"Failed find processor for property:{property}");
+
+        return processor.GetCSharpTypeName(property, usage);
+    }
+
+    /// <summary>
+    /// Gets the name of the inner property c sharp type.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="context">The context.</param>
+    /// <param name="index">The index.</param>
+    /// <returns>System.String.</returns>
+    public static string GetInnerPropertyCSharpTypeName(this PropertyDefinition property, BindingContext context, int index)
+    {
+        Logger.Assert(index >= 0 && index < property.InnerProperties.Count);
+
+        if (index >= 0 && index < property.InnerProperties.Count)
         {
-            var processor = context.GetProcessor(property);
-
-            Logger.EnsureNotNull(processor, $"Failed find processor for property:{property}");
-
-            return processor.GetCSharpTypeName(property, usage);
+            return property.InnerProperties[index].GetCSharpTypeName(context);
         }
 
-        /// <summary>
-        /// Gets the name of the inner property c sharp type.
-        /// </summary>
-        /// <param name="property">The property.</param>
-        /// <param name="context">The context.</param>
-        /// <param name="index">The index.</param>
-        /// <returns>System.String.</returns>
-        public static string GetInnerPropertyCSharpTypeName(this PropertyDefinition property, BindingContext context, int index)
-        {
-            Logger.Assert(index >= 0 && index < property.InnerProperties.Count);
-
-            if (index >= 0 && index < property.InnerProperties.Count)
-            {
-                return property.InnerProperties[index].GetCSharpTypeName(context);
-            }
-
-            return "";
-        }
+        return "";
     }
 }

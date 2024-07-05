@@ -87,7 +87,7 @@ namespace UnrealSharp
         // get property terminal type
         static FEdGraphTerminalType    GetPropertyTerminalType(const FPropertyDefinition& InPropertyDefinition, const FCSharpBlueprintGeneratorDatabase* InDatabase);
 
-        // if need validate property 
+        // check if this property need validate 
         static bool                    ShouldValidateFieldProperty(const FPropertyDefinition& InPropertyDefinition);
 
         // get EdGraphPinType of property
@@ -103,12 +103,12 @@ namespace UnrealSharp
         static void                    CleanCSharpClass(UCSharpBlueprint* InBlueprint, UCSharpClass* InClass);
 
         // remove SimpleConstructionScript's node
-        static void                    RemoveSimpleConstructionScriptRecusivly(USimpleConstructionScript* InSimpleConstructionScript, USCS_Node* InNode);
+        static void                    RemoveSimpleConstructionScriptRecursively(USimpleConstructionScript* InSimpleConstructionScript, USCS_Node* InNode);
 
         // add blueprint struct variable
         static bool                    AddStructVariable(UCSharpStruct* InStruct, const FPropertyDefinition& InPropertyDefinition, const FCSharpBlueprintGeneratorDatabase* InDatabase);
 
-        // get displayname from meta data
+        // get display name from meta data
         static void                    UpgradeDisplayNamesFromMetaData(UUserDefinedEnum* Enum);
 
         // create a new C# import enumeration
@@ -117,30 +117,30 @@ namespace UnrealSharp
         // create a new C# import struct
         static UCSharpStruct*          NewCSharpStruct(UPackage* InPackage, const FScriptStructTypeDefinition* InTypePtr);
 
-        // create a new C# import class/Blueprint grpah
+        // create a new C# import class/Blueprint graph
         static UCSharpBlueprint*       NewCSharpBlueprint(UPackage* InPackage, const FClassTypeDefinition* InTypePtr, UClass* InParentClass, const FCSharpBlueprintGeneratorDatabase* InDatabase);
 
         // force reset blueprint guid
         static void                    ForceResetBlueprintGuid(UBlueprint* InBlueprint, const FGuid& InGuid);
 
         // add variable for C# import class/Blueprint graph
-        static bool                    AddClassVariable(UCSharpBlueprint* InBlueprint, UCSharpClass* InClass, const FPropertyDefinition& InPropertyDefinition, const FCSharpBlueprintGeneratorDatabase* InDatabase);
+        static bool                    AddClassVariable(UCSharpBlueprint* InBlueprint, const UCSharpClass* InClass, const FPropertyDefinition& InPropertyDefinition, const FCSharpBlueprintGeneratorDatabase* InDatabase);
 
         // apply meta data
         static void                    ApplyMetaData(FBPVariableDescription& InVariable, const FPropertyDefinition& InPropertyDefinition);
 
         // transfer base C# data
-        // assembly name/full path/crccode...
+        // assembly name/full path/crc code...
         static void                    PostGeneratedTypeConstructed(ICSharpGeneratedType* InType, const FBaseTypeDefinition* InTypeDefinition);
 
         // check if function implement as function 
-        static bool                    IsImplementationDesiredAsFunction(UBlueprint* InBlueprint, const UFunction* OverrideFunc);
+        static bool                    IsImplementationDesiredAsFunction(const UBlueprint* InBlueprint, const UFunction* OverrideFunc);
 
         // add input pins for class function exit node
-        static void                    AddFunctionInputPropertyPins(UK2Node_EditablePinBase* InNode, FCSharpGeneratedTypeInfo* InInfo, const FFunctionTypeDefinition& InFunctionDefinition, const FCSharpBlueprintGeneratorDatabase* InDatabase);
+        static void                    AddFunctionInputPropertyPins(UK2Node_EditablePinBase* InNode, const FCSharpGeneratedTypeInfo* InInfo, const FFunctionTypeDefinition& InFunctionDefinition, const FCSharpBlueprintGeneratorDatabase* InDatabase);
 
         // add output pins for class function entry node
-        static void                    AddFunctionOutputPropertyPins(UK2Node_FunctionResult* InNode, FCSharpGeneratedTypeInfo* InInfo, const FFunctionTypeDefinition& InFunctionDefinition, const FCSharpBlueprintGeneratorDatabase* InDatabase);
+        static void                    AddFunctionOutputPropertyPins(UK2Node_FunctionResult* InNode, const FCSharpGeneratedTypeInfo* InInfo, const FFunctionTypeDefinition& InFunctionDefinition, const FCSharpBlueprintGeneratorDatabase* InDatabase);
 
         // apply function meta data
         static void                    ApplyFunctionMetaData(UK2Node_FunctionEntry* InFunctionEntry, const FFunctionTypeDefinition& InFunctionDefinition);

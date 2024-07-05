@@ -33,32 +33,32 @@ namespace UnrealSharp
 {
     FCSharpStructFactory::FCSharpStructFactory(ICSharpRuntime* InRuntime, const FString& InAssemblyName, const FString& InFullName)
     {
-        FString ToNativeFunctionSingature = FString::Printf(TEXT("%s:ToNative(intptr,int,%s&)"), *InFullName, *InFullName);        
-        FString FromNativeFunctionSignature = FString::Printf(TEXT("%s:FromNative(intptr,int)"), *InFullName);
+        const FString ToNativeFunctionSignature = FString::Printf(TEXT("%s:ToNative(intptr,int,%s&)"), *InFullName, *InFullName);
+        const FString FromNativeFunctionSignature = FString::Printf(TEXT("%s:FromNative(intptr,int)"), *InFullName);
 
-        ToNativeInvocation = InRuntime->CreateCSharpMethodInvocation(InAssemblyName, ToNativeFunctionSingature);
-        checkf(ToNativeInvocation, TEXT("Failed bind C# method in assembly %s by signature:%s"), *InAssemblyName, *ToNativeFunctionSingature);
+        ToNativeInvocation = InRuntime->CreateCSharpMethodInvocation(InAssemblyName, ToNativeFunctionSignature);
+        checkf(ToNativeInvocation, TEXT("Failed bind C# method in assembly %s by signature:%s"), *InAssemblyName, *ToNativeFunctionSignature);
 
         FromNativeInvocation = InRuntime->CreateCSharpMethodInvocation(InAssemblyName, FromNativeFunctionSignature);
         checkf(FromNativeInvocation, TEXT("Failed bind C# method in assembly %s by signature:%s"), *InAssemblyName, *FromNativeFunctionSignature);
     }
 
-    void* FCSharpStructFactory::FromNative(const void* InUnrealStructPtr)
+    void* FCSharpStructFactory::FromNative(const void* InUnrealStructPtr) const
     {
-        UNREALSHARP_SCOPED_CSHARP_METHOD_INVOCATION(FromNativeInvocation);
+        US_SCOPED_CSHARP_METHOD_INVOCATION(FromNativeInvocation);
 
-        static const int offset = 0;
+        constexpr int Offset = 0;
 
-        void* Result = FromNativeInvocationInvoker.Invoke(nullptr, &InUnrealStructPtr, &offset);
+        void* Result = FromNativeInvocationInvoker.Invoke(nullptr, &InUnrealStructPtr, &Offset);
         return Result;
     }
 
-    void FCSharpStructFactory::ToNative(const void* InUnrealStructPtr, const void* InCSharpStructPtr)
+    void FCSharpStructFactory::ToNative(const void* InUnrealStructPtr, const void* InCSharpStructPtr) const
     {
-        UNREALSHARP_SCOPED_CSHARP_METHOD_INVOCATION(ToNativeInvocation);        
+        US_SCOPED_CSHARP_METHOD_INVOCATION(ToNativeInvocation);        
 
-        static const int offset = 0;
+        constexpr int Offset = 0;
 
-        ToNativeInvocationInvoker.Invoke(nullptr, &InUnrealStructPtr, &offset, InCSharpStructPtr);        
+        ToNativeInvocationInvoker.Invoke(nullptr, &InUnrealStructPtr, &Offset, InCSharpStructPtr);        
     }
 }

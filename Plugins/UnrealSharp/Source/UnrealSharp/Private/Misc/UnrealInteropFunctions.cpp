@@ -43,7 +43,7 @@ namespace UnrealSharp
 
     bool FUnrealInteropFunctions::AddInteropFunction(const TCHAR* InFunctionName, void* InFunc, bool bInAllowOverride /* = false */)
     {
-        FString FunctionName(InFunctionName);
+        const FString FunctionName(InFunctionName);
         return AddInteropFunction(FunctionName, InFunc, bInAllowOverride);
     }
 
@@ -90,23 +90,19 @@ namespace UnrealSharp
 
     void FUnrealInteropFunctions::SetupBaseInteropFunctions()
     {
-        int InteropFunctionCount = 0;
-
-#define UNREALSHARP_REGISTER_BASE_INTEROP_FUNCTION(name) \
+#define US_REGISTER_BASE_INTEROP_FUNCTION(name) \
         AddInteropFunction(TEXT(#name), (void*)&FUnrealInteropFunctions::name)
 
-        UNREALSHARP_REGISTER_BASE_INTEROP_FUNCTION(GetUnrealInteropFunctionsPtr);
-        UNREALSHARP_REGISTER_BASE_INTEROP_FUNCTION(GetUnrealInteropFunctionPointer);
-        UNREALSHARP_REGISTER_BASE_INTEROP_FUNCTION(ValidateUnrealSharpBuildInfo);
+        US_REGISTER_BASE_INTEROP_FUNCTION(GetUnrealInteropFunctionsPtr);
+        US_REGISTER_BASE_INTEROP_FUNCTION(GetUnrealInteropFunctionPointer);
+        US_REGISTER_BASE_INTEROP_FUNCTION(ValidateUnrealSharpBuildInfo);
         
 
-#undef UNREALSHARP_REGISTER_BASE_INTEROP_FUNCTION
+#undef US_REGISTER_BASE_INTEROP_FUNCTION
     }
 
     void FUnrealInteropFunctions::SetupInternalInteropFunctions()
-    {
-        int LocalInternalIndex = 0;
-
+    {        
 #define DECLARE_UNREAL_SHARP_INTEROP_API(returnType, name, parameters) \
             AddInteropFunction(TEXT(#name), (void*)&FInteropUtils::name)
 
@@ -117,7 +113,7 @@ namespace UnrealSharp
 
     FUnrealInteropFunctions* FUnrealInteropFunctions::GetUnrealInteropFunctionsPtr()
     {
-        IUnrealSharpModule* UnrealSharpModule = (IUnrealSharpModule*)FModuleManager::Get().LoadModule(TEXT("UnrealSharp"));
+        IUnrealSharpModule* UnrealSharpModule = (IUnrealSharpModule*)FModuleManager::Get().LoadModule(TEXT("UnrealSharp")); // NOLINT
         check(UnrealSharpModule);
 
         return UnrealSharpModule->GetInteropFunctions();
@@ -133,8 +129,8 @@ namespace UnrealSharp
         Info = {
             sizeof(Info),
             Instance, 
-            (void*)&FUnrealInteropFunctions::GetUnrealInteropFunctionPointer,
-            (void*)&FUnrealInteropFunctions::LogMessage
+            (void*)&FUnrealInteropFunctions::GetUnrealInteropFunctionPointer, // NOLINT 
+            (void*)&FUnrealInteropFunctions::LogMessage // NOLINT
         };
 
         return &Info;
@@ -145,13 +141,13 @@ namespace UnrealSharp
         checkSlow(InInstance);
         checkSlow(InCSharpText);
 
-        return InInstance->GetInteropFunction(UNREALSHARP_STRING_TO_TCHAR(InCSharpText));
+        return InInstance->GetInteropFunction(US_STRING_TO_TCHAR(InCSharpText));
     }
 
     void FUnrealInteropFunctions::LogMessage(int InLevel, const char* InMessage)
     {
         // must match with C#
-        enum class LoggerLevel
+        enum class ELoggerLevel
         {
             /// <summary>
             /// The verbose
@@ -181,26 +177,26 @@ namespace UnrealSharp
 
         if (InMessage != nullptr)
         {
-            if (InLevel == (int)LoggerLevel::Error)
+            if (InLevel == static_cast<int>(ELoggerLevel::Error))
             {
-                US_LOG_ERROR(TEXT("%s"), UNREALSHARP_STRING_TO_TCHAR(InMessage));
+                US_LOG_ERROR(TEXT("%s"), US_STRING_TO_TCHAR(InMessage));
             }
-            else if (InLevel == (int)LoggerLevel::Warning)
+            else if (InLevel == static_cast<int>(ELoggerLevel::Warning))
             {
-                US_LOG_WARN(TEXT("%s"), UNREALSHARP_STRING_TO_TCHAR(InMessage));
+                US_LOG_WARN(TEXT("%s"), US_STRING_TO_TCHAR(InMessage));
             }
-            else if (InLevel == (int)LoggerLevel::Verbose)
+            else if (InLevel == static_cast<int>(ELoggerLevel::Verbose))
             {
-                US_LOG_VERBOSE(TEXT("%s"), UNREALSHARP_STRING_TO_TCHAR(InMessage));
+                US_LOG_VERBOSE(TEXT("%s"), US_STRING_TO_TCHAR(InMessage));
             }
             else
             {
-                US_LOG(TEXT("%s"), UNREALSHARP_STRING_TO_TCHAR(InMessage));
+                US_LOG(TEXT("%s"), US_STRING_TO_TCHAR(InMessage));
             }
         }
     }
 
-    void FUnrealInteropFunctions::ValidateUnrealSharpBuildInfo(FUnrealSharpBuildInfo* InBuildInfo)
+    void FUnrealInteropFunctions::ValidateUnrealSharpBuildInfo(const FUnrealSharpBuildInfo* InBuildInfo)
     {
         check(InBuildInfo != nullptr);
 
@@ -210,17 +206,17 @@ namespace UnrealSharp
             InBuildInfo->bWithEditor ? TEXT("true") : TEXT("false")
         );
 
-        FUnrealSharpBuildInfo NativeBuildInfo = FUnrealSharpBuildInfo::GetNativeBuildInfo();
+        const auto [Platform, Configuration, bWithEditor] = FUnrealSharpBuildInfo::GetNativeBuildInfo();
 
-        checkf(NativeBuildInfo.bWithEditor == InBuildInfo->bWithEditor, 
+        checkf(bWithEditor == InBuildInfo->bWithEditor, 
             TEXT("UnrealSharp is build with invalid configuration. C++ WITH_EDITOR=%s but C# WITH_EDITOR=%s"),
-            NativeBuildInfo.bWithEditor?TEXT("true"):TEXT("false"),
+            bWithEditor?TEXT("true"):TEXT("false"),
             InBuildInfo->bWithEditor ? TEXT("true") : TEXT("false")
             );
         
-        checkf(NativeBuildInfo.Platform == InBuildInfo->Platform,
+        checkf(Platform == InBuildInfo->Platform,
             TEXT("UnrealSharp is build with invalid configuration. C++ Platform=%s but C# Platform=%s"),
-            *FUnrealSharpBuildInfo::GetPlatformString(NativeBuildInfo.Platform),
+            *FUnrealSharpBuildInfo::GetPlatformString(Platform),
             *FUnrealSharpBuildInfo::GetPlatformString(InBuildInfo->Platform)
             );
     }

@@ -36,10 +36,10 @@ UCSharpStruct::UCSharpStruct(const FObjectInitializer& ObjectInitializer) :
 
 FString UCSharpStruct::GetCSharpTypeName() const
 {
-    int index;
-    if (CSharpFullName.FindLastChar(TEXT('.'), index))
+    int Index;
+    if (CSharpFullName.FindLastChar(TEXT('.'), Index))
     {
-        return CSharpFullName.Mid(index+1);
+        return CSharpFullName.Mid(Index+1);
     }
 
     return CSharpFullName;

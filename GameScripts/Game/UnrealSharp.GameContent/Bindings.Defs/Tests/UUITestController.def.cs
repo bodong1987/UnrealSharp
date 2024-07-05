@@ -2,15 +2,15 @@
 using UnrealSharp.UnrealEngine.Bindings.Placeholders;
 using UnrealSharp.GameScripts.Bindings.Placeholders;
 
-namespace UnrealSharp.GameContent.Bindings.Defs.Tests
-{
-    [UCLASS]
-    internal class UUITestController : UObject
-    {
-        [UPROPERTY]
-        public TSubclassOf<UObject> ClassType = default;
+namespace UnrealSharp.GameContent.Bindings.Defs.Tests;
 
-        // error tests...
+[UCLASS]
+internal class UUITestController : UObject
+{
+    [UPROPERTY]
+    public TSubclassOf<UObject> ClassType = default;
+
+    // error tests...
 #if false
         [UPROPERTY]
         public TSubclassOf<UFrameTestAbstractObject> ClassType2 = default;
@@ -19,5 +19,4 @@ namespace UnrealSharp.GameContent.Bindings.Defs.Tests
         [UMETA(MetaConstants.AllowAbstract, true)]
         public TSubclassOf<UFrameTestAbstractObject> ClassTypeAllowAbstract = default;
 #endif
-    }
 }

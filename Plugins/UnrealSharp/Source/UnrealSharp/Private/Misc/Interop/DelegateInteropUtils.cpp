@@ -31,17 +31,17 @@ namespace UnrealSharp
     {
         check(InProperty && InProperty->IsA<FDelegateProperty>());
 
-        FScriptDelegate* Delegate = (FScriptDelegate*)InDelegateAddress;
+        FScriptDelegate* Delegate = static_cast<FScriptDelegate*>(const_cast<void*>(InDelegateAddress));
         check(Delegate != nullptr);
 
-        Delegate->BindUFunction(InObject, UNREALSHARP_STRING_TO_TCHAR(InCSharpFunctionName));
+        Delegate->BindUFunction(InObject, US_STRING_TO_TCHAR(InCSharpFunctionName));
     }
 
     void FInteropUtils::UnbindDelegate(const void* InDelegateAddress, const FProperty* InProperty)
     {
         check(InProperty && InProperty->IsA<FDelegateProperty>());
 
-        FScriptDelegate* Delegate = (FScriptDelegate*)InDelegateAddress;
+        FScriptDelegate* Delegate = (FScriptDelegate*)InDelegateAddress; // NOLINT
         check(Delegate != nullptr);
 
         Delegate->Unbind();
@@ -51,12 +51,12 @@ namespace UnrealSharp
     {
         if (InProperty->IsA<FMulticastDelegateProperty>())
         {
-            FMulticastScriptDelegate* Delegate = (FMulticastScriptDelegate*)InDelegateAddress;
+            FMulticastScriptDelegate* Delegate = (FMulticastScriptDelegate*)InDelegateAddress; // NOLINT
             Delegate->Clear();
         }
         else if (InProperty->IsA<FDelegateProperty>())
         {
-            FScriptDelegate* Delegate = (FScriptDelegate*)InDelegateAddress;
+            FScriptDelegate* Delegate = (FScriptDelegate*)InDelegateAddress; // NOLINT
             Delegate->Unbind();
         }
     }
@@ -65,11 +65,11 @@ namespace UnrealSharp
     {
         check(InProperty && InProperty->IsA<FMulticastDelegateProperty>());
 
-        FMulticastScriptDelegate* Delegate = (FMulticastScriptDelegate*)InDelegateAddress;
+        FMulticastScriptDelegate* Delegate = (FMulticastScriptDelegate*)InDelegateAddress; // NOLINT
         check(Delegate != nullptr);
                 
         FScriptDelegate ScriptDelegate;
-        ScriptDelegate.BindUFunction(InObject, UNREALSHARP_STRING_TO_TCHAR(InCSharpFunctionName));
+        ScriptDelegate.BindUFunction(InObject, US_STRING_TO_TCHAR(InCSharpFunctionName));
         Delegate->AddUnique(ScriptDelegate);
     }
 
@@ -77,19 +77,19 @@ namespace UnrealSharp
     {
         check(InProperty && InProperty->IsA<FMulticastDelegateProperty>());
 
-        FMulticastScriptDelegate* Delegate = (FMulticastScriptDelegate*)InDelegateAddress;
+        FMulticastScriptDelegate* Delegate = (FMulticastScriptDelegate*)InDelegateAddress; // NOLINT
         check(Delegate != nullptr);
 
         FScriptDelegate ScriptDelegate;
-        ScriptDelegate.BindUFunction(InObject, UNREALSHARP_STRING_TO_TCHAR(InCSharpFunctionName));
+        ScriptDelegate.BindUFunction(InObject, US_STRING_TO_TCHAR(InCSharpFunctionName));
         Delegate->Remove(ScriptDelegate);
     }
 
-    void FInteropUtils::RemoveAllDelegate(const void* InDelegateAddress, const FProperty* InProperty, UObject* InObject)
+    void FInteropUtils::RemoveAllDelegate(const void* InDelegateAddress, const FProperty* InProperty, UObject* InObject) // NOLINT
     {
         check(InProperty && InProperty->IsA<FMulticastDelegateProperty>());
 
-        FMulticastScriptDelegate* Delegate = (FMulticastScriptDelegate*)InDelegateAddress;
+        FMulticastScriptDelegate* Delegate = (FMulticastScriptDelegate*)InDelegateAddress; // NOLINT
         check(Delegate != nullptr);
 
         Delegate->RemoveAll(InObject);

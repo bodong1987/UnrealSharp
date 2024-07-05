@@ -24,7 +24,6 @@
     Project URL: https://github.com/bodong1987/UnrealSharp
 */
 #include "StructTypeDefinition.h"
-#include "SharpBindingGenSettings.h"
 #include "TypeValidation.h"
 #include "Misc/UnrealSharpUtils.h"
 
@@ -39,7 +38,7 @@ namespace UnrealSharp
     {
     }
 
-    void FStructTypeDefinition::LoadProperties(UStruct* InStruct, void* InDefaultObjectPtr, EFieldIterationFlags InFlags, FTypeValidation* InTypeValidation, TFunction<bool(FProperty*)> InAccessFunc)
+    void FStructTypeDefinition::LoadProperties(UStruct* InStruct, const void* InDefaultObjectPtr, const EFieldIterationFlags InFlags, FTypeValidation* InTypeValidation, const TFunction<bool(FProperty*)>& InAccessFunc)
     {
         for (TFieldIterator<FProperty> PropertyIter(InStruct, InFlags); PropertyIter; ++PropertyIter)
         {
@@ -86,14 +85,11 @@ namespace UnrealSharp
     {
         Super::Read(InObject);
 
-        const TArray< TSharedPtr<FJsonValue> >* PropertiesRefPtr = nullptr;
-
-        if (InObject.TryGetArrayField(TEXT("Properties"), PropertiesRefPtr) && PropertiesRefPtr)
+        if (const TArray< TSharedPtr<FJsonValue> >* PropertiesRefPtr = nullptr; InObject.TryGetArrayField(TEXT("Properties"), PropertiesRefPtr) && PropertiesRefPtr)
         {
             for (auto& PropertyObject : *PropertiesRefPtr)
             {
-                TSharedPtr<FJsonObject>* ObjectPtr = nullptr;
-                if (PropertyObject->TryGetObject(ObjectPtr) && ObjectPtr != nullptr)
+                if (TSharedPtr<FJsonObject>* ObjectPtr = nullptr; PropertyObject->TryGetObject(ObjectPtr) && ObjectPtr != nullptr)
                 {
                     FPropertyDefinition Def;
                     Def.Read(**ObjectPtr);
@@ -106,7 +102,7 @@ namespace UnrealSharp
     bool FStructTypeDefinition::IsSupportedFunction(UFunction* InFunction, FTypeValidation* InTypeValidation)
     {
         // skip editor only functions...
-        if ((InFunction->FunctionFlags & EFunctionFlags::FUNC_EditorOnly) != 0)
+        if ((InFunction->FunctionFlags & FUNC_EditorOnly) != 0)
         {
             return false;
         }
@@ -118,9 +114,7 @@ namespace UnrealSharp
 
         for (TFieldIterator<FProperty> PropertyIterator(InFunction); PropertyIterator; ++PropertyIterator)
         {
-            FProperty* Property = *PropertyIterator;
-
-            if (!IsSupportedElementProperty(Property, InTypeValidation))
+            if (FProperty* Property = *PropertyIterator; !IsSupportedElementProperty(Property, InTypeValidation))
             {
                 return false;
             }
@@ -163,54 +157,55 @@ namespace UnrealSharp
             return false;
         }
 
-        if (FStructProperty* StructProperty = CastField<FStructProperty>(InProperty))
+        if (const FStructProperty* StructProperty = CastField<FStructProperty>(InProperty))
         {
             return InTypeValidation->IsSupported(StructProperty->Struct);
         }
-        else if (FClassProperty* ClassProperty = CastField<FClassProperty>(InProperty))
+
+        if (const FClassProperty* ClassProperty = CastField<FClassProperty>(InProperty))
         {
             if (ClassProperty->MetaClass != nullptr)
             {
                 return InTypeValidation->IsSupported(ClassProperty->MetaClass);
             }
         }
-        else if (FObjectProperty* ObjectProperty = CastField<FObjectProperty>(InProperty))
+        else if (const FObjectProperty* ObjectProperty = CastField<FObjectProperty>(InProperty))
         {
             return InTypeValidation->IsSupported(ObjectProperty->PropertyClass);
         }
-        else if (FEnumProperty* EnumProperty = CastField<FEnumProperty>(InProperty))
+        else if (const FEnumProperty* EnumProperty = CastField<FEnumProperty>(InProperty))
         {
             return InTypeValidation->IsSupported(EnumProperty->GetEnum());
         }
-        else if (FArrayProperty* ArrayProperty = CastField<FArrayProperty>(InProperty))
+        else if (const FArrayProperty* ArrayProperty = CastField<FArrayProperty>(InProperty))
         {
             FProperty* Property = ArrayProperty->Inner;
             check(Property != nullptr);
 
             return IsSupportedElementProperty(Property, InTypeValidation);
         }
-         else if (FSetProperty* SetProperty = CastField<FSetProperty>(InProperty))
-         {
-             FProperty* Property = SetProperty->ElementProp;
-             check(Property != nullptr);
-             return IsSupportedElementProperty(Property, InTypeValidation);
-         }
-         else if (FMapProperty* MapProperty = CastField<FMapProperty>(InProperty))
-         {
-             FProperty* KeyProperty = MapProperty->KeyProp;
-             FProperty* ValueProperty = MapProperty->ValueProp;
-             check(KeyProperty != nullptr);
-             check(ValueProperty != nullptr);
+        else if (const FSetProperty* SetProperty = CastField<FSetProperty>(InProperty))
+        {
+            FProperty* Property = SetProperty->ElementProp;
+            check(Property != nullptr);
+            return IsSupportedElementProperty(Property, InTypeValidation);
+        }
+        else if (const FMapProperty* MapProperty = CastField<FMapProperty>(InProperty))
+        {
+            FProperty* KeyProperty = MapProperty->KeyProp;
+            FProperty* ValueProperty = MapProperty->ValueProp;
+            check(KeyProperty != nullptr);
+            check(ValueProperty != nullptr);
  
-             return IsSupportedElementProperty(KeyProperty, InTypeValidation) && IsSupportedElementProperty(ValueProperty, InTypeValidation);
-         }
-        else if (FDelegateProperty* DelegateProperty = CastField<FDelegateProperty>(InProperty))
+            return IsSupportedElementProperty(KeyProperty, InTypeValidation) && IsSupportedElementProperty(ValueProperty, InTypeValidation);
+        }
+        else if (const FDelegateProperty* DelegateProperty = CastField<FDelegateProperty>(InProperty))
         {
             check(DelegateProperty->SignatureFunction);
 
             return IsSupportedFunction(DelegateProperty->SignatureFunction, InTypeValidation);
         }
-        else if (FMulticastDelegateProperty* MulticastDelegateProperty = CastField<FMulticastDelegateProperty>(InProperty))
+        else if (const FMulticastDelegateProperty* MulticastDelegateProperty = CastField<FMulticastDelegateProperty>(InProperty))
         {
             check(MulticastDelegateProperty);
 
@@ -256,46 +251,43 @@ namespace UnrealSharp
 
     void FStructTypeDefinition::AddDependNamespace(const FProperty* InProperty)
     {
-        if (auto ArrayProperty = CastField<FArrayProperty>(InProperty))
+        if (const auto ArrayProperty = CastField<FArrayProperty>(InProperty))
         {
             AddDependNamespace(ArrayProperty->Inner);
         }
-        else if (auto SetProperty = CastField<FSetProperty>(InProperty))
+        else if (const auto SetProperty = CastField<FSetProperty>(InProperty))
         {
             AddDependNamespace(SetProperty->ElementProp);
         }
-        else if (auto MapProperty = CastField<FMapProperty>(InProperty))
+        else if (const auto MapProperty = CastField<FMapProperty>(InProperty))
         {
             AddDependNamespace(MapProperty->GetKeyProperty());
             AddDependNamespace(MapProperty->GetValueProperty());
         }
-        else if (auto Field = FUnrealSharpUtils::GetPropertyInnerField(InProperty))
+        else if (const auto Field = FUnrealSharpUtils::GetPropertyInnerField(InProperty))
         {
             AddDependNamespace(Field);
         }
     }
 
-    static inline FString ExtractNamespace(const FString& CSharpFullPath)
+    static FString ExtractNamespace(const FString& CSharpFullPath)
     {
-        int32 LastDotIndex;
-        if (CSharpFullPath.FindLastChar(TEXT('.'), LastDotIndex))
+        if (int32 LastDotIndex; CSharpFullPath.FindLastChar(TEXT('.'), LastDotIndex))
         {
             return CSharpFullPath.Left(LastDotIndex);
         }
-        else
-        {
-            // No dot found, return the whole string
-            return CSharpFullPath;
-        }
+        
+        // No dot found, return the whole string
+        return CSharpFullPath;
     }
 
     void FStructTypeDefinition::AddDependNamespace(const UField* InField)
     {
         if (FUnrealSharpUtils::IsCSharpField(InField))
         {
-            FString CSharpFullPath = FUnrealSharpUtils::GetCSharpFullPath(InField);
+            const FString CSharpFullPath = FUnrealSharpUtils::GetCSharpFullPath(InField);
 
-            auto DependNamespace = ExtractNamespace(CSharpFullPath);
+            const auto DependNamespace = ExtractNamespace(CSharpFullPath);
 
             DependNamespaces.Add(DependNamespace, 0);
         }

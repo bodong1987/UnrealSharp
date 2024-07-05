@@ -38,15 +38,15 @@ UCSharpEnum::UCSharpEnum(const FObjectInitializer& ObjectInitializer) :
 void UCSharpEnum::ClearEnums()
 {
     TArray<TPair<FName, int64>> EmptyNames;
-    SetEnums(EmptyNames, UEnum::ECppForm::Namespaced);
+    SetEnums(EmptyNames, ECppForm::Namespaced);
 }
 
 FString UCSharpEnum::GetCSharpTypeName() const
 {
-    int index;
-    if (CSharpFullName.FindLastChar(TEXT('.'), index))
+    int Index;
+    if (CSharpFullName.FindLastChar(TEXT('.'), Index))
     {
-        return CSharpFullName.Mid(index + 1);
+        return CSharpFullName.Mid(Index + 1);
     }
 
     return CSharpFullName;

@@ -26,109 +26,109 @@
 
 using System.Runtime.InteropServices;
 
-namespace UnrealSharp.UnrealEngine.Main
+namespace UnrealSharp.UnrealEngine.Main;
+
+/// <summary>
+/// Enum EUnrealSharpPlatform
+/// please sync with C++
+/// </summary>
+public enum EUnrealSharpPlatform : byte
 {
     /// <summary>
-    /// Enum EUnrealSharpPlatform
-    /// please sync with C++
+    /// The windows
     /// </summary>
-    public enum EUnrealSharpPlatform : byte
-    {
-        /// <summary>
-        /// The windows
-        /// </summary>
-        Windows,
-        /// <summary>
-        /// The mac
-        /// </summary>
-        Mac,
-        /// <summary>
-        /// The linux
-        /// </summary>
-        Linux,
-        /// <summary>
-        /// The ios
-        /// </summary>
-        IOS,
-        /// <summary>
-        /// The android
-        /// </summary>
-        Android
-    };
+    Windows,
+    /// <summary>
+    /// The mac
+    /// </summary>
+    Mac,
+    /// <summary>
+    /// The linux
+    /// </summary>
+    Linux,
+    /// <summary>
+    /// The ios
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    IOS,
+    /// <summary>
+    /// The android
+    /// </summary>
+    Android
+}
+
+/// <summary>
+/// Enum EUnrealSharpBuildConfiguration
+/// SyncWith C++
+/// </summary>
+public enum EUnrealSharpBuildConfiguration : byte
+{
+    /// <summary>
+    /// The debug
+    /// </summary>
+    Debug,
+    /// <summary>
+    /// The release
+    /// </summary>
+    Release
+}
+
+/// <summary>
+/// Struct FUnrealSharpBuildInfo
+/// Sync with C++
+/// </summary>
+[StructLayout(LayoutKind.Sequential)]
+public struct FUnrealSharpBuildInfo
+{
+    /// <summary>
+    /// The platform
+    /// </summary>
+    public EUnrealSharpPlatform Platform;
+    /// <summary>
+    /// The configuration
+    /// </summary>
+    public EUnrealSharpBuildConfiguration Configuration;
+    /// <summary>
+    /// The b with editor
+    /// </summary>
+    public bool bWithEditor;
 
     /// <summary>
-    /// Enum EUnrealSharpBuildConfiguration
-    /// SyncWith C++
+    /// Gets this instance.
     /// </summary>
-    public enum EUnrealSharpBuildConfiguration : byte
+    /// <returns>FUnrealSharpBuildInfo.</returns>
+    public static FUnrealSharpBuildInfo Get()
     {
-        /// <summary>
-        /// The debug
-        /// </summary>
-        Debug,
-        /// <summary>
-        /// The release
-        /// </summary>
-        Release,
-    };
-
-    /// <summary>
-    /// Struct FUnrealSharpBuildInfo
-    /// Sync with C++
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct FUnrealSharpBuildInfo
-    {
-        /// <summary>
-        /// The platform
-        /// </summary>
-        public EUnrealSharpPlatform Platform;
-        /// <summary>
-        /// The configuration
-        /// </summary>
-        public EUnrealSharpBuildConfiguration Configuration;
-        /// <summary>
-        /// The b with editor
-        /// </summary>
-        public bool bWithEditor;
-
-        /// <summary>
-        /// Gets this instance.
-        /// </summary>
-        /// <returns>FUnrealSharpBuildInfo.</returns>
-        public static FUnrealSharpBuildInfo Get()
-        {
-            FUnrealSharpBuildInfo Result = new FUnrealSharpBuildInfo();
+        var result = new FUnrealSharpBuildInfo();
 
 #if WITH_EDITOR
-            Result.bWithEditor = true;
+        result.bWithEditor = true;
 #else
-            Result.bWithEditor = false;
+            result.bWithEditor = false;
 #endif
 
 #if PLATFORM_WINDOWS
-            Result.Platform = EUnrealSharpPlatform.Windows;
+        result.Platform = EUnrealSharpPlatform.Windows;
 #elif PLATFORM_MAC
-            Result.Platform = EUnrealSharpPlatform.Mac;
+            result.Platform = EUnrealSharpPlatform.Mac;
 #elif PLATFORM_LINUX
-            Result.Platform = EUnrealSharpPlatform.Linux;
+            result.Platform = EUnrealSharpPlatform.Linux;
 #elif PLATFORM_IOS
-            Result.Platform = EUnrealSharpPlatform.IOS;
+            result.Platform = EUnrealSharpPlatform.IOS;
 #elif PLATFORM_ANDROID
-            Result.Platform = EUnrealSharpPlatform.Android;
+            result.Platform = EUnrealSharpPlatform.Android;
 #else
 #error "Unsupported platform"
 #endif
 
 #if DEBUG
-            Result.Configuration = EUnrealSharpBuildConfiguration.Debug;
+        result.Configuration = EUnrealSharpBuildConfiguration.Debug;
 #elif NDEBUG
-            Result.Configuration = EUnrealSharpBuildConfiguration.Release;
+            result.Configuration = EUnrealSharpBuildConfiguration.Release;
 #else
 #error "You should add DEBUG or NDEBUG for your build configuration."
 #endif
 
-            return Result;
-        }
-    };
+        return result;
+    }
 }

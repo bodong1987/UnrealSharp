@@ -23,26 +23,23 @@
 
     Project URL: https://github.com/bodong1987/UnrealSharp
 */
-namespace UnrealSharp.UnrealEngine
+namespace UnrealSharp.UnrealEngine;
+
+/// <summary>
+/// Class UCapsuleComponent.
+/// Implements the <see cref="UnrealSharp.UnrealEngine.UShapeComponent" />
+/// </summary>
+/// <seealso cref="UnrealSharp.UnrealEngine.UShapeComponent" />
+public partial class UCapsuleComponent
 {
     /// <summary>
-    /// Class UCapsuleComponent.
-    /// Implements the <see cref="UnrealSharp.UnrealEngine.UShapeComponent" />
+    /// Initializes the size of the capsule.
     /// </summary>
-    /// <seealso cref="UnrealSharp.UnrealEngine.UShapeComponent" />
-    public partial class UCapsuleComponent
+    /// <param name="radius">The radius.</param>
+    /// <param name="halfHeight">Height of the half.</param>
+    public void InitCapsuleSize(float radius, float halfHeight)
     {
-        /// <summary>
-        /// Initializes the size of the capsule.
-        /// </summary>
-        /// <param name="radius">The radius.</param>
-        /// <param name="halfHeight">Height of the half.</param>
-        public void InitCapsuleSize(float radius, float halfHeight)
-        {
-            CapsuleRadius = Math.Max(0, radius);
-            CapsuleHalfHeight = Math.Max(Math.Max(0, halfHeight), radius);
-        }
+        CapsuleRadius = Math.Max(0, radius);
+        CapsuleHalfHeight = Math.Max(Math.Max(0, halfHeight), radius);
     }
 }
-
-

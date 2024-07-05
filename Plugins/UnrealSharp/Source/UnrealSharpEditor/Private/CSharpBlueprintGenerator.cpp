@@ -77,7 +77,7 @@ namespace UnrealSharp
         });
 
         // process struct
-        Database->Accept([US_LAMBDA_CAPTURE_THIS](FCSharpGeneratedTypeInfo& InInfo)
+        Database->Accept([US_LAMBDA_CAPTURE_THIS](const FCSharpGeneratedTypeInfo& InInfo)
         {
             if (InInfo.State != ECSharpGeneratedTypeState::Completed && Cast<UCSharpStruct>(InInfo.Field) != nullptr)
             {
@@ -95,7 +95,7 @@ namespace UnrealSharp
         });
     }
 
-    bool FCSharpBlueprintGenerator::ProcessEnum(FCSharpGeneratedTypeInfo* InInfo)
+    bool FCSharpBlueprintGenerator::ProcessEnum(const FCSharpGeneratedTypeInfo* InInfo) // NOLINT
     {   
         check(InInfo);
         check(InInfo->Field);
@@ -104,31 +104,31 @@ namespace UnrealSharp
 
         UPackage* Package = InInfo->Field->GetOutermost();
         UCSharpEnum* Enum = Cast<UCSharpEnum>(InInfo->Field);
-        TSharedPtr<FEnumTypeDefinition> EnumType = StaticCastSharedPtr<FEnumTypeDefinition>(InInfo->Definition);
+        const TSharedPtr<FEnumTypeDefinition> EnumType = StaticCastSharedPtr<FEnumTypeDefinition>(InInfo->Definition);
         check(Enum);
 
         Enum->ClearEnums();
 
         TArray<TPair<FName, int64>> Fields;
 
-        for (auto& field : EnumType->Fields)
+        for (auto& [Name, Value] : EnumType->Fields)
         {
-            Fields.Emplace(FString::Printf(TEXT("%s::%s"), *EnumType->Name, *field.Name), (int64)field.Value);
+            Fields.Emplace(FString::Printf(TEXT("%s::%s"), *EnumType->Name, *Name), Value);
         }
 
         Enum->SetEnums(Fields, UEnum::ECppForm::Namespaced);
 
-        for (auto& meta : EnumType->Meta.Metas)
+        for (auto& Meta : EnumType->Meta.Metas)
         {
-            Enum->SetMetaData(*meta.Key, *meta.Value);
+            Enum->SetMetaData(*Meta.Key, *Meta.Value);
 
-            if (meta.Key == TEXT("ToolTip"))
+            if (Meta.Key == TEXT("ToolTip"))
             {
                 // force set enum description.
-                FProperty* Property = Enum->GetClass()->FindPropertyByName(TEXT("EnumDescription"));
+                const FProperty* Property = Enum->GetClass()->FindPropertyByName(TEXT("EnumDescription"));
                 if (Property != nullptr)
                 {
-                    Property->ImportText_Direct(*meta.Value, Property->ContainerPtrToValuePtr<void>(Enum, 0), nullptr, PPF_None);
+                    Property->ImportText_Direct(*Meta.Value, Property->ContainerPtrToValuePtr<void>(Enum, 0), nullptr, PPF_None);
                 }
             }
         }
@@ -138,14 +138,14 @@ namespace UnrealSharp
         FAssetRegistryModule::AssetCreated(Enum);
 
         FSavePackageArgs Args;
-        Args.TopLevelFlags = EObjectFlags::RF_Public | EObjectFlags::RF_Standalone;
+        Args.TopLevelFlags = RF_Public | RF_Standalone;
 
         UPackage::SavePackage(Package, Enum, *InInfo->FilePath, Args);
 
         return true;
     }
 
-    bool FCSharpBlueprintGenerator::ProcessStruct(FCSharpGeneratedTypeInfo* InInfo)
+    bool FCSharpBlueprintGenerator::ProcessStruct(const FCSharpGeneratedTypeInfo* InInfo) // NOLINT
     {
         check(InInfo);
         check(InInfo->Field);
@@ -155,18 +155,18 @@ namespace UnrealSharp
 
         UPackage* Package = InInfo->Field->GetOutermost();
         UCSharpStruct* Struct = Cast<UCSharpStruct>(InInfo->Field);
-        TSharedPtr<FScriptStructTypeDefinition> StructType = StaticCastSharedPtr<FScriptStructTypeDefinition>(InInfo->Definition);
+        const TSharedPtr<FScriptStructTypeDefinition> StructType = StaticCastSharedPtr<FScriptStructTypeDefinition>(InInfo->Definition);
         check(Struct);
                 
         Struct->Guid = InInfo->Definition->Guid;
 
         FCSharpBlueprintGeneratorUtils::CleanCSharpStruct(Struct);
 
-        for (auto& field : StructType->Properties)
+        for (auto& Field : StructType->Properties)
         {
-            if (!FCSharpBlueprintGeneratorUtils::AddStructVariable(Struct, field, Database.Get()))
+            if (!FCSharpBlueprintGeneratorUtils::AddStructVariable(Struct, Field, Database.Get()))
             {
-                US_LOG_ERROR(TEXT("Failed add struct variable %s:%s"), *InInfo->Definition->CSharpFullName, *field.Name);
+                US_LOG_ERROR(TEXT("Failed add struct variable %s:%s"), *InInfo->Definition->CSharpFullName, *Field.Name);
                 return false;
             }
         }
@@ -177,7 +177,7 @@ namespace UnrealSharp
         FAssetRegistryModule::AssetCreated(Struct);
 
         FSavePackageArgs Args;
-        Args.TopLevelFlags = EObjectFlags::RF_Public | EObjectFlags::RF_Standalone;
+        Args.TopLevelFlags = RF_Public | RF_Standalone;
 
         UPackage::SavePackage(Package, Struct, *InInfo->FilePath, Args);
 
@@ -199,42 +199,42 @@ namespace UnrealSharp
 
         const bool bIsChildOfActor = Class->IsChildOf<AActor>();
 
-        TSharedPtr<FClassTypeDefinition> ClassType = StaticCastSharedPtr<FClassTypeDefinition>(InInfo->Definition);
+        const TSharedPtr<FClassTypeDefinition> ClassType = StaticCastSharedPtr<FClassTypeDefinition>(InInfo->Definition);
 
         TSet<FName> ProcessedAttachComponents;
 
-        for (auto& property : ClassType->Properties)
+        for (auto& Property : ClassType->Properties)
         {
-            if (property.IsDelegateRelatedProperty())
+            if (Property.IsDelegateRelatedProperty())
             {
-                if (!ProcessDelegate(InInfo, property))
+                if (!ProcessDelegate(InInfo, Property))
                 {
-                    US_LOG_ERROR(TEXT("Failed process delegate %s.%s"), *InInfo->CppName, *property.Name);
+                    US_LOG_ERROR(TEXT("Failed process delegate %s.%s"), *InInfo->CppName, *Property.Name);
 
                     return false;
                 }                
             }
-            else if (bIsChildOfActor && property.IsAttachToActorProperty())
+            else if (bIsChildOfActor && Property.IsAttachToActorProperty())
             {
                 // this should be a component in Actor                
-                if (!ProcessAutoAttachComponent(InInfo, ClassType.Get(), property, ProcessedAttachComponents))
+                if (!ProcessAutoAttachComponent(InInfo, ClassType.Get(), Property, ProcessedAttachComponents))
                 {
-                    US_LOG_ERROR(TEXT("Failed process auto attach component %s.%s"), *InInfo->CppName, *property.Name);
+                    US_LOG_ERROR(TEXT("Failed process auto attach component %s.%s"), *InInfo->CppName, *Property.Name);
 
                     return false;
                 }
             }
             else
             {
-                FCSharpBlueprintGeneratorUtils::AddClassVariable(InInfo->Blueprint, Class, property, Database.Get());
+                FCSharpBlueprintGeneratorUtils::AddClassVariable(InInfo->Blueprint, Class, Property, Database.Get());
             }
         }
 
-        for (auto& function : ClassType->Functions)
+        for (auto& Function : ClassType->Functions)
         {
-            if (!ProcessFunction(InInfo, function))
+            if (!ProcessFunction(InInfo, Function))
             {
-                US_LOG_ERROR(TEXT("Failed process function %s"), *function.CSharpFullName);
+                US_LOG_ERROR(TEXT("Failed process function %s"), *Function.CSharpFullName);
                 return false;
             }
         }
@@ -245,7 +245,7 @@ namespace UnrealSharp
         FKismetEditorUtilities::CompileBlueprint(InInfo->Blueprint);
 
         FSavePackageArgs Args;
-        Args.TopLevelFlags = EObjectFlags::RF_Public | EObjectFlags::RF_Standalone;
+        Args.TopLevelFlags = RF_Public | RF_Standalone;
 
         UPackage::SavePackage(Package, InInfo->Blueprint, *InInfo->FilePath, Args);
         
@@ -258,9 +258,9 @@ namespace UnrealSharp
         Data.FunctionName = InFunctionDefinition.Name;
         Data.FunctionSignature = InFunctionDefinition.Signature;
 
-        for (auto& property : InFunctionDefinition.Properties)
+        for (auto& Property : InFunctionDefinition.Properties)
         {
-            FCSharpFunctionArgumentData ArgumentData = {*property.Name, property.PropertyFlags, property.Size};
+            FCSharpFunctionArgumentData ArgumentData = {*Property.Name, static_cast<int64>(Property.PropertyFlags), Property.Size};
 
             Data.Arguments.Emplace(ArgumentData);
         }
@@ -268,7 +268,7 @@ namespace UnrealSharp
         return Data;
     }
 
-    bool FCSharpBlueprintGenerator::ProcessFunction(FCSharpGeneratedTypeInfo* InInfo, const FFunctionTypeDefinition& InFunctionDefinition)
+    bool FCSharpBlueprintGenerator::ProcessFunction(FCSharpGeneratedTypeInfo* InInfo, const FFunctionTypeDefinition& InFunctionDefinition) // NOLINT
     {
         check(InInfo && InInfo->Blueprint);
 
@@ -282,7 +282,7 @@ namespace UnrealSharp
 
         UEdGraph* EventGraph = FBlueprintEditorUtils::FindEventGraph(InInfo->Blueprint);
         
-        bool bCanImplementAsEvent = false;
+        bool bCanImplementAsEvent = false; // NOLINT
 
         if (OverrideFunc != nullptr)
         {
@@ -305,22 +305,25 @@ namespace UnrealSharp
             checkf(!InFunctionDefinition.HasAnyOutParameter(), TEXT("event can't have any out parameter or return type : %s"), *InFunctionDefinition.CSharpFullName);
 
             FName EventName = *InFunctionDefinition.Name;
-            UK2Node_Event* ExistingNode = FBlueprintEditorUtils::FindOverrideForFunction(InInfo->Blueprint, OverrideFuncClass, EventName);
+            const UK2Node_Event* ExistingNode = FBlueprintEditorUtils::FindOverrideForFunction(InInfo->Blueprint, OverrideFuncClass, EventName);
 
             check(!ExistingNode);
 
             if (OverrideFuncClass && OverrideFunc)
             {
-                UK2Node_Event* NewEventNode = FEdGraphSchemaAction_K2NewNode::SpawnNode<UK2Node_Event>(
+                const UK2Node_Event* NewEventNode = FEdGraphSchemaAction_K2NewNode::SpawnNode<UK2Node_Event>(
                     EventGraph,
                     EventGraph->GetGoodPlaceForNewNode(),
                     EK2NewNodeFlags::SelectNewNode,
                     [EventName, OverrideFuncClass, OverrideFunc](UK2Node_Event* NewInstance)
                     {
+                        US_UNREFERENCED_PARAMETER(OverrideFunc);
                         NewInstance->EventReference.SetExternalMember(EventName, OverrideFuncClass);
                         NewInstance->bOverrideFunction = true;
                     }
                 );
+
+                US_UNREFERENCED_PARAMETER(NewEventNode);
             }
             else
             {
@@ -366,7 +369,7 @@ namespace UnrealSharp
         return true;
     }
 
-    bool FCSharpBlueprintGenerator::ProcessDelegate(FCSharpGeneratedTypeInfo* InInfo, const FPropertyDefinition& InPropertyDefinition)
+    bool FCSharpBlueprintGenerator::ProcessDelegate(FCSharpGeneratedTypeInfo* InInfo, const FPropertyDefinition& InPropertyDefinition) // NOLINT
     {
         check(InPropertyDefinition.SignatureFunction);
 
@@ -384,13 +387,13 @@ namespace UnrealSharp
         check(nullptr != K2Schema);
 
         K2Schema->CreateDefaultNodesForGraph(*NewGraph);
-        K2Schema->CreateFunctionGraphTerminators(*NewGraph, (UClass*)nullptr);
-        K2Schema->AddExtraFunctionFlags(NewGraph, (FUNC_BlueprintCallable | FUNC_BlueprintEvent | FUNC_Public));
+        K2Schema->CreateFunctionGraphTerminators(*NewGraph, static_cast<UClass*>(nullptr));
+        K2Schema->AddExtraFunctionFlags(NewGraph, FUNC_BlueprintCallable | FUNC_BlueprintEvent | FUNC_Public);
         K2Schema->MarkFunctionEntryAsEditable(NewGraph, true);
 
         InInfo->Blueprint->DelegateSignatureGraphs.Add(NewGraph);
 
-        auto EntryNode = FBlueprintEditorUtils::GetEntryNode(NewGraph);
+        const auto EntryNode = FBlueprintEditorUtils::GetEntryNode(NewGraph);
         check(EntryNode);
 
         FCSharpBlueprintGeneratorUtils::AddFunctionInputPropertyPins(EntryNode, InInfo, *InPropertyDefinition.SignatureFunction, Database.Get());
@@ -428,7 +431,7 @@ namespace UnrealSharp
             }
             else
             {
-                UField* ParentClassField = Database->GetField(ParentClassName);
+                const UField* ParentClassField = Database->GetField(ParentClassName);
 
                 bIsParentComponentNative = ParentClassField != nullptr && FUnrealSharpUtils::IsNativeField(ParentClassField);
                 ParentClassName = ParentClassField != nullptr ? ParentClassField->GetName() : *FString::Printf(TEXT("%s_C"), *ParentClassName.Right(ParentClassName.Len() - 1));
@@ -436,7 +439,7 @@ namespace UnrealSharp
         }
 
         // process current component now
-        UBlueprint* Blueprint = InInfo->Blueprint;
+        const UBlueprint* Blueprint = InInfo->Blueprint;
         check(Blueprint);
         check(Blueprint->SimpleConstructionScript);
 

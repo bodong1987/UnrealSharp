@@ -30,7 +30,6 @@
 #include "ClassTypeDefinition.h"
 #include "TypeValidation.h"
 #include "Misc/UnrealSharpUtils.h"
-#include "Misc/UnrealSharpLog.h"
 
 namespace UnrealSharp
 {   
@@ -42,21 +41,21 @@ namespace UnrealSharp
     {
     }
 
-    FTypeDefinitionDocument::TypeDefinitionPtr FTypeDefinitionDocument::GetType(const FString& InCppName)
+    FTypeDefinitionDocument::FTypeDefinitionPtr FTypeDefinitionDocument::GetType(const FString& InCppName)
     {
-        auto* ptr = Types.Find(InCppName);
+        auto* Ptr = Types.Find(InCppName);
 
-        return ptr != nullptr?*ptr:TypeDefinitionPtr();
+        return Ptr != nullptr?*Ptr:FTypeDefinitionPtr();
     }
 
-    bool FTypeDefinitionDocument::LoadFromEngine(ETypeValidationFlags InFlags)
+    bool FTypeDefinitionDocument::LoadFromEngine(const ETypeValidationFlags InFlags)
     {
         FTypeValidation TypeValidation;
 
         return LoadFromEngine(&TypeValidation, InFlags);
     }
 
-    bool FTypeDefinitionDocument::LoadFromEngine(FTypeValidation* InTypeValidation, ETypeValidationFlags InFlags)
+    bool FTypeDefinitionDocument::LoadFromEngine(FTypeValidation* InTypeValidation, const ETypeValidationFlags InFlags)
     {
         Reset();
 
@@ -70,15 +69,12 @@ namespace UnrealSharp
             }
 
             const bool bIsNativeField = FUnrealSharpUtils::IsNativeField(Field);
-            const bool bIsBlueprintField = FUnrealSharpUtils::IsBlueprintField(Field);
 
-            if ((bIsNativeField && (InFlags & ETypeValidationFlags::WithNativeType)) ||
+            if (const bool bIsBlueprintField = FUnrealSharpUtils::IsBlueprintField(Field); (bIsNativeField && (InFlags & ETypeValidationFlags::WithNativeType)) ||
                 (bIsBlueprintField && (InFlags & ETypeValidationFlags::WithBlueprintType))
                 )
             {
-                auto TypeDefinition = CreateTypeDefinition(Field, InTypeValidation);
-
-                if (TypeDefinition != nullptr)
+                if (auto TypeDefinition = CreateTypeDefinition(Field, InTypeValidation); TypeDefinition != nullptr)
                 {
                     Types.Add(TypeDefinition->CppName, TypeDefinition);
                 }
@@ -92,28 +88,30 @@ namespace UnrealSharp
 
         if (Settings->bEnableFastFunctionInvoke)
         {
-            DocumentAttributes |= (int)ETypeDefinitionDocumentAttributes::AllowFastInvokeGeneration;
+            DocumentAttributes |= static_cast<int>(ETypeDefinitionDocumentAttributes::AllowFastInvokeGeneration);
         }
 
         return true;
     }
 
-    FTypeDefinitionDocument::TypeDefinitionPtr FTypeDefinitionDocument::CreateTypeDefinition(UField* InField, FTypeValidation* InTypeValidation) const
+    FTypeDefinitionDocument::FTypeDefinitionPtr FTypeDefinitionDocument::CreateTypeDefinition(UField* InField, FTypeValidation* InTypeValidation) const
     {
         if (UEnum* Enum = Cast<UEnum>(InField))
         {
             return MakeShared<FEnumTypeDefinition>(Enum, InTypeValidation);
         }
-        else if (UScriptStruct* Struct = Cast<UScriptStruct>(InField))
+
+        if (UScriptStruct* Struct = Cast<UScriptStruct>(InField))
         {
             return MakeShared<FScriptStructTypeDefinition>(Struct, InTypeValidation);
         }
-        else if (UClass* Class = Cast<UClass>(InField))
+
+        if (UClass* Class = Cast<UClass>(InField))
         {
             return MakeShared<FClassTypeDefinition>(Class, InTypeValidation);
         }
 
-        return FTypeDefinitionDocument::TypeDefinitionPtr();
+        return FTypeDefinitionPtr();
     }
 
     template <typename T>
@@ -138,9 +136,7 @@ namespace UnrealSharp
     {
         if (InDocument->HasField(InName))
         {
-            const TArray< TSharedPtr<FJsonValue> >& TempArray = InDocument->GetArrayField(InName);
-
-            for (auto& JsonValue : TempArray)
+            for (const TArray< TSharedPtr<FJsonValue> >& TempArray = InDocument->GetArrayField(InName); auto& JsonValue : TempArray)
             {
                 FString Name = JsonValue->AsString();
 
@@ -161,9 +157,8 @@ namespace UnrealSharp
 
         TSharedPtr<FJsonObject> JsonObject;
 
-        TSharedPtr<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonString);
-
-        if (!JsonReader ||
+        if (const TSharedPtr<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonString);
+            !JsonReader ||
             !FJsonSerializer::Deserialize(JsonReader.ToSharedRef(), JsonObject) ||
             !JsonObject.IsValid())
         {
@@ -175,22 +170,18 @@ namespace UnrealSharp
         JsonObject->TryGetNumberField(TEXT("UnrealPatchVersion"), UnrealPatchVersion);
         JsonObject->TryGetNumberField(TEXT("DocumentAttributes"), DocumentAttributes);
 
-        const TArray< TSharedPtr<FJsonValue> >& TempTypes = JsonObject->GetArrayField(TEXT("Types"));
-
-        for (auto& jsonValuePtr : TempTypes)
+        for (const TArray< TSharedPtr<FJsonValue> >& TempTypes = JsonObject->GetArrayField(TEXT("Types"));
+            auto& JSONValuePtr : TempTypes)
         {
-            TSharedPtr<FJsonObject>* typedJsonObject;
-            if (jsonValuePtr->TryGetObject(typedJsonObject) && typedJsonObject)
+            if (TSharedPtr<FJsonObject>* TypedJsonObject; JSONValuePtr->TryGetObject(TypedJsonObject) && TypedJsonObject)
             {
-                EDefinitionType type = (EDefinitionType)(*typedJsonObject)->GetNumberField(TEXT("Type"));
+                const EDefinitionType Type = static_cast<EDefinitionType>((*TypedJsonObject)->GetNumberField(TEXT("Type")));
 
-                auto typeDefinition = CreateTypeDefinition(type);
-
-                if (typeDefinition)
+                if (auto TypeDefinition = CreateTypeDefinition(Type))
                 {
-                    typeDefinition->Read(**typedJsonObject);
+                    TypeDefinition->Read(**TypedJsonObject);
 
-                    Types.Add(typeDefinition->CppName, typeDefinition);
+                    Types.Add(TypeDefinition->CppName, TypeDefinition);
                 }
             }
         }
@@ -203,25 +194,25 @@ namespace UnrealSharp
         return true;
     }
 
-    FTypeDefinitionDocument::TypeDefinitionPtr FTypeDefinitionDocument::CreateTypeDefinition(EDefinitionType InType) const
+    FTypeDefinitionDocument::FTypeDefinitionPtr FTypeDefinitionDocument::CreateTypeDefinition(const EDefinitionType InType) const
     {
         switch (InType)
         {
-        case UnrealSharp::EDefinitionType::None:
+        case EDefinitionType::None:
             break;
-        case UnrealSharp::EDefinitionType::Enum:
+        case EDefinitionType::Enum:
             return MakeShared<FEnumTypeDefinition>();
-        case UnrealSharp::EDefinitionType::Struct:
+        case EDefinitionType::Struct:
             return MakeShared<FScriptStructTypeDefinition>();
-        case UnrealSharp::EDefinitionType::Class:
+        case EDefinitionType::Class:
             return MakeShared<FClassTypeDefinition>();
-        case UnrealSharp::EDefinitionType::Function:
+        case EDefinitionType::Function:
             return MakeShared<FFunctionTypeDefinition>();
         default:
             break;
         }
 
-        return FTypeDefinitionDocument::TypeDefinitionPtr();
+        return FTypeDefinitionPtr();
     }
 
     void FTypeDefinitionDocument::Reset()
@@ -239,10 +230,10 @@ namespace UnrealSharp
 
         TArray<TSharedPtr<FJsonValue>> TempTypes;
         
-        for (auto& pair : Types)
+        for (const auto& Pair : Types)
         {
             TSharedPtr<FJsonObject> TypeObject = MakeShared<FJsonObject>();
-            pair.Value->Write(*TypeObject);
+            Pair.Value->Write(*TypeObject);
 
             TempTypes.Add(MakeShared<FJsonValueObject>(TypeObject));
         }
@@ -259,9 +250,9 @@ namespace UnrealSharp
         SaveStringCollection(Doc, FastFunctionInvokeIgnoreNames, TEXT("FastFunctionInvokeIgnoreNames"));
 
         FString JsonString;
-        TSharedPtr<TJsonWriter<>> JsonWriter = TJsonWriterFactory<>::Create(&JsonString);
 
-        if (FJsonSerializer::Serialize(Doc.ToSharedRef(), JsonWriter.ToSharedRef()))
+        if (const TSharedPtr<TJsonWriter<>> JsonWriter = TJsonWriterFactory<>::Create(&JsonString);
+            FJsonSerializer::Serialize(Doc.ToSharedRef(), JsonWriter.ToSharedRef()))
         {
             return FFileHelper::SaveStringToFile(JsonString, InFilePath);
         }
@@ -283,24 +274,24 @@ namespace UnrealSharp
             }
         }
 
-        for (auto& type : InDocument.FastAccessStructTypes)
+        for (auto& Type : InDocument.FastAccessStructTypes)
         {
-            FastAccessStructTypes.Add(type);
+            FastAccessStructTypes.Add(Type);
         }
 
-        for (auto& type : InDocument.FastFunctionInvokeModuleNames)
+        for (auto& Type : InDocument.FastFunctionInvokeModuleNames)
         {
-            FastFunctionInvokeModuleNames.Add(type);
+            FastFunctionInvokeModuleNames.Add(Type);
         }
 
-        for (auto& type : InDocument.FastFunctionInvokeIgnoreNames)
+        for (auto& Type : InDocument.FastFunctionInvokeIgnoreNames)
         {
-            FastFunctionInvokeIgnoreNames.Add(type);
+            FastFunctionInvokeIgnoreNames.Add(Type);
         }
 
-        for (auto& type : InDocument.FastFunctionInvokeIgnoreClassNames)
+        for (auto& Type : InDocument.FastFunctionInvokeIgnoreClassNames)
         {
-            FastFunctionInvokeIgnoreClassNames.Add(type);
+            FastFunctionInvokeIgnoreClassNames.Add(Type);
         }
     }
 }

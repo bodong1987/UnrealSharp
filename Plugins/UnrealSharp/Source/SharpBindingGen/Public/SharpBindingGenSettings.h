@@ -96,14 +96,14 @@ public:
     UPROPERTY(EditAnywhere, config, Category="Binding Export|Fast Invoke")
     TSet<FString> FastAccessStructTypeNames;
 
-    // Not all UFunctions in Unreal's engine code support calling from the C++ code of external Modules, 
+    // Not all UFunctions in Unreal engine code support calling from the C++ code of external Modules, 
     // so additional means need to be used to prohibit the export of these functions.
     // Config it by Class C++ Name + :: + MethodName 
     // for example : UAnimMontage::IsValidAdditiveSlot
     UPROPERTY(EditAnywhere, config, Category = "Binding Export|Fast Invoke")
     TSet<FString> FastFunctionInvokeIgnoreNames;
 
-    // Not all UFunctions in Unreal's engine code support calling from the C++ code of external Modules, 
+    // Not all UFunctions in Unreal engine code support calling from the C++ code of external Modules, 
     // so additional means need to be used to prohibit the export of these functions.
     // ignore all functions in this class
     UPROPERTY(EditAnywhere, config, Category = "Binding Export|Fast Invoke")

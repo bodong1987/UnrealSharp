@@ -31,16 +31,16 @@ namespace UnrealSharp
 {
     FFunctionTypeDefinition::FFunctionTypeDefinition()
     {
-        Type = (int)EDefinitionType::Function;
+        Type = static_cast<int>(EDefinitionType::Function);
     }
 
     FFunctionTypeDefinition::FFunctionTypeDefinition(UFunction* InFunction, FTypeValidation* InTypeValidation) :
         Super(InFunction, InTypeValidation)
     {
-        Type = (int)EDefinitionType::Function;
+        Type = static_cast<int>(EDefinitionType::Function);
         Flags = InFunction->FunctionFlags;
 
-        auto* OwnerClass = InFunction->GetOuterUClass();
+        const auto* OwnerClass = InFunction->GetOuterUClass();
         Namespace = FUnrealSharpUtils::GetDefaultExportNamespace(OwnerClass) + TEXT(".") + FUnrealSharpUtils::GetCppTypeName(OwnerClass);
         ProjectName = FUnrealSharpUtils::GetDefaultExportProjectName(OwnerClass);
         AssemblyName = FUnrealSharpUtils::GetAssemblyName(OwnerClass);
@@ -70,7 +70,7 @@ namespace UnrealSharp
     bool FFunctionTypeDefinition::IsExportAsEvent() const
     {
         if ((Flags & FUNC_Event) != 0 ||
-            (Flags & FUNC_Net)
+            (Flags & FUNC_Net) != 0
             )
         {
             return true;
@@ -83,11 +83,11 @@ namespace UnrealSharp
     {
         for (int i = Properties.Num() - 1; i >= 0; --i)
         {
-            auto& Propertyref = Properties[i];
+            const auto& PropertyDefinition = Properties[i];
 
-            if (Propertyref.IsReturnProperty())
+            if (PropertyDefinition.IsReturnProperty())
             {
-                return &Propertyref;
+                return &PropertyDefinition;
             }
         }
 
@@ -103,9 +103,7 @@ namespace UnrealSharp
     {
         for (int i = Properties.Num() - 1; i >= 0; --i)
         {
-            auto& PropertyRef = Properties[i];
-
-            if (PropertyRef.IsReturnProperty() || PropertyRef.IsOut())
+            if (auto& PropertyRef = Properties[i]; PropertyRef.IsReturnProperty() || PropertyRef.IsOut())
             {
                 return true;
             }

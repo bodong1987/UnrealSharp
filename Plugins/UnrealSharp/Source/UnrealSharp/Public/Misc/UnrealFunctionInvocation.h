@@ -39,19 +39,19 @@ namespace UnrealSharp
         FUnrealFunctionInvocation();
 
         // construct by function path
-        FUnrealFunctionInvocation(const TCHAR* InFunctionPath);
+        explicit FUnrealFunctionInvocation(const TCHAR* InFunctionPath);
 
         // construct by class and method name
-        FUnrealFunctionInvocation(const UClass* InClass, const TCHAR* InFunctionName);
+        explicit FUnrealFunctionInvocation(const UClass* InClass, const TCHAR* InFunctionName);
 
-        // constrcut by UFunction pointer
-        FUnrealFunctionInvocation(UFunction* InFunction);
+        // construct by UFunction pointer
+        explicit FUnrealFunctionInvocation(UFunction* InFunction);
 
         // construct by Delegate property
-        FUnrealFunctionInvocation(const FDelegateProperty* InDelegateProeprty);
+        explicit FUnrealFunctionInvocation(const FDelegateProperty* InDelegateProperty);
 
         // construct by Multicast Delegate Property
-        FUnrealFunctionInvocation(const FMulticastDelegateProperty* InMulticastDelegateProperty);
+        explicit FUnrealFunctionInvocation(const FMulticastDelegateProperty* InMulticastDelegateProperty);
 
         ~FUnrealFunctionInvocation();
 

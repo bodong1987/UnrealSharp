@@ -64,7 +64,7 @@ namespace UnrealSharp
             TSharedPtr<FPropertyMarshallerInfo> MarshallerInfoPtr;
         };
 
-        FUnrealFunctionMarshallerLinker(ICSharpRuntime* InRuntime, UFunction* InFunction,const FCSharpFunctionData* InFunctionData);
+        FUnrealFunctionMarshallerLinker(const ICSharpRuntime* InRuntime, const UFunction* InFunction,const FCSharpFunctionData* InFunctionData);
 
         int GetTempParameterSize() const { return TempParameterSize; }
         int GetCSharpParameterCount() const { return MarshallerQueue.Num(); }
@@ -112,9 +112,10 @@ namespace UnrealSharp
             UCSharpClass* InClass, 
             UFunction* InFunction, 
             const FCSharpFunctionData* InFunctionData,
-            TSharedPtr<ICSharpMethodInvocation> InInvocation
+            const TSharedPtr<ICSharpMethodInvocation>& InInvocation
             );
-        ~FUnrealFunctionInvokeRedirector();
+        
+        virtual ~FUnrealFunctionInvokeRedirector() override;
 
         virtual const UFunction*                                             GetFunction() const override;
         virtual void                                                         Invoke(UObject* Context, FFrame& Stack, RESULT_DECL) override;

@@ -27,89 +27,90 @@ using System.Runtime.CompilerServices;
 using UnrealSharp.UnrealEngine.InteropService;
 using UnrealSharp.Utils.UnrealEngine;
 
-namespace UnrealSharp.UnrealEngine
+namespace UnrealSharp.UnrealEngine;
+
+/// <summary>
+/// Struct FText
+/// </summary>
+[UnrealBuiltin]
+public struct FText
 {
     /// <summary>
-    /// Struct FText
+    /// The text
     /// </summary>
-    [UnrealBuiltin]
-    public struct FText
+    internal string? Text;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FText"/> struct.
+    /// </summary>
+    public FText()
     {
-        /// <summary>
-        /// The text
-        /// </summary>
-        internal string? Text;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FText"/> struct.
-        /// </summary>
-        public FText()
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FText"/> struct.
+    /// </summary>
+    /// <param name="text">The text.</param>
+    public FText(string text)
+    {
+        Text = TextInteropUtils.GetTextCSharpStringFromCSharpString(text);
+    }
+
+    /// <summary>
+    /// Returns a <see cref="System.String" /> that represents this instance.
+    /// </summary>
+    /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
+    public override string? ToString()
+    {
+        return Text;
+    }
+
+    /// <summary>
+    /// Converts to native.
+    /// </summary>
+    /// <param name="address">The address.</param>
+    /// <param name="offset">The offset.</param>
+    /// <param name="value">The value.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void ToNative(IntPtr address, int offset, ref FText value)
+    {
+        TextInteropUtils.SetUnrealTextFromCSharpString(IntPtr.Add(address, offset), value.Text);
+    }
+
+    /// <summary>
+    /// From the native.
+    /// </summary>
+    /// <param name="address">The address.</param>
+    /// <param name="offset">The offset.</param>
+    /// <returns>FText.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static FText FromNative(IntPtr address, int offset)
+    {
+        FText value = new()
         {
-        }
+            Text = TextInteropUtils.GetTextCSharpStringFromUnrealText(IntPtr.Add(address, offset))
+        };
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FText"/> struct.
-        /// </summary>
-        /// <param name="text">The text.</param>
-        public FText(string text)
-        {
-            Text = TextInteropUtils.GetTextCSharpStringFromCSharpString(text);
-        }
+        return value;
+    }
 
-        /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
-        /// </summary>
-        /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
-        public override string? ToString()
-        {
-            return Text;
-        }
+    /// <summary>
+    /// From the string.
+    /// </summary>
+    /// <param name="text">The text.</param>
+    /// <returns>FText.</returns>
+    public static FText FromString(string text)
+    {
+        return new FText(text);
+    }
 
-        /// <summary>
-        /// Converts to native.
-        /// </summary>
-        /// <param name="address">The address.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="value">The value.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ToNative(IntPtr address, int offset, ref FText value)
-        {
-            TextInteropUtils.SetUnrealTextFromCSharpString(IntPtr.Add(address, offset), value.Text);
-        }
-
-        /// <summary>
-        /// Froms the native.
-        /// </summary>
-        /// <param name="address">The address.</param>
-        /// <param name="offset">The offset.</param>
-        /// <returns>FText.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static FText FromNative(IntPtr address, int offset)
-        {
-            FText value = new();
-            value.Text = TextInteropUtils.GetTextCSharpStringFromUnrealText(IntPtr.Add(address, offset));
-
-            return value;
-        }
-
-        /// <summary>
-        /// Froms the string.
-        /// </summary>
-        /// <param name="text">The text.</param>
-        /// <returns>FText.</returns>
-        public static FText FromString(string text)
-        {
-            return new FText(text);
-        }
-
-        /// <summary>
-        /// Performs an implicit conversion from FText to string
-        /// </summary>
-        /// <param name="text">The text.</param>
-        /// <returns>The result of the conversion.</returns>
-        public static implicit operator string?(FText text)
-        {
-            return text.Text;
-        }
+    /// <summary>
+    /// Performs an implicit conversion from FText to string
+    /// </summary>
+    /// <param name="text">The text.</param>
+    /// <returns>The result of the conversion.</returns>
+    public static implicit operator string?(FText text)
+    {
+        return text.Text;
     }
 }

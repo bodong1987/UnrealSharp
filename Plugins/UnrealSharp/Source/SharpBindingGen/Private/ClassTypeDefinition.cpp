@@ -31,13 +31,13 @@ namespace UnrealSharp
     FClassTypeDefinition::FClassTypeDefinition()
     {
         SuperName = TEXT("UObject");
-        Type = (int)EDefinitionType::Class;
+        Type = static_cast<int>(EDefinitionType::Class);
     }
 
     FClassTypeDefinition::FClassTypeDefinition(UClass* InClass, FTypeValidation* InTypeValidation) :
         Super(InClass, InTypeValidation)
     {
-        Type = InClass->IsChildOf<UInterface>() ? (int)EDefinitionType::Interface : (int)EDefinitionType::Class;
+        Type = InClass->IsChildOf<UInterface>() ? static_cast<int>(EDefinitionType::Interface) : static_cast<int>(EDefinitionType::Class);
 
         if (InClass->HasAnyClassFlags(CLASS_Config))
         {
@@ -47,7 +47,7 @@ namespace UnrealSharp
         SuperName = InClass->GetSuperClass() ? GetCppTypeName(InClass->GetSuperClass()) : TEXT("UObject");
         Flags = InClass->ClassFlags;
 
-        LoadProperties(InClass, InClass->GetDefaultObject(), (EFieldIterationFlags)EFieldIteratorFlags::ExcludeSuper, InTypeValidation, [US_LAMBDA_CAPTURE_THIS](FProperty* InProperty) {
+        LoadProperties(InClass, InClass->GetDefaultObject(), static_cast<EFieldIterationFlags>(EFieldIteratorFlags::ExcludeSuper), InTypeValidation, [US_LAMBDA_CAPTURE_THIS](FProperty* InProperty) {
             return IsSupportedProperty(InProperty, InTypeValidation);
             });
 
@@ -73,13 +73,11 @@ namespace UnrealSharp
         // get methods from interfaces
         if (!InClass->HasAnyClassFlags(CLASS_Interface))
         {
-            for (auto& implementation : InClass->Interfaces)
+            for (auto& Implementation : InClass->Interfaces)
             {
-                for (TFieldIterator<UFunction> FunctionIterator(implementation.Class, EFieldIterationFlags::IncludeSuper); FunctionIterator; ++FunctionIterator)
+                for (TFieldIterator<UFunction> FunctionIterator(Implementation.Class, EFieldIterationFlags::IncludeSuper); FunctionIterator; ++FunctionIterator)
                 {
-                    UClass* DeclareClass = (*FunctionIterator)->GetOwnerClass();
-
-                    if (DeclareClass == UInterface::StaticClass() || DeclareClass == UObject::StaticClass())
+                    if (const UClass* DeclareClass = (*FunctionIterator)->GetOwnerClass(); DeclareClass == UInterface::StaticClass() || DeclareClass == UObject::StaticClass())
                     {
                         continue;
                     }
@@ -113,7 +111,7 @@ namespace UnrealSharp
     void FClassTypeDefinition::Write(FJsonObject& InObject)
     {
         // write type for C#
-        if (Type == (int)EDefinitionType::Interface)
+        if (Type == static_cast<int>(EDefinitionType::Interface))
         {
             InObject.SetStringField("$type", "UnrealSharpTool.Core.TypeInfo.InterfaceClassTypeDefinition, UnrealSharpTool.Core");
         }
@@ -162,14 +160,11 @@ namespace UnrealSharp
         SuperName = InObject.GetStringField(TEXT("SuperName"));
         ConfigName = InObject.GetStringField(TEXT("ConfigName"));
 
-        const TArray< TSharedPtr<FJsonValue> >* FunctionsRefPtr = nullptr;
-
-        if (InObject.TryGetArrayField(TEXT("Functions"), FunctionsRefPtr) && FunctionsRefPtr)
+        if (const TArray< TSharedPtr<FJsonValue> >* FunctionsRefPtr = nullptr; InObject.TryGetArrayField(TEXT("Functions"), FunctionsRefPtr) && FunctionsRefPtr)
         {
             for (auto& FunctionObject : *FunctionsRefPtr)
             {
-                TSharedPtr<FJsonObject>* ObjectPtr = nullptr;
-                if (FunctionObject->TryGetObject(ObjectPtr) && ObjectPtr != nullptr)
+                if (TSharedPtr<FJsonObject>* ObjectPtr = nullptr; FunctionObject->TryGetObject(ObjectPtr) && ObjectPtr != nullptr)
                 {
                     FFunctionTypeDefinition Def;
                     Def.Read(**ObjectPtr);
@@ -178,9 +173,8 @@ namespace UnrealSharp
                 }
             }
         }
-        
-        const TArray<TSharedPtr<FJsonValue>>* InterfacesRefPtr = nullptr;
-        if (InObject.TryGetArrayField(TEXT("Interfaces"), InterfacesRefPtr) && InterfacesRefPtr)
+
+        if (const TArray<TSharedPtr<FJsonValue>>* InterfacesRefPtr = nullptr; InObject.TryGetArrayField(TEXT("Interfaces"), InterfacesRefPtr) && InterfacesRefPtr)
         {
             for (auto& InterfaceObject : *InterfacesRefPtr)
             {

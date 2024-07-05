@@ -1,51 +1,34 @@
 ﻿using System.Text.RegularExpressions;
 using UnrealSharp.Utils.Extensions;
 
-namespace UnrealSharpTool.Core.Utils
+namespace UnrealSharpTool.Core.Utils;
+
+/// <summary>
+/// Class EnumerateSourceFileUtils.
+/// </summary>
+public static class EnumerateSourceFileUtils
 {
     /// <summary>
-    /// Class EnumerateSourceFileUtils.
+    /// Enumerates the source files.
     /// </summary>
-    public static class EnumerateSourceFileUtils
+    /// <param name="directory">The directory.</param>
+    /// <param name="ignoreRegex">The ignore regex.</param>
+    /// <returns>System.String[].</returns>
+    public static string[] EnumerateSourceFiles(string directory, string? ignoreRegex = null)
     {
-        /// <summary>
-        /// Enumerates the source files.
-        /// </summary>
-        /// <param name="directory">The directory.</param>
-        /// <returns>System.String[].</returns>
-        public static string[] EnumerateSourceFiles(string directory)
+        var files = Directory.EnumerateFiles(directory, "*.cs", SearchOption.AllDirectories);
+
+        if(ignoreRegex.IsNullOrEmpty())
         {
-            return EnumerateSourceFiles(directory, null);
+            return files.ToArray();
         }
 
-        /// <summary>
-        /// Enumerates the source files.
-        /// </summary>
-        /// <param name="directory">The directory.</param>
-        /// <param name="ignoreRegex">The ignore regex.</param>
-        /// <returns>System.String[].</returns>
-        public static string[] EnumerateSourceFiles(string directory, string? ignoreRegex)
-        {
-            var files = Directory.EnumerateFiles(directory, "*.cs", SearchOption.AllDirectories);
+        List<string> result = [];
 
-            if(ignoreRegex.IsNullOrEmpty())
-            {
-                return files.ToArray();
-            }
+        var regex = new Regex(ignoreRegex, RegexOptions.Compiled|RegexOptions.IgnoreCase);
 
-            List<string> Result = new List<string>();
+        result.AddRange(files.Where(file => !regex.IsMatch(file)));
 
-            Regex regex = new Regex(ignoreRegex, RegexOptions.Compiled|RegexOptions.IgnoreCase);
-
-            foreach(var file in files)
-            {
-                if(!regex.IsMatch(file))
-                {
-                    Result.Add(file);
-                }
-            }
-
-            return Result.ToArray();
-        }
+        return result.ToArray();
     }
 }

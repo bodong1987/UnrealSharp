@@ -36,7 +36,7 @@ namespace UnrealSharp
 
     int FInteropUtils::GetLengthOfSet(const void* InAddressOfSet, const FSetProperty* InSetProperty)
     {
-        FScriptSetHelper Helper(InSetProperty, InAddressOfSet);
+        const FScriptSetHelper Helper(InSetProperty, InAddressOfSet);
 
         return Helper.Num();
     }
@@ -50,31 +50,31 @@ namespace UnrealSharp
 
     bool FInteropUtils::IsSetContainsElement(const void* InAddressOfSet, const FSetProperty* InSetProperty, const void* InAddressOfElementTarget)
     {
-        FScriptSetHelper Helper(InSetProperty, InAddressOfSet);
+        const FScriptSetHelper Helper(InSetProperty, InAddressOfSet);
 
-        int Index = Helper.FindElementIndex(InAddressOfElementTarget);
+        const int Index = Helper.FindElementIndex(InAddressOfElementTarget);
         return INDEX_NONE != Index;
     }
 
-    bool FInteropUtils::AddSetElement(void* InAddressOfSet, const FSetProperty* InSetProperty, const void* InAddressOfElementTarget)
+    bool FInteropUtils::AddSetElement(void* InAddressOfSet, const FSetProperty* InSetProperty, const void* InAddressOfElementTarget) // NOLINT
     {
         FScriptSetHelper Helper(InSetProperty, InAddressOfSet);
 
-        int OldNum = Helper.Num();
+        const int OldNum = Helper.Num();
 
         Helper.AddElement(InAddressOfElementTarget);
 
         return OldNum != Helper.Num();
     }
 
-    bool FInteropUtils::RemoveSetElement(void* InAddressOfSet, const FSetProperty* InSetProperty, const void* InAddressOfElementTarget)
+    bool FInteropUtils::RemoveSetElement(void* InAddressOfSet, const FSetProperty* InSetProperty, const void* InAddressOfElementTarget) // NOLINT
     {
         FScriptSetHelper Helper(InSetProperty, InAddressOfSet);
 
         return Helper.RemoveElement(InAddressOfElementTarget);
     }
 
-    void FInteropUtils::ClearSet(void* InAddressOfSet, const FSetProperty* InSetProperty)
+    void FInteropUtils::ClearSet(void* InAddressOfSet, const FSetProperty* InSetProperty) // NOLINT
     {
         FScriptSetHelper Helper(InSetProperty, InAddressOfSet);
 

@@ -1,14 +1,8 @@
 #include "MonoRuntime/MonoInteropUtils.h"
-#include "Misc/UnrealSharpUtils.h"
-#include "ICSharpLibraryAccessor.h"
-#include "ICSharpObjectTable.h"
 #include "Misc/UnrealSharpLog.h"
 
 #if WITH_MONO
-#include "Misc/UnrealFunctionInvocation.h"
-#include "Misc/CSharpStructures.h"
 #include "MonoRuntime/MonoType.h"
-#include "MonoRuntime/MonoMethod.h"
 #include "MonoRuntime/MonoRuntime.h"
 #include "Misc/ScopedExit.h"
 
@@ -17,18 +11,18 @@ namespace UnrealSharp::Mono
     FMonoRuntime* FMonoInteropUtils::Runtime = nullptr;
     TMap<uint32, TTuple<FString, void*>> FMonoInteropUtils::FallbackApis;
 
-    static inline uint32 CalcHashFast(const char* p, uint32 s)
+    static inline uint32 CalcHashFast(const char* p, uint32 s) // NOLINT
     {
-        uint32 result = 0;
-        const uint32 prime = 31;
+        uint32 Result = 0;
         for (uint32 i = 0; i < s; ++i)
         {
-            result = p[i] + (result * prime);
+            constexpr uint32 Prime = 31;
+            Result = p[i] + Result * Prime;
         }
-        return result;
+        return Result;
     }
 
-    void* FMonoInteropUtils::MonoPInvokeLoadLib(const char* name, int flags, char** err, void* InUserData)
+    void* FMonoInteropUtils::MonoPInvokeLoadLib(const char* name, int flags, char** err, void* InUserData) // NOLINT
     {
         if (name != nullptr && FPlatformString::Stricmp(name, "UnrealSharp") == 0)
         {
@@ -38,21 +32,21 @@ namespace UnrealSharp::Mono
         return nullptr;
     }
 
-    void* FMonoInteropUtils::MonoPInvokeGetSymbol(void* handle, const char* name, char** err, void* InUserData)
+    void* FMonoInteropUtils::MonoPInvokeGetSymbol(void* handle, const char* name, char** err, void* InUserData) // NOLINT
     {
         if (name == nullptr)
         {
             return nullptr;
         }
 
-        uint32 HashCode = CalcHashFast(name, strlen(name));
+        const uint32 HashCode = CalcHashFast(name, strlen(name));
 
         const auto* Value = FallbackApis.Find(HashCode);
 
-        return Value != nullptr ? Value->template Get<1>() : nullptr;
+        return Value != nullptr ? Value->Get<1>() : nullptr;
     }
 
-    void* FMonoInteropUtils::MonoPInvokeFallbackClose(void* handle, void* InUserData)
+    void* FMonoInteropUtils::MonoPInvokeFallbackClose(void* handle, void* InUserData) // NOLINT
     {
         return nullptr;
     }
@@ -82,32 +76,32 @@ namespace UnrealSharp::Mono
             return FString();
         }
 
-        auto utf16Text = mono_string_to_utf16(InMonoString);
+        const auto UTF16Text = mono_string_to_utf16(InMonoString);
 
-        UNREALSHARP_SCOPED_EXIT(mono_free(utf16Text));
+        US_SCOPED_EXIT(mono_free(UTF16Text));
 
-        FString Text(utf16Text);
+        FString Text(UTF16Text);
 
         return Text;
     }
 
     MonoString* FMonoInteropUtils::GetMonoString(const FString& InString)
     {
-        MonoString* monoString = mono_string_new_utf16(Runtime->GetDomain(), (const mono_unichar2*)*InString, InString.Len());
+        MonoString* String = mono_string_new_utf16(Runtime->GetDomain(), (const mono_unichar2*)*InString, InString.Len()); // NOLINT
 
-        return monoString;
+        return String;
     }
 
     MonoString* FMonoInteropUtils::GetMonoString(const FStringView& InStringView)
     {
-        MonoString* monoString = mono_string_new_utf16(Runtime->GetDomain(), (const mono_unichar2*)InStringView.GetData(), InStringView.Len());
+        MonoString* String = mono_string_new_utf16(Runtime->GetDomain(), (const mono_unichar2*)InStringView.GetData(), InStringView.Len());// NOLINT
 
-        return monoString;
+        return String;
     }
 
     void FMonoInteropUtils::Bind()
     {
-#define __PP_TEXT(name) #name
+#define __PP_TEXT(name) #name /* NOLINT */
 #define PP_TEXT(name) __PP_TEXT(name)
 #define REGISTER_FALLBACK_API(name) \
         FallbackApis.Add(CalcHashFast("UnrealSharp_" PP_TEXT(name), strlen("UnrealSharp_" PP_TEXT(name))), MakeTuple<FString, void*>(TEXT("UnrealSharp_") TEXT(PP_TEXT(name)), (void*)&FMonoInteropUtils::name))
@@ -128,70 +122,68 @@ namespace UnrealSharp::Mono
     {
         check(InMonoObject);
 
-        MonoClass* kclass = mono_object_get_class(InMonoObject);
+        MonoClass* Klass = mono_object_get_class(InMonoObject); 
 
-        const char* ClassNamespace = mono_class_get_namespace(kclass);
-        const char* ClassName = mono_class_get_name(kclass);
+        const char* ClassNamespace = mono_class_get_namespace(Klass);
+        const char* ClassName = mono_class_get_name(Klass);
 
-        MonoType* type = mono_class_get_type(kclass);
-        const char* FullTypeName = mono_type_get_name(type);
+        MonoType* Type = mono_class_get_type(Klass);
+        const char* FullTypeName = mono_type_get_name(Type);
 
         US_LOG(TEXT("Class Information of MonoObject:%p => %s.%s, Full Type Name: %s"), InMonoObject, ANSI_TO_TCHAR(ClassNamespace), ANSI_TO_TCHAR(ClassName), ANSI_TO_TCHAR(FullTypeName));
     }
 
     void FMonoInteropUtils::DumpAssemblyClasses(MonoAssembly* InAssembly)
     {
-        MonoImage* image = mono_assembly_get_image(InAssembly);
-        check(image);
+        MonoImage* Image = mono_assembly_get_image(InAssembly);
+        check(Image);
 
         MonoAssemblyName* AssemblyName = mono_assembly_get_name(InAssembly);
-        const char* assemblyName = mono_assembly_name_get_name(AssemblyName);
+        const char* assemblyName = mono_assembly_name_get_name(AssemblyName); // NOLINT
 
         check(assemblyName);
         US_LOG(TEXT("Assembly:%s"), ANSI_TO_TCHAR(assemblyName));
 
-        const MonoTableInfo* table = mono_image_get_table_info(image, MONO_TABLE_TYPEDEF);
+        const MonoTableInfo* Table = mono_image_get_table_info(Image, MONO_TABLE_TYPEDEF);
 
-        int rows = mono_table_info_get_rows(table);
+        const int Rows = mono_table_info_get_rows(Table);
 
-        for (int i = 1; i < rows; i++)
+        for (int i = 1; i < Rows; i++)
         {
-            uint32_t cols[MONO_TYPEDEF_SIZE];
-            mono_metadata_decode_row(table, i, cols, MONO_TYPEDEF_SIZE);
+            uint32_t Cols[MONO_TYPEDEF_SIZE];
+            mono_metadata_decode_row(Table, i, Cols, MONO_TYPEDEF_SIZE);
 
-            const char* Name = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAME]);
-            const char* Namespace = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAMESPACE]);
+            const char* Name = mono_metadata_string_heap(Image, Cols[MONO_TYPEDEF_NAME]);
+            const char* Namespace = mono_metadata_string_heap(Image, Cols[MONO_TYPEDEF_NAMESPACE]);
 
-            MonoClass* monoClass = mono_class_from_name(image, Namespace, Name);
-
-            if (monoClass)
+            if (MonoClass* monoClass = mono_class_from_name(Image, Namespace, Name)) // NOLINT
             {
-                DumpClassInfomration(monoClass);
+                DumpClassInformation(monoClass);
             }
         }
     }
 
-    void FMonoInteropUtils::DumpClassInfomration(MonoClass* InClass)
+    void FMonoInteropUtils::DumpClassInformation(MonoClass* InClass)
     {
         const char* ClassNamespace = mono_class_get_namespace(InClass);
         const char* ClassName = mono_class_get_name(InClass);
 
         US_LOG(TEXT("  Class:%s.%s"), ANSI_TO_TCHAR(ClassNamespace), ANSI_TO_TCHAR(ClassName));
 
-        void* iter = NULL;
-        MonoMethod* method;
-        while ((method = mono_class_get_methods(InClass, &iter)) != nullptr)
+        void* Iter = nullptr;
+        MonoMethod* Method;
+        while ((Method = mono_class_get_methods(InClass, &Iter)) != nullptr)
         {
-            const char* MethodName = mono_method_get_name(method);
-            const char* MethodFullName = mono_method_full_name(method, false);
-            const char* MethodSignature = mono_method_full_name(method, true);
+            const char* MethodName = mono_method_get_name(Method);
+            const char* MethodFullName = mono_method_full_name(Method, false);
+            const char* MethodSignature = mono_method_full_name(Method, true);
 
-            UNREALSHARP_SCOPED_EXIT(mono_free((void*)MethodFullName); mono_free((void*)MethodSignature););
+            US_SCOPED_EXIT(mono_free((void*)MethodFullName); mono_free((void*)MethodSignature);); // NOLINT
 
-            MonoMethodDesc* desc = mono_method_desc_from_method(method);
-            check(desc);
+            MonoMethodDesc* Desc = mono_method_desc_from_method(Method);
+            check(Desc);
 
-            UNREALSHARP_SCOPED_EXIT(mono_method_desc_free(desc));
+            US_SCOPED_EXIT(mono_method_desc_free(Desc));
 
             US_LOG(TEXT("    Method: %s [%s][%s]\n"), ANSI_TO_TCHAR(MethodName), ANSI_TO_TCHAR(MethodFullName), ANSI_TO_TCHAR(MethodSignature));
         }

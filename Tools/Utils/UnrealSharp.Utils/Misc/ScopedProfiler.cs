@@ -1,54 +1,45 @@
 ﻿using System.Diagnostics;
 
-namespace UnrealSharp.Utils.Misc
+namespace UnrealSharp.Utils.Misc;
+
+/// <summary>
+/// Class ScopedProfiler.
+/// Implements the <see cref="System.IDisposable" />
+/// </summary>
+/// <seealso cref="System.IDisposable" />
+public sealed class ScopedProfiler : IDisposable
 {
+    private readonly Stopwatch _watch = new();
+    private readonly string _tag;
+        
     /// <summary>
-    /// Class ScopedProfiler.
-    /// Implements the <see cref="System.IDisposable" />
+    /// Initializes a new instance of the <see cref="ScopedProfiler"/> class.
     /// </summary>
-    /// <seealso cref="System.IDisposable" />
-    public class ScopedProfiler : IDisposable
+    public ScopedProfiler(string tag)
     {
-        Stopwatch watch = new Stopwatch();
-        string Tag;
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ScopedProfiler"/> class.
-        /// </summary>
-        public ScopedProfiler(string tag)
-        {
-            Tag = tag;
-            watch.Start();
-        }
+        _tag = tag;
+        _watch.Start();
+    }
 
-        /// <summary>
-        /// Disposes this instance.
-        /// </summary>
-        public void Dispose()
-        {
-            Logger.Log("{0} Done, {1}", Tag, watch.Elapsed);
+    /// <summary>
+    /// Disposes this instance.
+    /// </summary>
+    public void Dispose()
+    {
+        Logger.Log("{0} Done, {1}", _tag, _watch.Elapsed);
 
-            watch.Stop();
-        }
+        _watch.Stop();
+    }
 
-        /// <summary>
-        /// Logs the specified FMT.
-        /// </summary>
-        /// <param name="fmt">The FMT.</param>
-        /// <param name="args">The arguments.</param>
-        public void Log(string fmt, params object[] args)
-        {
-            string text;
+    /// <summary>
+    /// Logs the specified FMT.
+    /// </summary>
+    /// <param name="fmt">The FMT.</param>
+    /// <param name="args">The arguments.</param>
+    public void Log(string fmt, params object?[]? args)
+    {
+        var text = args != null ? string.Format(fmt, args) : fmt;
 
-            if (args != null)
-            {
-                text = string.Format(fmt, args);
-            }
-            else
-            {
-                text = fmt;
-            }
-
-            Logger.Log("{0} {1} {2}", Tag, text, watch.Elapsed);
-        }
+        Logger.Log("{0} {1} {2}", _tag, text, _watch.Elapsed);
     }
 }

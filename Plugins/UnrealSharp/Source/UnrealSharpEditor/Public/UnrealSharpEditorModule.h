@@ -34,13 +34,13 @@ namespace UnrealSharp
 
     enum class EUnrealTypeDatabaseExportFlags
     {
-        WITH_CPP = 1 << 0,
-        WITH_Blueprint = 1 << 1
+        WithCPP = 1 << 0,
+        WithBlueprint = 1 << 1
     };
 
     inline EUnrealTypeDatabaseExportFlags operator | (EUnrealTypeDatabaseExportFlags InLeft, EUnrealTypeDatabaseExportFlags InRight)
     {
-        return (EUnrealTypeDatabaseExportFlags)(((int)InLeft) | ((int)InRight));
+        return static_cast<EUnrealTypeDatabaseExportFlags>(static_cast<int>(InLeft) | static_cast<int>(InRight));
     }
 }
 
@@ -71,13 +71,13 @@ private:
     void                        OnExportBlueprintDatabase(bool bInStrongReminder);
     void                        OnAutoExportAllDatabase();
     void                        DoExportDatabase(const FString& InDatabaseFilePath, UnrealSharp::ETypeValidationFlags InFlags, bool bInStrongReminder);
-    void                        OnPreBeginPIE(bool bIsSimulating);
-    void                        OnEndPIE(bool bIsSimulating);
+    void                        OnPreBeginPIE(bool bIsSimulating); // NOLINT
+    void                        OnEndPIE(bool bIsSimulating); // NOLINT
     void                        OnMainFrameCreationFinished(TSharedPtr<SWindow> InRootWindow, bool bIsRunningStartupDialog);
     void                        OnMainFrameWindowActivated();
     void                        OnHandleDelayReimport();
 private:
-    FDelegateHandle             PreBeginPIEHandle, EndPIEHandle;
+    FDelegateHandle             PreBeginPIEHandle, EndPIEHandle; // NOLINT
     FString                     ImportDatabasePath;    
     bool                        bNeedReimportWhenPlaying = false;
 };

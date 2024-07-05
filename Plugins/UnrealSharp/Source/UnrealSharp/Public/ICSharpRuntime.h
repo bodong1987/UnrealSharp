@@ -48,7 +48,8 @@ namespace UnrealSharp
     class UNREALSHARP_API ICSharpRuntime : public IRefCountedObject
     {    
     public:
-        virtual ~ICSharpRuntime() = default;
+        virtual ~ICSharpRuntime() override = default;
+        
     public:
         // Initialize runtime
         virtual bool                                    Initialize() = 0;

@@ -27,380 +27,393 @@ using System.Runtime.CompilerServices;
 using UnrealSharp.UnrealEngine.InteropService;
 using UnrealSharp.Utils.Misc;
 
-namespace UnrealSharp.UnrealEngine
+namespace UnrealSharp.UnrealEngine;
+
+/// <summary>
+/// Class IntelligentCacheUtils.
+/// </summary>
+public static class IntelligentCacheUtils
 {
     /// <summary>
-    /// Class IntelligentCacheUtils.
+    /// Delegate ConstructDelegateType
     /// </summary>
-    public static class IntelligentCacheUtils
+    /// <param name="address">The address.</param>
+    /// <returns>System.Nullable&lt;T&gt;.</returns>
+    public delegate T? ConstructDelegateType<out T>(IntPtr address);
+
+    /// <summary>
+    /// Gets the address based value.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="cachedAddress">The cached address.</param>
+    /// <param name="cachedValue">The cached value.</param>
+    /// <param name="address">The address.</param>
+    /// <param name="constructor">The constructor.</param>
+    /// <returns>System.Nullable&lt;T&gt;.</returns>
+    public static T? GetAddressBasedValue<T>(ref IntPtr cachedAddress, ref T? cachedValue, IntPtr address, ConstructDelegateType<T> constructor)
     {
-        /// <summary>
-        /// Delegate ConstructDelegateType
-        /// </summary>
-        /// <param name="address">The address.</param>
-        /// <returns>System.Nullable&lt;T&gt;.</returns>
-        public delegate T? ConstructDelegateType<T>(IntPtr address);
-
-        /// <summary>
-        /// Gets the address based value.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="cachedAddress">The cached address.</param>
-        /// <param name="cachedValue">The cached value.</param>
-        /// <param name="address">The address.</param>
-        /// <param name="constructor">The constructor.</param>
-        /// <returns>System.Nullable&lt;T&gt;.</returns>
-        public static T? GetAddressBasedValue<T>(ref IntPtr cachedAddress, ref T? cachedValue, IntPtr address, ConstructDelegateType<T> constructor)
+        if (address == IntPtr.Zero)
         {
-            if (address == IntPtr.Zero)
-            {
-                cachedAddress = default;
-                cachedValue = default;
-                return default;
-            }
-
-            if (address != cachedAddress)
-            {
-                cachedAddress = address;
-
-                cachedValue = constructor(cachedAddress);
-            }
-
-            return cachedValue;
+            cachedAddress = default;
+            cachedValue = default;
+            return default;
         }
 
-        /// <summary>
-        /// Gets the address based value.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="cachedAddress">The cached address.</param>
-        /// <param name="cachedValue">The cached value.</param>
-        /// <param name="address">The address.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="constructor">The constructor.</param>
-        /// <returns>System.Nullable&lt;T&gt;.</returns>
-        public static T? GetAddressBasedValue<T>(ref IntPtr cachedAddress, ref T? cachedValue, IntPtr address, int offset, ConstructDelegateType<T> constructor)
+        if (address == cachedAddress)
         {
-            if (address == IntPtr.Zero)
-            {
-                cachedAddress = default;
-                cachedValue = default;
-                return default;
-            }
-
-            IntPtr TargetAddress = IntPtr.Add(address, offset);
-
-            if (TargetAddress == IntPtr.Zero)
-            {
-                cachedAddress = default;
-                cachedValue = default;
-                return default;
-            }
-
-            if (TargetAddress != cachedAddress)
-            {
-                cachedAddress = TargetAddress;
-
-                cachedValue = constructor(cachedAddress);
-            }
-
             return cachedValue;
         }
+        
+        cachedAddress = address;
 
-        /// <summary>
-        /// Gets the pointer based value.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="cachedPointer">The cached pointer.</param>
-        /// <param name="cachedValue">The cached value.</param>
-        /// <param name="address">The address.</param>
-        /// <param name="constructor">The constructor.</param>
-        /// <returns>System.Nullable&lt;T&gt;.</returns>
-        public static T? GetPointerBasedValue<T>(ref IntPtr cachedPointer, ref T? cachedValue, IntPtr address, ConstructDelegateType<T> constructor)
-        {
-            if (address == IntPtr.Zero)
-            {
-                cachedPointer = default;
-                cachedValue = default;
-                return default;
-            }
+        cachedValue = constructor(cachedAddress);
 
-            IntPtr CurrentPointer = IntPtr.Zero;
-            unsafe
-            {
-                CurrentPointer = *(IntPtr*)address;
-            }
-
-            if (CurrentPointer != cachedPointer)
-            {
-                cachedPointer = CurrentPointer;
-
-                cachedValue = constructor(address);
-            }
-
-            return cachedValue;
-        }
-
-        /// <summary>
-        /// Gets the pointer based value.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="cachedPointer">The cached pointer.</param>
-        /// <param name="cachedValue">The cached value.</param>
-        /// <param name="address">The address.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="constructor">The constructor.</param>
-        /// <returns>System.Nullable&lt;T&gt;.</returns>
-        public static T? GetPointerBasedValue<T>(ref IntPtr cachedPointer, ref T? cachedValue, IntPtr address, int offset, ConstructDelegateType<T> constructor)
-        {
-            if (address == IntPtr.Zero)
-            {
-                cachedValue = default;
-                cachedPointer = default;
-                return default;
-            }
-
-            IntPtr TargetAddress = IntPtr.Add(address, offset);
-
-            if (TargetAddress == IntPtr.Zero)
-            {
-                cachedValue = default;
-                cachedPointer = default;
-                return default;
-            }
-
-            IntPtr CurrentPointer = IntPtr.Zero;
-            unsafe
-            {
-                CurrentPointer = *(IntPtr*)TargetAddress;
-            }
-
-            if (CurrentPointer != cachedPointer)
-            {
-                cachedPointer = CurrentPointer;
-
-                cachedValue = constructor(TargetAddress);
-            }
-
-            return cachedValue;
-        }
+        return cachedValue;
     }
 
     /// <summary>
-    /// Struct TAddressBasedIntelligentCache
+    /// Gets the address based value.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public struct TAddressBasedIntelligentCache<T>
+    /// <param name="cachedAddress">The cached address.</param>
+    /// <param name="cachedValue">The cached value.</param>
+    /// <param name="address">The address.</param>
+    /// <param name="offset">The offset.</param>
+    /// <param name="constructor">The constructor.</param>
+    /// <returns>System.Nullable&lt;T&gt;.</returns>
+    public static T? GetAddressBasedValue<T>(ref IntPtr cachedAddress, ref T? cachedValue, IntPtr address, int offset, ConstructDelegateType<T> constructor)
     {
-        /// <summary>
-        /// The cached address
-        /// </summary>
-        private IntPtr CachedAddress;
-        /// <summary>
-        /// The cached value
-        /// </summary>
-        private T? CachedValue;
-
-        /// <summary>
-        /// The constructor
-        /// </summary>
-        private IntelligentCacheUtils.ConstructDelegateType<T> Constructor;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TAddressBasedIntelligentCache{T}" /> struct.
-        /// </summary>
-        /// <param name="constructDelegate">The construct delegate.</param>
-        public TAddressBasedIntelligentCache(IntelligentCacheUtils.ConstructDelegateType<T> constructDelegate)
+        if (address == IntPtr.Zero)
         {
-            Constructor = constructDelegate;
+            cachedAddress = default;
+            cachedValue = default;
+            return default;
         }
 
-        /// <summary>
-        /// Gets the specified address.
-        /// </summary>
-        /// <param name="address">The address.</param>
-        /// <returns>System.Nullable&lt;T&gt;.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T? Get(IntPtr address)
+        var targetAddress = IntPtr.Add(address, offset);
+
+        if (targetAddress == IntPtr.Zero)
         {
-            return IntelligentCacheUtils.GetAddressBasedValue<T>(ref CachedAddress, ref CachedValue, address, Constructor);
+            cachedAddress = default;
+            cachedValue = default;
+            return default;
         }
 
-        /// <summary>
-        /// Gets the specified address.
-        /// </summary>
-        /// <param name="address">The address.</param>
-        /// <param name="offset">The offset.</param>
-        /// <returns>System.Nullable&lt;T&gt;.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T? Get(IntPtr address, int offset)
+        if (targetAddress == cachedAddress)
         {
-            return IntelligentCacheUtils.GetAddressBasedValue<T>(ref CachedAddress, ref CachedValue, address, offset, Constructor);
+            return cachedValue;
         }
+        
+        cachedAddress = targetAddress;
+
+        cachedValue = constructor(cachedAddress);
+
+        return cachedValue;
     }
 
     /// <summary>
-    /// Struct TGenericAddressBasedIntelligentCache
+    /// Gets the pointer based value.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public struct TGenericAddressBasedIntelligentCache<T>
+    /// <param name="cachedPointer">The cached pointer.</param>
+    /// <param name="cachedValue">The cached value.</param>
+    /// <param name="address">The address.</param>
+    /// <param name="constructor">The constructor.</param>
+    /// <returns>System.Nullable&lt;T&gt;.</returns>
+    public static T? GetPointerBasedValue<T>(ref IntPtr cachedPointer, ref T? cachedValue, IntPtr address, ConstructDelegateType<T> constructor)
     {
-        /// <summary>
-        /// The cached address
-        /// </summary>
-        private IntPtr CachedAddress;
-        /// <summary>
-        /// The cached value
-        /// </summary>
-        private T? CachedValue;
-
-        /// <summary>
-        /// The interop policy
-        /// </summary>
-        public static readonly IInteropPolicy<T> InteropPolicy = InteropPolicyFactory.GetPolicy<T>();
-
-        private static IntelligentCacheUtils.ConstructDelegateType<T> Constructor;
-
-        /// <summary>
-        /// Initializes static members of the <see cref="TGenericAddressBasedIntelligentCache{T}" /> struct.
-        /// </summary>
-        static TGenericAddressBasedIntelligentCache()
+        if (address == IntPtr.Zero)
         {
-            Logger.EnsureNotNull(InteropPolicy);
-
-            Constructor = (a) => InteropPolicy.Read(a);
+            cachedPointer = default;
+            cachedValue = default;
+            return default;
         }
 
-        /// <summary>
-        /// Gets the specified address.
-        /// </summary>
-        /// <param name="address">The address.</param>
-        /// <returns>System.Nullable&lt;T&gt;.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T? Get(IntPtr address)
+        IntPtr currentPointer;
+            
+        unsafe
         {
-            return IntelligentCacheUtils.GetAddressBasedValue<T>(ref CachedAddress, ref CachedValue, address, Constructor);
+            currentPointer = *(IntPtr*)address;
         }
 
-        /// <summary>
-        /// Gets the specified address.
-        /// </summary>
-        /// <param name="address">The address.</param>
-        /// <param name="offset">The offset.</param>
-        /// <returns>System.Nullable&lt;T&gt;.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T? Get(IntPtr address, int offset)
+        if (currentPointer == cachedPointer)
         {
-            return IntelligentCacheUtils.GetAddressBasedValue<T>(ref CachedAddress, ref CachedValue, address, offset, Constructor);
+            return cachedValue;
         }
+            
+        cachedPointer = currentPointer;
+
+        cachedValue = constructor(address);
+
+        return cachedValue;
     }
 
     /// <summary>
-    /// Struct TPointerBasedIntelligentCache
+    /// Gets the pointer based value.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public struct TPointerBasedIntelligentCache<T>
+    /// <param name="cachedPointer">The cached pointer.</param>
+    /// <param name="cachedValue">The cached value.</param>
+    /// <param name="address">The address.</param>
+    /// <param name="offset">The offset.</param>
+    /// <param name="constructor">The constructor.</param>
+    /// <returns>System.Nullable&lt;T&gt;.</returns>
+    public static T? GetPointerBasedValue<T>(ref IntPtr cachedPointer, ref T? cachedValue, IntPtr address, int offset, ConstructDelegateType<T> constructor)
     {
-        /// <summary>
-        /// The cached pointer
-        /// </summary>
-        private IntPtr CachedPointer;
-        /// <summary>
-        /// The cached value
-        /// </summary>
-        private T? CachedValue;
-
-        /// <summary>
-        /// The constructor
-        /// </summary>
-        private IntelligentCacheUtils.ConstructDelegateType<T> Constructor;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TPointerBasedIntelligentCache{T}" /> struct.
-        /// </summary>
-        /// <param name="constructDelegate">The construct delegate.</param>
-        public TPointerBasedIntelligentCache(IntelligentCacheUtils.ConstructDelegateType<T> constructDelegate)
+        if (address == IntPtr.Zero)
         {
-            Constructor = constructDelegate;
+            cachedValue = default;
+            cachedPointer = default;
+            return default;
         }
 
-        /// <summary>
-        /// Gets the specified address.
-        /// </summary>
-        /// <param name="address">The address.</param>
-        /// <returns>System.Nullable&lt;T&gt;.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T? Get(IntPtr address)
+        var targetAddress = IntPtr.Add(address, offset);
+
+        if (targetAddress == IntPtr.Zero)
         {
-            return IntelligentCacheUtils.GetPointerBasedValue<T>(ref CachedPointer, ref CachedValue, address, Constructor);
+            cachedValue = default;
+            cachedPointer = default;
+            return default;
         }
 
-        /// <summary>
-        /// Gets the specified address.
-        /// </summary>
-        /// <param name="address">The address.</param>
-        /// <param name="offset">The offset.</param>
-        /// <returns>System.Nullable&lt;T&gt;.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T? Get(IntPtr address, int offset)
+        IntPtr currentPointer;
+            
+        unsafe
         {
-            return IntelligentCacheUtils.GetPointerBasedValue<T>(ref CachedPointer, ref CachedValue, address, offset, Constructor);
+            currentPointer = *(IntPtr*)targetAddress;
         }
+
+        if (currentPointer == cachedPointer)
+        {
+            return cachedValue;
+        }
+            
+        cachedPointer = currentPointer;
+
+        cachedValue = constructor(targetAddress);
+
+        return cachedValue;
+    }
+}
+
+/// <summary>
+/// Struct TAddressBasedIntelligentCache
+/// </summary>
+/// <typeparam name="T"></typeparam>
+// ReSharper disable once InconsistentNaming
+public struct TAddressBasedIntelligentCache<T>
+{
+    /// <summary>
+    /// The cached address
+    /// </summary>
+    private IntPtr _cachedAddress;
+    /// <summary>
+    /// The cached value
+    /// </summary>
+    private T? _cachedValue;
+
+    /// <summary>
+    /// The constructor
+    /// </summary>
+    private readonly IntelligentCacheUtils.ConstructDelegateType<T> _constructor;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TAddressBasedIntelligentCache{T}" /> struct.
+    /// </summary>
+    /// <param name="constructDelegate">The construct delegate.</param>
+    public TAddressBasedIntelligentCache(IntelligentCacheUtils.ConstructDelegateType<T> constructDelegate)
+    {
+        _constructor = constructDelegate;
     }
 
     /// <summary>
-    /// Struct TGenericPointerBasedIntelligentCache
+    /// Gets the specified address.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public struct TGenericPointerBasedIntelligentCache<T>
+    /// <param name="address">The address.</param>
+    /// <returns>System.Nullable&lt;T&gt;.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public T? Get(IntPtr address)
     {
-        /// <summary>
-        /// The cached pointer
-        /// </summary>
-        private IntPtr CachedPointer;
-        /// <summary>
-        /// The cached value
-        /// </summary>
-        private T? CachedValue;
+        return IntelligentCacheUtils.GetAddressBasedValue(ref _cachedAddress, ref _cachedValue, address, _constructor);
+    }
 
-        /// <summary>
-        /// The interop policy
-        /// </summary>
-        public static readonly IInteropPolicy<T> InteropPolicy = InteropPolicyFactory.GetPolicy<T>();
+    /// <summary>
+    /// Gets the specified address.
+    /// </summary>
+    /// <param name="address">The address.</param>
+    /// <param name="offset">The offset.</param>
+    /// <returns>System.Nullable&lt;T&gt;.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public T? Get(IntPtr address, int offset)
+    {
+        return IntelligentCacheUtils.GetAddressBasedValue(ref _cachedAddress, ref _cachedValue, address, offset, _constructor);
+    }
+}
 
-        private static IntelligentCacheUtils.ConstructDelegateType<T> Constructor;
+/// <summary>
+/// Struct TGenericAddressBasedIntelligentCache
+/// </summary>
+/// <typeparam name="T"></typeparam>
+// ReSharper disable once InconsistentNaming
+public struct TGenericAddressBasedIntelligentCache<T>
+{
+    /// <summary>
+    /// The cached address
+    /// </summary>
+    private IntPtr _cachedAddress;
+    /// <summary>
+    /// The cached value
+    /// </summary>
+    private T? _cachedValue;
 
-        /// <summary>
-        /// Initializes static members of the <see cref="TGenericPointerBasedIntelligentCache{T}" /> struct.
-        /// </summary>
-        static TGenericPointerBasedIntelligentCache()
-        {
-            Logger.EnsureNotNull(InteropPolicy);
+    /// <summary>
+    /// The interop policy
+    /// </summary>
+    public static readonly IInteropPolicy<T> InteropPolicy = InteropPolicyFactory.GetPolicy<T>();
 
-            Constructor = (a) => InteropPolicy.Read(a);
-        }
+    private static readonly IntelligentCacheUtils.ConstructDelegateType<T> Constructor;
+
+    /// <summary>
+    /// Initializes static members of the <see cref="TGenericAddressBasedIntelligentCache{T}" /> struct.
+    /// </summary>
+    static TGenericAddressBasedIntelligentCache()
+    {
+        Logger.EnsureNotNull(InteropPolicy);
+
+        Constructor = a => InteropPolicy.Read(a);
+    }
+
+    /// <summary>
+    /// Gets the specified address.
+    /// </summary>
+    /// <param name="address">The address.</param>
+    /// <returns>System.Nullable&lt;T&gt;.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public T? Get(IntPtr address)
+    {
+        return IntelligentCacheUtils.GetAddressBasedValue(ref _cachedAddress, ref _cachedValue, address, Constructor);
+    }
+
+    /// <summary>
+    /// Gets the specified address.
+    /// </summary>
+    /// <param name="address">The address.</param>
+    /// <param name="offset">The offset.</param>
+    /// <returns>System.Nullable&lt;T&gt;.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public T? Get(IntPtr address, int offset)
+    {
+        return IntelligentCacheUtils.GetAddressBasedValue(ref _cachedAddress, ref _cachedValue, address, offset, Constructor);
+    }
+}
+
+/// <summary>
+/// Struct TPointerBasedIntelligentCache
+/// </summary>
+/// <typeparam name="T"></typeparam>
+// ReSharper disable once InconsistentNaming
+public struct TPointerBasedIntelligentCache<T>
+{
+    /// <summary>
+    /// The cached pointer
+    /// </summary>
+    private IntPtr _cachedPointer;
+    /// <summary>
+    /// The cached value
+    /// </summary>
+    private T? _cachedValue;
+
+    /// <summary>
+    /// The constructor
+    /// </summary>
+    private readonly IntelligentCacheUtils.ConstructDelegateType<T> _constructor;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TPointerBasedIntelligentCache{T}" /> struct.
+    /// </summary>
+    /// <param name="constructDelegate">The construct delegate.</param>
+    public TPointerBasedIntelligentCache(IntelligentCacheUtils.ConstructDelegateType<T> constructDelegate)
+    {
+        _constructor = constructDelegate;
+    }
+
+    /// <summary>
+    /// Gets the specified address.
+    /// </summary>
+    /// <param name="address">The address.</param>
+    /// <returns>System.Nullable&lt;T&gt;.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public T? Get(IntPtr address)
+    {
+        return IntelligentCacheUtils.GetPointerBasedValue(ref _cachedPointer, ref _cachedValue, address, _constructor);
+    }
+
+    /// <summary>
+    /// Gets the specified address.
+    /// </summary>
+    /// <param name="address">The address.</param>
+    /// <param name="offset">The offset.</param>
+    /// <returns>System.Nullable&lt;T&gt;.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public T? Get(IntPtr address, int offset)
+    {
+        return IntelligentCacheUtils.GetPointerBasedValue(ref _cachedPointer, ref _cachedValue, address, offset, _constructor);
+    }
+}
+
+/// <summary>
+/// Struct TGenericPointerBasedIntelligentCache
+/// </summary>
+/// <typeparam name="T"></typeparam>
+// ReSharper disable once InconsistentNaming
+public struct TGenericPointerBasedIntelligentCache<T>
+{
+    /// <summary>
+    /// The cached pointer
+    /// </summary>
+    private IntPtr _cachedPointer;
+    /// <summary>
+    /// The cached value
+    /// </summary>
+    private T? _cachedValue;
+
+    /// <summary>
+    /// The interop policy
+    /// </summary>
+    public static readonly IInteropPolicy<T> InteropPolicy = InteropPolicyFactory.GetPolicy<T>();
+
+    private static readonly IntelligentCacheUtils.ConstructDelegateType<T> Constructor;
+
+    /// <summary>
+    /// Initializes static members of the <see cref="TGenericPointerBasedIntelligentCache{T}" /> struct.
+    /// </summary>
+    static TGenericPointerBasedIntelligentCache()
+    {
+        Logger.EnsureNotNull(InteropPolicy);
+
+        Constructor = a => InteropPolicy.Read(a);
+    }
                 
-        /// <summary>
-        /// Gets the specified address.
-        /// </summary>
-        /// <param name="address">The address.</param>
-        /// <returns>System.Nullable&lt;T&gt;.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T? Get(IntPtr address)
-        {
-            return IntelligentCacheUtils.GetPointerBasedValue<T>(ref CachedPointer, ref CachedValue, address, Constructor);
-        }
+    /// <summary>
+    /// Gets the specified address.
+    /// </summary>
+    /// <param name="address">The address.</param>
+    /// <returns>System.Nullable&lt;T&gt;.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public T? Get(IntPtr address)
+    {
+        return IntelligentCacheUtils.GetPointerBasedValue(ref _cachedPointer, ref _cachedValue, address, Constructor);
+    }
 
-        /// <summary>
-        /// Gets the specified address.
-        /// </summary>
-        /// <param name="address">The address.</param>
-        /// <param name="offset">The offset.</param>
-        /// <returns>System.Nullable&lt;T&gt;.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T? Get(IntPtr address, int offset)
-        {
-            return IntelligentCacheUtils.GetPointerBasedValue<T>(ref CachedPointer, ref CachedValue, address, offset, Constructor);
-        }
+    /// <summary>
+    /// Gets the specified address.
+    /// </summary>
+    /// <param name="address">The address.</param>
+    /// <param name="offset">The offset.</param>
+    /// <returns>System.Nullable&lt;T&gt;.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public T? Get(IntPtr address, int offset)
+    {
+        return IntelligentCacheUtils.GetPointerBasedValue(ref _cachedPointer, ref _cachedValue, address, offset, Constructor);
     }
 }

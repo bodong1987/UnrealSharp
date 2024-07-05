@@ -26,9 +26,7 @@
 #include "CSharpLibraryAccessor.h"
 #include "ICSharpRuntime.h"
 #include "ICSharpMethodInvocation.h"
-#include "Misc/ScopedExit.h"
 #include "Misc/UnrealSharpUtils.h"
-#include "Classes/CSharpStruct.h"
 #include "CSharpStructFactory.h"
 #include "Misc/StackMemory.h"
 #include "Misc/ScopedCSharpMethodInvocation.h"
@@ -58,14 +56,14 @@ namespace UnrealSharp
 
     void FCSharpLibraryAccessor::BreakCSharpObjectNativeConnection(void* InCSharpObject)
     {
-        UNREALSHARP_SCOPED_CSHARP_METHOD_INVOCATION(DisconnectToNativeInvocation);
+        US_SCOPED_CSHARP_METHOD_INVOCATION(DisconnectToNativeInvocation);
 
         DisconnectToNativeInvocationInvoker.Invoke(InCSharpObject);
     }
 
     UObject* FCSharpLibraryAccessor::GetUnrealObject(void* InCSharpObject)
     {
-        UNREALSHARP_SCOPED_CSHARP_METHOD_INVOCATION(GetNativePtrInvocation);
+        US_SCOPED_CSHARP_METHOD_INVOCATION(GetNativePtrInvocation);
 
         UObject* Result = GetNativePtrInvocationInvoker.Invoke<UObject*>(InCSharpObject);
         
@@ -74,7 +72,7 @@ namespace UnrealSharp
 
     void FCSharpLibraryAccessor::BeforeObjectConstructor(void* InCSharpObject, const FObjectInitializer& InObjectInitializer)
     {
-        UNREALSHARP_SCOPED_CSHARP_METHOD_INVOCATION(BeforeObjectConstructorInvocation);
+        US_SCOPED_CSHARP_METHOD_INVOCATION(BeforeObjectConstructorInvocation);
         
         const FObjectInitializer* ObjectInitializerPtr = &InObjectInitializer;
 
@@ -83,7 +81,7 @@ namespace UnrealSharp
 
     void FCSharpLibraryAccessor::PostObjectConstructor(void* InCSharpObject)
     {
-        UNREALSHARP_SCOPED_CSHARP_METHOD_INVOCATION(PostObjectConstructorInvocation);
+        US_SCOPED_CSHARP_METHOD_INVOCATION(PostObjectConstructorInvocation);
         PostObjectConstructorInvocationInvoker.Invoke(InCSharpObject);
     }
 
@@ -98,7 +96,7 @@ namespace UnrealSharp
             FString AssemblyName = FUnrealSharpUtils::GetAssemblyName(Struct);
             FString ClassPath = FUnrealSharpUtils::GetCSharpFullPath(Struct);
 
-            TSharedPtr<FCSharpStructFactory> FactoryPtr = MakeShared<FCSharpStructFactory>(Runtime, AssemblyName, ClassPath);
+            const TSharedPtr<FCSharpStructFactory> FactoryPtr = MakeShared<FCSharpStructFactory>(Runtime, AssemblyName, ClassPath);
             Factory = &StructFactories.Add(Struct, FactoryPtr);
         }
 
@@ -109,7 +107,7 @@ namespace UnrealSharp
     {
         check(InUnrealStructPtr);
 
-        auto Factory = QueryStructFactory(InStruct);
+        const auto Factory = QueryStructFactory(InStruct);
 
         check(Factory != nullptr);
 
@@ -120,7 +118,7 @@ namespace UnrealSharp
     {
         check(InNativePtr);
 
-        auto Factory = QueryStructFactory(InStruct);
+        const auto Factory = QueryStructFactory(InStruct);
 
         check(Factory != nullptr);
 
@@ -149,7 +147,7 @@ namespace UnrealSharp
 
         checkf(Invocation, TEXT("Unsupported property, it is not an valid collection property!"));
 
-        UNREALSHARP_SCOPED_CSHARP_METHOD_INVOCATION(Invocation);
+        US_SCOPED_CSHARP_METHOD_INVOCATION(Invocation);
 
         return InvocationInvoker.Invoke(nullptr, &InAddressOfCollection, &InCollectionProperty);
     }
@@ -175,7 +173,7 @@ namespace UnrealSharp
             Invocation = WriteMapInvocation;
         }
 
-        UNREALSHARP_SCOPED_CSHARP_METHOD_INVOCATION(Invocation);
+        US_SCOPED_CSHARP_METHOD_INVOCATION(Invocation);
 
         InvocationInvoker.Invoke(nullptr, &InAddressOfCollection, &InCollectionProperty, InCSharpCollection);
     }
@@ -185,7 +183,7 @@ namespace UnrealSharp
         check(InAddressOfSoftObjectPtr);
         check(InSoftObjectProperty);
 
-        UNREALSHARP_SCOPED_CSHARP_METHOD_INVOCATION(CreateSoftObjectInvocation);
+        US_SCOPED_CSHARP_METHOD_INVOCATION(CreateSoftObjectInvocation);
 
         return CreateSoftObjectInvocationInvoker.Invoke(nullptr, &InAddressOfSoftObjectPtr, &InSoftObjectProperty);
     }
@@ -195,7 +193,7 @@ namespace UnrealSharp
         check(InDestinationAddress);
         check(InSourceObjectInterface);
 
-        UNREALSHARP_SCOPED_CSHARP_METHOD_INVOCATION(WriteSoftObjectPtrInvocation);
+        US_SCOPED_CSHARP_METHOD_INVOCATION(WriteSoftObjectPtrInvocation);
 
         WriteSoftObjectPtrInvocationInvoker.Invoke(nullptr, &InDestinationAddress, InSourceObjectInterface);
     }
@@ -205,7 +203,7 @@ namespace UnrealSharp
         check(InAddressOfSoftClassPtr);
         check(InSoftClassProperty);
 
-        UNREALSHARP_SCOPED_CSHARP_METHOD_INVOCATION(CreateSoftClassInvocation);
+        US_SCOPED_CSHARP_METHOD_INVOCATION(CreateSoftClassInvocation);
 
         return CreateSoftClassInvocationInvoker.Invoke(nullptr, &InAddressOfSoftClassPtr, &InSoftClassProperty);
     }
@@ -215,7 +213,7 @@ namespace UnrealSharp
         check(InDestinationAddress);
         check(InSourceObjectInterface);
 
-        UNREALSHARP_SCOPED_CSHARP_METHOD_INVOCATION(WriteSoftClassPtrInvocation);
+        US_SCOPED_CSHARP_METHOD_INVOCATION(WriteSoftClassPtrInvocation);
 
         WriteSoftClassPtrInvocationInvoker.Invoke(nullptr, &InDestinationAddress, InSourceObjectInterface);
     }

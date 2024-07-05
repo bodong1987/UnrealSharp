@@ -27,7 +27,6 @@
 
 #include "CoreMinimal.h"
 #include "Engine/Blueprint.h"
-#include "CSharpGeneratedType.h"
 #include "CSharpBlueprint.generated.h"
 
 /*
@@ -41,6 +40,6 @@ class UNREALSHARP_API UCSharpBlueprint : public UBlueprint
 public:
 #if WITH_EDITOR
     /** Gets the class generated when this blueprint is compiled. */
-    virtual UClass*                 GetBlueprintClass() const;
+    virtual UClass*                 GetBlueprintClass() const override;
 #endif
 };

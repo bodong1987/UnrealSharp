@@ -23,24 +23,24 @@
 
     Project URL: https://github.com/bodong1987/UnrealSharp
 */
-namespace UnrealSharp.UnrealEngine
+namespace UnrealSharp.UnrealEngine;
+
+/// <summary>
+/// Class IEnhancedInputSubsystemInterfaceExtensions.
+/// </summary>
+// ReSharper disable once InconsistentNaming
+public static class IEnhancedInputSubsystemInterfaceExtensions
 {
     /// <summary>
-    /// Class IEnhancedInputSubsystemInterfaceExtensions.
+    /// Adds the mapping context.
     /// </summary>
-    public static class IEnhancedInputSubsystemInterfaceExtensions
+    /// <param name="interface">The interface.</param>
+    /// <param name="mappingContext">The mapping context.</param>
+    /// <param name="priority">The priority.</param>
+    public static void AddMappingContext(this IEnhancedInputSubsystemInterface @interface, UInputMappingContext? mappingContext, int priority = 0)
     {
-        /// <summary>
-        /// Adds the mapping context.
-        /// </summary>
-        /// <param name="interface">The interface.</param>
-        /// <param name="MappingContext">The mapping context.</param>
-        /// <param name="Priority">The priority.</param>
-        public static void AddMappingContext(this IEnhancedInputSubsystemInterface @interface, UInputMappingContext? MappingContext, int Priority = 0)
-        {
-            FModifyContextOptions Options = new FModifyContextOptions();
+        var options = new FModifyContextOptions();
 
-            @interface.AddMappingContext(MappingContext, Priority, ref Options);
-        }
+        @interface.AddMappingContext(mappingContext, priority, ref options);
     }
 }

@@ -24,7 +24,6 @@
     Project URL: https://github.com/bodong1987/UnrealSharp
 */
 #include "SharpBindingGenModule.h"
-#include "TypeDefinitionDocument.h"
 
 IMPLEMENT_MODULE(FSharpBindingGenModule, SharpBindingGen)
 

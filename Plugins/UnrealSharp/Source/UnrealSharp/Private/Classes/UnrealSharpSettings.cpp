@@ -44,7 +44,7 @@ bool UUnrealSharpSettings::IsExportToGameScripts(const FName& InModuleName) cons
     return NativeExportToGameScriptsModules.Contains(InModuleName);
 }
 
-bool UUnrealSharpSettings::IsExportToGameScripts(UField* InField) const
+bool UUnrealSharpSettings::IsExportToGameScripts(const UField* InField) const
 {
     if (!UnrealSharp::FUnrealSharpUtils::IsNativeField(InField))
     {

@@ -1,4 +1,5 @@
 ﻿// Please sync with UnrealEngine source code EpicGames.Core
+// Resharper disable all
 using System;
 using System.Collections.Generic;
 using System.Reflection;

@@ -1,40 +1,38 @@
-﻿namespace UnrealSharpTool.Core.ErrorReports
+﻿namespace UnrealSharpTool.Core.ErrorReports;
+
+public enum WarningCode
 {
-    public enum WarningCode
-    {
-        NoWarning,
-
-    }
+    NoWarning
+}
 
 
-    public enum ErrorCode
-    {
-        NoError,
+public enum ErrorCode
+{
+    NoError,
 
-        UnsupportedProperty,
-        UnsupportedMethodReturnType,
-        UnsupportedMethodParameter,
-        MisingUFunctionAttribute,
-        InvalidBaseClass,
-        InvalidTypeName,
-        UClassCannotBeAbstract,
-        UClassCannotBeSealed,
-        UClassCannotBeStatic,
-        RawUClassPointerIsNotSupported,
-        NullableValueTypeIsNotSupported,
-        InvalidEnumSize,
-        UFunctionOverloadIsNotSupported,
-        UFunctionInFunctionLibraryMustBeStatic,
-        UEnumSpecifyFieldValueIsNotSupported,
-        SingleCastDelegateIsNotSupported,
-        SoftObjectPtrInStructIsNotSupported,
-        SoftClassPtrInStructIsNotSupported,
-        DelegateInStructIsNotSupported,
-        InvalidPropertyAttribute,
-        FunctionLibraryCannotAllowAnyProperties,
-        StaticUPropertyIsNotSupported,
-        StaticUFunctionCanOnlyBeUsedInFunctionLibrary,
-        GenericUnrealTypeIsNotSupported,
-        GenericUFunctionIsNotSupported,
-    }
+    UnsupportedProperty,
+    UnsupportedMethodReturnType,
+    UnsupportedMethodParameter,
+    MissingUFunctionAttribute,
+    InvalidBaseClass,
+    InvalidTypeName,
+    UClassCannotBeAbstract,
+    UClassCannotBeSealed,
+    UClassCannotBeStatic,
+    RawUClassPointerIsNotSupported,
+    NullableValueTypeIsNotSupported,
+    InvalidEnumSize,
+    UFunctionOverloadIsNotSupported,
+    UFunctionInFunctionLibraryMustBeStatic,
+    UEnumSpecifyFieldValueIsNotSupported,
+    SingleCastDelegateIsNotSupported,
+    SoftObjectPtrInStructIsNotSupported,
+    SoftClassPtrInStructIsNotSupported,
+    DelegateInStructIsNotSupported,
+    InvalidPropertyAttribute,
+    FunctionLibraryCannotAllowAnyProperties,
+    StaticUPropertyIsNotSupported,
+    StaticUFunctionCanOnlyBeUsedInFunctionLibrary,
+    GenericUnrealTypeIsNotSupported,
+    GenericUFunctionIsNotSupported
 }

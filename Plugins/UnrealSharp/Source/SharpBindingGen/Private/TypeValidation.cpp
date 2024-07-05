@@ -25,30 +25,28 @@
 */
 #include "TypeValidation.h"
 #include "SharpBindingGenSettings.h"
-#include "Engine/UserDefinedEnum.h"
-#include "Engine/UserDefinedStruct.h"
 #include "Misc/UnrealSharpUtils.h"
 #include "Misc/UnrealSharpLog.h"
 
 namespace UnrealSharp
 {
-    FTypeValidation::FTypeValidation(bool bAutoCheck) :
-        GenSettings((const USharpBindingGenSettings*)USharpBindingGenSettings::StaticClass()->GetDefaultObject())
+    FTypeValidation::FTypeValidation(const bool bAutoCheck) :
+        GenSettings(static_cast<const USharpBindingGenSettings*>(USharpBindingGenSettings::StaticClass()->GetDefaultObject()))
     {
         Reset(bAutoCheck);
     }
 
-    bool FTypeValidation::IsSupported(UField* InField) const
+    bool FTypeValidation::IsSupported(const UField* InField) const
     {
         return SupportedFields.Contains(InField);
     }
 
-    bool FTypeValidation::IsNeedExport(UField* InField) const
+    bool FTypeValidation::IsNeedExport(const UField* InField) const
     {
         return IsSupported(InField) && GenSettings->IsNeedExportType(GetFieldCheckedName(InField));
     }
 
-    FTypeValidation::ECheckResult FTypeValidation::GetCheckResult(UField* InField) const
+    FTypeValidation::ECheckResult FTypeValidation::GetCheckResult(const UField* InField) const
     {
         if (SupportedFields.Contains(InField))
         {
@@ -63,7 +61,7 @@ namespace UnrealSharp
         return ECheckResult::Undefined;
     }
 
-    void FTypeValidation::Reset(bool bAutoCheck /* = false */)
+    void FTypeValidation::Reset(const bool bAutoCheck /* = false */)
     {
         UnSupportedFields.Empty();
         SupportedFields.Empty();
@@ -77,9 +75,7 @@ namespace UnrealSharp
 
         for (TObjectIterator<UField> Iter; Iter; ++Iter)
         {
-            UField* Field = *Iter;
-
-            if (Field->IsA<UClass>() || Field->IsA<UScriptStruct>() || Field->IsA<UEnum>())
+            if (const UField* Field = *Iter; Field->IsA<UClass>() || Field->IsA<UScriptStruct>() || Field->IsA<UEnum>())
             {
                 ValidateField(*Iter);
             }            
@@ -88,9 +84,7 @@ namespace UnrealSharp
 
     bool FTypeValidation::ValidateField(UField* InField)
     {
-        const ECheckResult CachedResult = GetCheckResult(InField);
-
-        if (CachedResult == ECheckResult::Failure)
+        if (const ECheckResult CachedResult = GetCheckResult(InField); CachedResult == ECheckResult::Failure)
         {
             return false;
         }
@@ -99,7 +93,7 @@ namespace UnrealSharp
             return true;
         }
 
-        UPackage* Package = InField->GetOutermost();
+        const UPackage* Package = InField->GetOutermost();
 
         check(Package != nullptr);
 
@@ -109,11 +103,9 @@ namespace UnrealSharp
             return false;
         }
 
-        const FString& DeprecatedFlag = InField->GetMetaData("Deprecated");
-
         // if this type is deprecated in unreal engine 4
         // skip this type
-        if (!DeprecatedFlag.IsEmpty() && DeprecatedFlag.StartsWith("4"))
+        if (const FString& DeprecatedFlag = InField->GetMetaData("Deprecated"); !DeprecatedFlag.IsEmpty() && DeprecatedFlag.StartsWith("4"))
         {
             DeprecatedFields.Add(InField);
             return false;
@@ -133,8 +125,7 @@ namespace UnrealSharp
                 return false;
             }
 
-            FString ClassName = FUnrealSharpUtils::GetCppTypeName(Class);
-            if (!GenSettings->IsSupportedType(ClassName))
+            if (const FString ClassName = FUnrealSharpUtils::GetCppTypeName(Class); !GenSettings->IsSupportedType(ClassName))
             {
                 UnSupportedFields.Add(InField);
 
@@ -171,18 +162,17 @@ namespace UnrealSharp
             if (!GenSettings->ForceExportEmptyStructNames.Contains(Struct->GetStructCPPName()))
             {
                 // ignore if this struct has no valid properties
-                const int PropertyCount = FUnrealSharpUtils::GetPropertyCount(Struct, [&](const FProperty* InProperty)
+
+                if (const int PropertyCount = FUnrealSharpUtils::GetPropertyCount(Struct, [&](const FProperty* InProperty)
+                {
+                    const auto InnerField = FUnrealSharpUtils::GetPropertyInnerField(InProperty);
+                    if (InnerField == nullptr)
                     {
-                        auto InnerField = FUnrealSharpUtils::GetPropertyInnerField(InProperty);
-                        if (InnerField == nullptr)
-                        {
-                            return true;
-                        }
+                        return true;
+                    }
 
-                        return ValidateField(InnerField);
-                    });
-
-                if (PropertyCount <= 0)
+                    return ValidateField(InnerField);
+                }); PropertyCount <= 0)
                 {
                     if (GenSettings->bShowIgnoreEmptyStructWarning)
                     {
@@ -207,7 +197,7 @@ namespace UnrealSharp
         return true;
     }
 
-    bool FTypeValidation::AllowPackage(UPackage* InPackage) const
+    bool FTypeValidation::AllowPackage(const UPackage* InPackage) const
     {
         const FString ModuleName = FPackageName::GetShortName(InPackage->GetFName());
 
@@ -220,9 +210,8 @@ namespace UnrealSharp
         return !ModuleName.Contains("Editor");
     }
 
-    FString FTypeValidation::GetFieldCheckedName(UField* InField)
+    FString FTypeValidation::GetFieldCheckedName(const UField* InField)
     {
         return FUnrealSharpUtils::GetCppTypeName(InField);
-    }
-    
+    }    
 }

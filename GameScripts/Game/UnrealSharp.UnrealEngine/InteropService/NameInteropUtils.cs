@@ -23,71 +23,72 @@
 
     Project URL: https://github.com/bodong1987/UnrealSharp
 */
-namespace UnrealSharp.UnrealEngine.InteropService
+// ReSharper disable MemberHidesStaticFromOuterClass
+namespace UnrealSharp.UnrealEngine.InteropService;
+
+/// <summary>
+/// Class NameInteropUtils.
+/// </summary>
+public static unsafe class NameInteropUtils
 {
+    #region Interop Function Pointers     
     /// <summary>
-    /// Class NameInteropUtils.
+    /// Class InteropFunctionPointers
+    /// Since mono does not support setting delegate* unmanaged type fields directly through reflection,
+    /// Therefore we cannot directly declare delegate* unmanaged fields and set them through reflection
+    /// So we use this method to set it indirectly, first save the external function pointer to these IntPtr,
+    /// and then solve it through forced type conversion when calling.Although this is a bit inconvenient,
+    /// there is currently no other way unless Mono supports it in the future.
+    /// ReSharper disable once CommentTypo
+    /// @reference check here: https://github.com/dotnet/runtime/blob/main/src/mono/mono/metadata/icall.c#L2134  ves_icall_RuntimeFieldInfo_SetValueInternal
     /// </summary>
-    public unsafe static class NameInteropUtils
+    private static class InteropFunctionPointers
     {
-        #region Interop Function Pointers     
-        /// <summary>
-        /// Class InteropFunctionPointers.
-        /// Since mono does not support setting delegate* unamaged type fields directly through reflection,
-        /// Therefore we cannot directly declare delegate* unmanged fields and set them through reflection
-        /// So we use this method to set it indirectly, first save the external function pointer to these IntPtrs,
-        /// and then solve it through forced type conversion when calling.Although this is a bit inconvenient,
-        /// there is currently no other way unless Mono supports it in the future.
-        /// @reference check here: https://github.com/dotnet/runtime/blob/main/src/mono/mono/metadata/icall.c#L2134  ves_icall_RuntimeFieldInfo_SetValueInternal
-        /// </summary>
-        private static class InteropFunctionPointers
-        {
 #pragma warning disable CS0649 // The compiler detected an uninitialized private or internal field declaration that is never assigned a value. [We use reflection to bind all fields of this class]
-            /// <summary>
-            /// The get string of name
-            /// </summary>
-            public readonly static IntPtr GetStringOfName;
-            /// <summary>
-            /// The get name of string
-            /// </summary>
-            public readonly static IntPtr GetNameOfString;
+        /// <summary>
+        /// The get string of name
+        /// </summary>
+        public static readonly IntPtr GetStringOfName;
+        /// <summary>
+        /// The get name of string
+        /// </summary>
+        public static readonly IntPtr GetNameOfString;
 
 #pragma warning restore CS0649
 
-            /// <summary>
-            /// Cctors this instance.
-            /// </summary>
-            static InteropFunctionPointers()
-            {
-                InteropFunctions.BindInteropFunctionPointers(typeof(InteropFunctionPointers));
-            }
-        }
-        #endregion
-
-        #region Imports        
         /// <summary>
-        /// convert FName to string
+        /// static constructor
         /// </summary>
-        /// <param name="name">The name.</param>
-        /// <returns>string?.</returns>
-        public static string? GetStringOfName(FName name)
+        static InteropFunctionPointers()
         {
-            var ptr = ((delegate* unmanaged[Cdecl]<FName*, IntPtr>)InteropFunctionPointers.GetStringOfName)(&name);
-
-            return StringInteropUtils.GetStringFromNativeCharacters(ptr);
+            InteropFunctions.BindInteropFunctionPointers(typeof(InteropFunctionPointers));
         }
-
-        /// <summary>
-        /// Gets the name from string.
-        /// </summary>
-        /// <param name="str">The string.</param>
-        /// <returns>UnrealSharp.UnrealEngine.FName.</returns>
-        public static FName GetNameOfString(string? str)
-        {
-            FName name = ((delegate* unmanaged[Cdecl]<string?, FName>)InteropFunctionPointers.GetNameOfString)(str);
-
-            return name;
-        }        
-        #endregion
     }
+    #endregion
+
+    #region Imports        
+    /// <summary>
+    /// convert FName to string
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <returns>string?.</returns>
+    public static string? GetStringOfName(FName name)
+    {
+        var ptr = ((delegate* unmanaged[Cdecl]<FName*, IntPtr>)InteropFunctionPointers.GetStringOfName)(&name);
+
+        return StringInteropUtils.GetStringFromNativeCharacters(ptr);
+    }
+
+    /// <summary>
+    /// Gets the name from string.
+    /// </summary>
+    /// <param name="str">The string.</param>
+    /// <returns>UnrealSharp.UnrealEngine.FName.</returns>
+    public static FName GetNameOfString(string? str)
+    {
+        var name = ((delegate* unmanaged[Cdecl]<string?, FName>)InteropFunctionPointers.GetNameOfString)(str);
+
+        return name;
+    }        
+    #endregion
 }

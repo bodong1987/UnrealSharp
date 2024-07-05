@@ -24,33 +24,33 @@
     Project URL: https://github.com/bodong1987/UnrealSharp
 */
 using UnrealSharp.Utils.CommandLine;
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
 
-namespace UnrealSharp.UnrealEngine.Main
+namespace UnrealSharp.UnrealEngine.Main;
+
+/// <summary>
+/// Class UnrealSharpStartOptions.
+/// </summary>
+public class UnrealSharpStartOptions
 {
     /// <summary>
-    /// Class UnrealSharpStartOptions.
+    /// Gets or sets the application command line.
     /// </summary>
-    public class UnrealSharpStartOptions
-    {
-        /// <summary>
-        /// Gets or sets the application command line.
-        /// </summary>
-        /// <value>The application command line.</value>
-        [Option("app")]
-        public string? AppCommandLine { get; set; }
+    /// <value>The application command line.</value>
+    [Option("app")]
+    public string? AppCommandLine { get; set; }
 
-        /// <summary>
-        /// Gets or sets the project directory.
-        /// </summary>
-        /// <value>The project directory.</value>
-        [Option("projectDir")]
-        public string? ProjectDirectory { get; set; }
+    /// <summary>
+    /// Gets or sets the project directory.
+    /// </summary>
+    /// <value>The project directory.</value>
+    [Option("projectDir")]
+    public string? ProjectDirectory { get; set; }
 
-        /// <summary>
-        /// Gets or sets the unreal sharp intermediate directory.
-        /// </summary>
-        /// <value>The unreal sharp intermediate directory.</value>
-        [Option("unrealsharpIntermediateDir")]
-        public string? UnrealSharpIntermediateDirectory { get; set; }
-    }
+    /// <summary>
+    /// Gets or sets the unreal sharp intermediate directory.
+    /// </summary>
+    /// <value>The unreal sharp intermediate directory.</value>
+    [Option("unrealsharpIntermediateDir")]
+    public string? UnrealSharpIntermediateDirectory { get; set; }
 }

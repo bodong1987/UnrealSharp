@@ -12,8 +12,8 @@
     <PublishAot>true</PublishAot>
     <IsAotCompatible>True</IsAotCompatible>
     <IsTrimmable>False</IsTrimmable>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <FileVersion>1.1.0.0</FileVersion>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <FileVersion>1.2.0.0</FileVersion>
   </PropertyGroup>    
     <PropertyGroup Condition="'$(Configuration)'=='Debug'">
 	    <OutputPath>../../Publish/UnrealSharpTool/DotNET</OutputPath>

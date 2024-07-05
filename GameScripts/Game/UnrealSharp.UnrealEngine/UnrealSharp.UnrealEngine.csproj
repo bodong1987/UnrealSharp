@@ -1,19 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net8.0</TargetFrameworks>	
+    <TargetFramework>net8.0</TargetFramework>	
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>	
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <IsAotCompatible>True</IsAotCompatible>
     <IsTrimmable>True</IsTrimmable>
-    <AssemblyVersion>1.0.0.12</AssemblyVersion>
-    <FileVersion>1.0.0.12</FileVersion>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <FileVersion>1.2.0.0</FileVersion>
 	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>    
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="UnrealSharp.Toolkit" Version="1.0.0.12" />
+    <PackageReference Include="UnrealSharp.Toolkit" Version="1.2.1.0" />
   </ItemGroup>
 </Project>

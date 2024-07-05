@@ -36,7 +36,6 @@
 #include "ProfilingDebugging/ScopedTimers.h"
 #include "TypeValidation.h"
 #include "Classes/UnrealSharpSettings.h"
-#include "SharpBindingGenSettings.h"
 #include "ICSharpRuntime.h"
 
 IMPLEMENT_MODULE(FUnrealSharpEditorModule, UnrealSharpEditor)
@@ -44,8 +43,9 @@ IMPLEMENT_MODULE(FUnrealSharpEditorModule, UnrealSharpEditor)
 static FAutoConsoleCommand ForceRefreshCSharpCodeDatabaseCommand(
     TEXT("UnrealSharp.RefreshDatabase"),
     TEXT("Force recreate C# import assets from C# generated database from $(ProjectDir)Managed/*.tdb"),
-    FConsoleCommandDelegate::CreateLambda([]() {
-        FUnrealSharpEditorModule* Module = (FUnrealSharpEditorModule*)FModuleManager::Get().GetModule(TEXT("UnrealSharpEditor"));
+    FConsoleCommandDelegate::CreateLambda([]
+    {
+        FUnrealSharpEditorModule* Module = (FUnrealSharpEditorModule*)FModuleManager::Get().GetModule(TEXT("UnrealSharpEditor")); // NOLINT
         check(Module != nullptr);
 
         Module->RefreshCSharpImportBlueprintAssets(true);
@@ -54,31 +54,34 @@ static FAutoConsoleCommand ForceRefreshCSharpCodeDatabaseCommand(
 static FAutoConsoleCommand ForceExportNativeBindingCodesCommand(
     TEXT("UnrealSharp.ExportUnrealCppDatabase"),
     *FString::Printf(TEXT("Force export Unreal C++ types database file to %s"), *UnrealSharp::FUnrealSharpPaths::GetDefaultUnrealCppDatabaseFilePath()),
-    FConsoleCommandDelegate::CreateLambda([]() {
-        FUnrealSharpEditorModule* Module = (FUnrealSharpEditorModule*)FModuleManager::Get().GetModule(TEXT("UnrealSharpEditor"));
+    FConsoleCommandDelegate::CreateLambda([]
+    {
+        FUnrealSharpEditorModule* Module = (FUnrealSharpEditorModule*)FModuleManager::Get().GetModule(TEXT("UnrealSharpEditor")); // NOLINT
         check(Module != nullptr);
 
-        Module->ExportDatabase(UnrealSharp::EUnrealTypeDatabaseExportFlags::WITH_CPP, false);
+        Module->ExportDatabase(UnrealSharp::EUnrealTypeDatabaseExportFlags::WithCPP, false);
     }));
 
 static FAutoConsoleCommand ForceExportBlueprintBindingCodesCommand(
     TEXT("UnrealSharp.ExportBlueprintDatabase"),
     *FString::Printf(TEXT("Force export Unreal Blueprint types database file to %s[Need Enable Blueprint Binding Support]"), *UnrealSharp::FUnrealSharpPaths::GetDefaultUnrealBlueprintDatabaseFilePath()),
-    FConsoleCommandDelegate::CreateLambda([]() {
-        FUnrealSharpEditorModule* Module = (FUnrealSharpEditorModule*)FModuleManager::Get().GetModule(TEXT("UnrealSharpEditor"));
+    FConsoleCommandDelegate::CreateLambda([]
+    {
+        FUnrealSharpEditorModule* Module = (FUnrealSharpEditorModule*)FModuleManager::Get().GetModule(TEXT("UnrealSharpEditor")); // NOLINT
         check(Module != nullptr);
 
-        Module->ExportDatabase(UnrealSharp::EUnrealTypeDatabaseExportFlags::WITH_Blueprint, false);
+        Module->ExportDatabase(UnrealSharp::EUnrealTypeDatabaseExportFlags::WithBlueprint, false);
         }));
 
 static FAutoConsoleCommand ForceExportBindingCodesCommand(
     TEXT("UnrealSharp.ExportDatabase"),
     *FString::Printf(TEXT("Force Export Unreal C++/Blueprint type database file to %s and %s[Need Enable Blueprint Binding Support]"), *UnrealSharp::FUnrealSharpPaths::GetDefaultUnrealCppDatabaseFilePath(), *UnrealSharp::FUnrealSharpPaths::GetDefaultUnrealBlueprintDatabaseFilePath()),
-    FConsoleCommandDelegate::CreateLambda([]() {
-        FUnrealSharpEditorModule* Module = (FUnrealSharpEditorModule*)FModuleManager::Get().GetModule(TEXT("UnrealSharpEditor"));
+    FConsoleCommandDelegate::CreateLambda([]
+    {
+        FUnrealSharpEditorModule* Module = (FUnrealSharpEditorModule*)FModuleManager::Get().GetModule(TEXT("UnrealSharpEditor")); // NOLINT
         check(Module != nullptr);
 
-        Module->ExportDatabase(UnrealSharp::EUnrealTypeDatabaseExportFlags::WITH_CPP| UnrealSharp::EUnrealTypeDatabaseExportFlags::WITH_Blueprint, false);
+        Module->ExportDatabase(UnrealSharp::EUnrealTypeDatabaseExportFlags::WithCPP| UnrealSharp::EUnrealTypeDatabaseExportFlags::WithBlueprint, false);
         }));
 
 FUnrealSharpEditorModule::FUnrealSharpEditorModule()
@@ -112,7 +115,7 @@ void FUnrealSharpEditorModule::ShutdownModule()
 
 void FUnrealSharpEditorModule::AddExportDatabaseMenu()
 {
-    TSharedPtr<FExtender> MenuExtender = MakeShareable(new FExtender());
+    const TSharedPtr<FExtender> MenuExtender = MakeShareable(new FExtender());
     MenuExtender->AddMenuExtension("Python",
         EExtensionHook::After,
         nullptr,
@@ -121,9 +124,9 @@ void FUnrealSharpEditorModule::AddExportDatabaseMenu()
             InBuilder.AddSubMenu(
                 FText::FromString("UnrealSharp"),
                 FText::FromName("Unreal Sharp Tools"),                
-                FNewMenuDelegate::CreateLambda([US_LAMBDA_CAPTURE_THIS](FMenuBuilder& SubMemuBuilder)
+                FNewMenuDelegate::CreateLambda([US_LAMBDA_CAPTURE_THIS](FMenuBuilder& SubMenuBuilder)
                     {
-                        SubMemuBuilder.AddMenuEntry(
+                        SubMenuBuilder.AddMenuEntry(
                             FText::FromString("Export C++ Database"),
                             FText::FromString(
                                 FString::Printf(
@@ -135,7 +138,7 @@ void FUnrealSharpEditorModule::AddExportDatabaseMenu()
                             FUIAction(FExecuteAction::CreateRaw(this, &FUnrealSharpEditorModule::OnExportUnrealCppDatabase, true))
                         );
 
-                        SubMemuBuilder.AddMenuEntry(
+                        SubMenuBuilder.AddMenuEntry(
                             FText::FromString("Export Blueprint Database"),
                             FText::FromString(
                                 FString::Printf(
@@ -147,9 +150,9 @@ void FUnrealSharpEditorModule::AddExportDatabaseMenu()
                             FUIAction(FExecuteAction::CreateRaw(this, &FUnrealSharpEditorModule::OnExportBlueprintDatabase, true))
                         );
 
-                        SubMemuBuilder.AddSeparator();
+                        SubMenuBuilder.AddSeparator();
 
-                        SubMemuBuilder.AddMenuEntry(
+                        SubMenuBuilder.AddMenuEntry(
                             FText::FromString("Export Database"),
                             FText::FromString("Automatically export all C# binding databases for you"),
                             FSlateIcon(),
@@ -193,11 +196,11 @@ void FUnrealSharpEditorModule::OnExportBlueprintDatabase(bool bInStrongReminder)
     DoExportDatabase(UnrealSharp::FUnrealSharpPaths::GetDefaultUnrealBlueprintDatabaseFilePath(), UnrealSharp::ETypeValidationFlags::WithBlueprintType, bInStrongReminder);
 }
 
-void FUnrealSharpEditorModule::DoExportDatabase(const FString& InDatabaseFilePath, UnrealSharp::ETypeValidationFlags InFlags, bool bInStrongReminder)
+void FUnrealSharpEditorModule::DoExportDatabase(const FString& InDatabaseFilePath, UnrealSharp::ETypeValidationFlags InFlags, bool bInStrongReminder) // NOLINT
 {    
     UnrealSharp::FTypeValidation TypeValidation;
 
-    TUniquePtr<UnrealSharp::FTypeDefinitionDocument> Document = MakeUnique<UnrealSharp::FTypeDefinitionDocument>();
+    const TUniquePtr<UnrealSharp::FTypeDefinitionDocument> Document = MakeUnique<UnrealSharp::FTypeDefinitionDocument>();
     Document->LoadFromEngine(&TypeValidation, InFlags);
 
     if (!Document->SaveToFile(*InDatabaseFilePath))
@@ -231,12 +234,12 @@ void FUnrealSharpEditorModule::OnAutoExportAllDatabase()
 
 void FUnrealSharpEditorModule::ExportDatabase(UnrealSharp::EUnrealTypeDatabaseExportFlags InFlags, bool bInStrongReminder)
 {
-    if (((int)InFlags & (int)UnrealSharp::EUnrealTypeDatabaseExportFlags::WITH_CPP) != 0)
+    if ((static_cast<int>(InFlags) & static_cast<int>(UnrealSharp::EUnrealTypeDatabaseExportFlags::WithCPP)) != 0)
     {
         OnExportUnrealCppDatabase(bInStrongReminder);
     }
 
-    if (((int)InFlags & (int)UnrealSharp::EUnrealTypeDatabaseExportFlags::WITH_Blueprint) != 0)
+    if ((static_cast<int>(InFlags) & static_cast<int>(UnrealSharp::EUnrealTypeDatabaseExportFlags::WithBlueprint)) != 0)
     {
         const UUnrealSharpSettings* Settings = GetDefault<UUnrealSharpSettings>();
         if (Settings->bSupportBlueprintBinding)
@@ -246,11 +249,11 @@ void FUnrealSharpEditorModule::ExportDatabase(UnrealSharp::EUnrealTypeDatabaseEx
     }
 }
 
-int FUnrealSharpEditorModule::LaunchExternalProcess(const FString& InExecutablePath, const FString& InCommandArgument)
+int FUnrealSharpEditorModule::LaunchExternalProcess(const FString& InExecutablePath, const FString& InCommandArgument) // NOLINT
 {
-    const bool bLaunchDetached = false;
-    const bool bLaunchHidden = true;
-    const bool bLaunchReallyHidden = bLaunchHidden;
+    constexpr bool bLaunchDetached = false;
+    constexpr bool bLaunchHidden = true;
+    constexpr bool bLaunchReallyHidden = bLaunchHidden;
 
     int ReturnCode = 0;
     void* PipeRead = nullptr;
@@ -325,7 +328,7 @@ int FUnrealSharpEditorModule::LaunchExternalProcess(const FString& InExecutableP
 
 bool FUnrealSharpEditorModule::IsReimportRequired(TSharedPtr<UnrealSharp::FCSharpBlueprintImportDatabase>& OutImportDatabase, TSharedPtr<UnrealSharp::FCSharpBlueprintImportDatabase>& OutNewDataBase) const
 {
-    FString ManagedDirectory = UnrealSharp::FUnrealSharpPaths::GetUnrealSharpManagedLibraryDir();
+    const FString ManagedDirectory = UnrealSharp::FUnrealSharpPaths::GetUnrealSharpManagedLibraryDir();
 
     OutImportDatabase = MakeShared<UnrealSharp::FCSharpBlueprintImportDatabase>();
     OutNewDataBase = MakeShared<UnrealSharp::FCSharpBlueprintImportDatabase>();
@@ -375,7 +378,7 @@ void FUnrealSharpEditorModule::RefreshCSharpImportBlueprintAssets(bool bForceRec
     }
 }
 
-bool FUnrealSharpEditorModule::ForceReloadCSharpTypes()
+bool FUnrealSharpEditorModule::ForceReloadCSharpTypes() // NOLINT
 {
     TArray<FString> Result;
     IFileManager& FileManager = IFileManager::Get();
@@ -400,19 +403,19 @@ bool FUnrealSharpEditorModule::ForceReloadCSharpTypes()
         Document->Merge(MoveTemp(*ThisDocument));
     }
 
-    TUniquePtr<UnrealSharp::FCSharpBlueprintGenerator> Generator = MakeUnique<UnrealSharp::FCSharpBlueprintGenerator>(Document);
+    const TUniquePtr<UnrealSharp::FCSharpBlueprintGenerator> Generator = MakeUnique<UnrealSharp::FCSharpBlueprintGenerator>(Document);
 
     Generator->Process();
 
     return true;
 }
 
-void FUnrealSharpEditorModule::OnPreBeginPIE(bool bIsSimulating)
+void FUnrealSharpEditorModule::OnPreBeginPIE(bool bIsSimulating) // NOLINT
 {
 
 }
 
-void FUnrealSharpEditorModule::OnEndPIE(bool bIsSimulating)
+void FUnrealSharpEditorModule::OnEndPIE(bool bIsSimulating) // NOLINT
 {
     if (bNeedReimportWhenPlaying)
     {
@@ -422,7 +425,7 @@ void FUnrealSharpEditorModule::OnEndPIE(bool bIsSimulating)
     }
 }
 
-void FUnrealSharpEditorModule::OnMainFrameCreationFinished(TSharedPtr<SWindow> InRootWindow, bool bIsRunningStartupDialog)
+void FUnrealSharpEditorModule::OnMainFrameCreationFinished(TSharedPtr<SWindow> InRootWindow, bool bIsRunningStartupDialog) // NOLINT
 {
     InRootWindow->GetOnWindowActivatedEvent().AddRaw(this, &FUnrealSharpEditorModule::OnMainFrameWindowActivated);    
 }

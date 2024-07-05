@@ -26,7 +26,7 @@
 
 using UnrealBuildTool;
 
-
+// ReSharper disable all
 /// <summary>
 /// This Module is mainly used to generate FTypeDefinitionDocument, a document that describes type information. 
 /// This document has an implementation on both the C++ and C# sides, and the data of the two can be communicated with each other. 
@@ -53,3 +53,4 @@ public class SharpBindingGen : ModuleRules
         );
     }
 }
+// ReSharper restore all

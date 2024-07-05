@@ -25,58 +25,57 @@
 */
 using UnrealSharp.UnrealEngine.InteropService;
 
-namespace UnrealSharp.UnrealEngine
+namespace UnrealSharp.UnrealEngine;
+
+partial class UWorld
 {
-    partial class UWorld
+    /// <summary>
+    /// Spawns the actor.
+    /// </summary>
+    /// <param name="class">The class.</param>
+    /// <param name="transform">The transform.</param>
+    /// <returns>System.Nullable&lt;AActor&gt;.</returns>
+    public AActor? SpawnActor(UClass? @class, ref FTransform transform)
     {
-        /// <summary>
-        /// Spawns the actor.
-        /// </summary>
-        /// <param name="class">The class.</param>
-        /// <param name="transform">The transform.</param>
-        /// <returns>System.Nullable&lt;AActor&gt;.</returns>
-        public AActor? SpawnActor(UClass? @class, ref FTransform transform)
-        {
-            return ActorInteropUtils.SpawnActor(this, @class, ref transform);
-        }
+        return ActorInteropUtils.SpawnActor(this, @class, ref transform);
+    }
 
-        /// <summary>
-        /// Spawns the actor.
-        /// </summary>
-        /// <param name="class">The class.</param>
-        /// <param name="location">The location.</param>
-        /// <param name="rotation">The rotation.</param>
-        /// <returns>System.Nullable&lt;AActor&gt;.</returns>
-        public AActor? SpawnActor(UClass? @class, FVector location, FRotator rotation)
-        {
-            return ActorInteropUtils.SpawnActor(this, @class, location, rotation);
-        }
+    /// <summary>
+    /// Spawns the actor.
+    /// </summary>
+    /// <param name="class">The class.</param>
+    /// <param name="location">The location.</param>
+    /// <param name="rotation">The rotation.</param>
+    /// <returns>System.Nullable&lt;AActor&gt;.</returns>
+    public AActor? SpawnActor(UClass? @class, FVector location, FRotator rotation)
+    {
+        return ActorInteropUtils.SpawnActor(this, @class, location, rotation);
+    }
 
-        /// <summary>
-        /// Spawns the actor.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="transform">The transform.</param>
-        /// <returns>System.Nullable&lt;T&gt;.</returns>
-        public T? SpawnActor<T>(ref FTransform transform) where T : AActor
-        {
-            var result = SpawnActor(UClass.GetClassOf<T>(), ref transform);
+    /// <summary>
+    /// Spawns the actor.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="transform">The transform.</param>
+    /// <returns>System.Nullable&lt;T&gt;.</returns>
+    public T? SpawnActor<T>(ref FTransform transform) where T : AActor
+    {
+        var result = SpawnActor(UClass.GetClassOf<T>(), ref transform);
 
-            return result as T;
-        }
+        return result as T;
+    }
 
-        /// <summary>
-        /// Spawns the actor.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="location">The location.</param>
-        /// <param name="rotation">The rotation.</param>
-        /// <returns>System.Nullable&lt;T&gt;.</returns>
-        public T? SpawnActor<T>(FVector location, FRotator rotation) where T : AActor
-        {
-            var result = SpawnActor(UClass.GetClassOf<T>(), location, rotation);
+    /// <summary>
+    /// Spawns the actor.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="location">The location.</param>
+    /// <param name="rotation">The rotation.</param>
+    /// <returns>System.Nullable&lt;T&gt;.</returns>
+    public T? SpawnActor<T>(FVector location, FRotator rotation) where T : AActor
+    {
+        var result = SpawnActor(UClass.GetClassOf<T>(), location, rotation);
 
-            return result as T;
-        }
+        return result as T;
     }
 }

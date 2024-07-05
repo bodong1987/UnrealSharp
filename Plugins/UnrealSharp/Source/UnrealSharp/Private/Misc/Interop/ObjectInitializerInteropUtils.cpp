@@ -37,55 +37,55 @@ namespace UnrealSharp
     {
         check(InObjectInitializer);
 
-        UObject* Obj = InObjectInitializer->GetObj();
+        const UObject* Obj = InObjectInitializer->GetObj();
 
         return GetCSharpObjectOfUnrealObject(Obj);
     }
 
-    FCSharpObjectMarshalValue FInteropUtils::CreateDefaultSubobjectOfObjectInitializer(const FObjectInitializer* InObjectInitializer, UObject* InOuter, const char* InSubobjectNameString, UClass* InReturnType, UClass* InClassToCreateByDefault, bool bIsRequired, bool bIsTransient)
+    FCSharpObjectMarshalValue FInteropUtils::CreateDefaultSubobjectOfObjectInitializer(const FObjectInitializer* InObjectInitializer, UObject* InOuter, const char* InSubobjectNameString, UClass* InReturnType, UClass* InClassToCreateByDefault, bool bIsRequired, bool bIsTransient) // NOLINT
     {
         check(InObjectInitializer);
 
-        UObject* Target = InObjectInitializer->CreateDefaultSubobject(InOuter, UNREALSHARP_STRING_TO_TCHAR(InSubobjectNameString), InReturnType, InClassToCreateByDefault, bIsRequired, bIsTransient);
+        const UObject* Target = InObjectInitializer->CreateDefaultSubobject(InOuter, US_STRING_TO_TCHAR(InSubobjectNameString), InReturnType, InClassToCreateByDefault, bIsRequired, bIsTransient);
 
         return GetCSharpObjectOfUnrealObject(Target);
     }
 
-    FCSharpObjectMarshalValue FInteropUtils::CreateEditorOnlyDefaultSubobjectOfObjectInitializer(const FObjectInitializer* InObjectInitializer, UObject* InOuter, const char* InSubobjectNameString, UClass* InReturnType, bool bIsTransient)
+    FCSharpObjectMarshalValue FInteropUtils::CreateEditorOnlyDefaultSubobjectOfObjectInitializer(const FObjectInitializer* InObjectInitializer, UObject* InOuter, const char* InSubobjectNameString, UClass* InReturnType, bool bIsTransient) // NOLINT
     {
         check(InObjectInitializer);
 
-        UObject* Target = InObjectInitializer->CreateEditorOnlyDefaultSubobject(InOuter, UNREALSHARP_STRING_TO_TCHAR(InSubobjectNameString), InReturnType, bIsTransient);
+        const UObject* Target = InObjectInitializer->CreateEditorOnlyDefaultSubobject(InOuter, US_STRING_TO_TCHAR(InSubobjectNameString), InReturnType, bIsTransient);
 
         return GetCSharpObjectOfUnrealObject(Target);
     }
 
-    void FInteropUtils::SetDefaultSubobjectClassOfObjectInitializer(const FObjectInitializer* InObjectInitializer, const char* InSubobjectNameString, UClass* InClass)
+    void FInteropUtils::SetDefaultSubobjectClassOfObjectInitializer(const FObjectInitializer* InObjectInitializer, const char* InSubobjectNameString, UClass* InClass) // NOLINT
     {
         check(InObjectInitializer);
 
-        InObjectInitializer->SetDefaultSubobjectClass(UNREALSHARP_STRING_TO_TCHAR(InSubobjectNameString), InClass);
+        InObjectInitializer->SetDefaultSubobjectClass(US_STRING_TO_TCHAR(InSubobjectNameString), InClass);
     }
 
     void FInteropUtils::DoNotCreateDefaultSubobjectOfObjectInitializer(const FObjectInitializer* InObjectInitializer, const char* InSubobjectNameString)
     {
         check(InObjectInitializer);
 
-        InObjectInitializer->DoNotCreateDefaultSubobject(UNREALSHARP_STRING_TO_TCHAR(InSubobjectNameString));
+        InObjectInitializer->DoNotCreateDefaultSubobject(US_STRING_TO_TCHAR(InSubobjectNameString));
     }
 
-    void FInteropUtils::SetNestedDefaultSubobjectClassOfObjectInitializer(const FObjectInitializer* InObjectInitializer, const char* InSubobjectNameString, UClass* InClass)
+    void FInteropUtils::SetNestedDefaultSubobjectClassOfObjectInitializer(const FObjectInitializer* InObjectInitializer, const char* InSubobjectNameString, UClass* InClass) // NOLINT
     {
         check(InObjectInitializer);
 
-        InObjectInitializer->SetNestedDefaultSubobjectClass(UNREALSHARP_STRING_TO_TCHAR(InSubobjectNameString), InClass);
+        InObjectInitializer->SetNestedDefaultSubobjectClass(US_STRING_TO_TCHAR(InSubobjectNameString), InClass);
     }
 
     void FInteropUtils::DoNotCreateNestedDefaultSubobjectOfObjectInitializer(const FObjectInitializer* InObjectInitializer, const char* InSubobjectNameString)
     {
         check(InObjectInitializer);
 
-        InObjectInitializer->DoNotCreateNestedDefaultSubobject(UNREALSHARP_STRING_TO_TCHAR(InSubobjectNameString));
+        InObjectInitializer->DoNotCreateNestedDefaultSubobject(US_STRING_TO_TCHAR(InSubobjectNameString));
     }
 }
 

@@ -36,11 +36,11 @@ namespace UnrealSharp::Mono
     {
         if (bInWeakReference)
         {
-            Handle = mono_gchandle_new_weakref((MonoObject*)InCSharpObject, false);
+            Handle = mono_gchandle_new_weakref((MonoObject*)InCSharpObject, false); // NOLINT
         }
         else
         {
-            Handle = mono_gchandle_new((MonoObject*)InCSharpObject, false);
+            Handle = mono_gchandle_new((MonoObject*)InCSharpObject, false); // NOLINT
         }
     }
 
@@ -67,7 +67,7 @@ namespace UnrealSharp::Mono
     {
         check(Handle != 0);
 
-        return (void*)mono_gchandle_get_target(Handle);
+        return mono_gchandle_get_target(Handle); 
     }
 }
 #endif

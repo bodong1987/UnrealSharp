@@ -63,7 +63,7 @@ namespace UnrealSharp
         return InSoftObjectPtr != nullptr && InSoftObjectPtr->IsNull();
     }
 
-    UObject* FInteropUtils::GetUnrealObjectPointerOfSoftObjectPtr(FSoftObjectPtr* InSoftObjectPtr)
+    UObject* FInteropUtils::GetUnrealObjectPointerOfSoftObjectPtr(FSoftObjectPtr* InSoftObjectPtr) // NOLINT
     {
         if (InSoftObjectPtr == nullptr)
         {
@@ -73,14 +73,14 @@ namespace UnrealSharp
         return InSoftObjectPtr->Get();
     }
 
-    UObject* FInteropUtils::GetUnrealObjectPointerOfSoftObjectPtrEx(FSoftObjectPtr* InSoftObjectPtr, bool evenIfPendingKill)
+    UObject* FInteropUtils::GetUnrealObjectPointerOfSoftObjectPtrEx(FSoftObjectPtr* InSoftObjectPtr, bool bInEvenIfPendingKill)
     {
         if (InSoftObjectPtr == nullptr)
         {
             return nullptr;
         }
 
-        return ((TPersistentObjectPtr<FSoftObjectPath>*)InSoftObjectPtr)->Get(evenIfPendingKill);
+        return ((TPersistentObjectPtr<FSoftObjectPath>*)InSoftObjectPtr)->Get(bInEvenIfPendingKill); // NOLINT
     }
 
     FSoftObjectPath* FInteropUtils::GetObjectIdPointerOfSoftObjectPtr(FSoftObjectPtr* InSoftObjectPtr)
@@ -93,7 +93,7 @@ namespace UnrealSharp
         return &InSoftObjectPtr->GetUniqueID();
     }
 
-    UObject* FInteropUtils::LoadSynchronousSoftObjectPtr(FSoftObjectPtr* InSoftObjectPtr)
+    UObject* FInteropUtils::LoadSynchronousSoftObjectPtr(FSoftObjectPtr* InSoftObjectPtr) // NOLINT
     {
         return InSoftObjectPtr != nullptr ? InSoftObjectPtr->LoadSynchronous() : nullptr;
     }

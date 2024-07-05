@@ -34,10 +34,10 @@ namespace UnrealSharp
             return nullptr;
         }
 
-        static thread_local FString s_Temp;
-        s_Temp = InTextPtr->ToString();
+        static thread_local FString S_Temp; // NOLINT
+        S_Temp = InTextPtr->ToString();
 
-        return *s_Temp;
+        return *S_Temp;
     }
 
     const TCHAR* FInteropUtils::GetTextCSharpMarshalStringFromCSharpString(const char* InCSharpMarshalString)
@@ -47,14 +47,14 @@ namespace UnrealSharp
             return nullptr;
         }
 
-        FText text = FText::FromStringView(UNREALSHARP_STRING_TO_TCHAR(InCSharpMarshalString));
+        const FText Text = FText::FromStringView(US_STRING_TO_TCHAR(InCSharpMarshalString));
 
-        return GetTextCSharpMarshalStringFromUnrealText(&text);
+        return GetTextCSharpMarshalStringFromUnrealText(&Text);
     }
 
     void FInteropUtils::SetUnrealTextFromCSharpString(FText* InTextPtr, const char* InCSharpMarshalString)
     {
-        *InTextPtr = FText::FromStringView(UNREALSHARP_STRING_TO_TCHAR(InCSharpMarshalString));
+        *InTextPtr = FText::FromStringView(US_STRING_TO_TCHAR(InCSharpMarshalString));
     }
 }
 

@@ -43,40 +43,40 @@ namespace UnrealSharp
 
     int FInteropUtils::GetLengthOfMap(const void* InAddressOfMap, const FMapProperty* InMapProperty)
     {
-        FScriptMapHelper Helper(InMapProperty, InAddressOfMap);
+        const FScriptMapHelper Helper(InMapProperty, InAddressOfMap);
 
         return Helper.Num();
     }
 
-    void FInteropUtils::ClearMap(void* InAddressOfMap, const FMapProperty* InMapProperty)
+    void FInteropUtils::ClearMap(void* InAddressOfMap, const FMapProperty* InMapProperty)  // NOLINT
     {
         FScriptMapHelper Helper(InMapProperty, InAddressOfMap);
 
         Helper.EmptyValues();
     }
 
-    const void* FInteropUtils::GetKeyAddressOfMapElement(void* InAddressOfMap, const FMapProperty* InMapProperty, int InIndex)
+    const void* FInteropUtils::GetKeyAddressOfMapElement(void* InAddressOfMap, const FMapProperty* InMapProperty, int InIndex)  // NOLINT
     {
         FScriptMapHelper Helper(InMapProperty, InAddressOfMap);
 
         return Helper.GetKeyPtr(InIndex);
     }
 
-    void* FInteropUtils::GetValueAddressOfMapElement(void* InAddressOfMap, const FMapProperty* InMapProperty, int InIndex)
+    void* FInteropUtils::GetValueAddressOfMapElement(void* InAddressOfMap, const FMapProperty* InMapProperty, int InIndex)  // NOLINT
     {
         FScriptMapHelper Helper(InMapProperty, InAddressOfMap);
 
         return Helper.GetValuePtr(InIndex);
     }
 
-    FMapKeyValueAddressPair FInteropUtils::GetAddressOfMapElement(void* InAddressOfMap, const FMapProperty* InMapProperty, int InIndex)
+    FMapKeyValueAddressPair FInteropUtils::GetAddressOfMapElement(void* InAddressOfMap, const FMapProperty* InMapProperty, int InIndex) // NOLINT
     {
         FScriptMapHelper Helper(InMapProperty, InAddressOfMap);
 
         return {Helper.GetKeyPtr(InIndex), Helper.GetValuePtr(InIndex)};
     }
 
-    void* FInteropUtils::FindValueAddressOfElementKey(void* InAddressOfMap, const FMapProperty* InMapProperty, const void* InAddressOfKeyElementTarget)
+    void* FInteropUtils::FindValueAddressOfElementKey(void* InAddressOfMap, const FMapProperty* InMapProperty, const void* InAddressOfKeyElementTarget) // NOLINT
     {
         FScriptMapHelper Helper(InMapProperty, InAddressOfMap);
 
@@ -85,7 +85,7 @@ namespace UnrealSharp
         return ValueAddress;
     }
 
-    bool FInteropUtils::TryAddNewElementToMap(void* InAddressOfMap, const FMapProperty* InMapProperty, const void* InAddressOfKeyElementTarget, const void* InAddressOfValueElementTarget, bool InOverrideIfExists)
+    bool FInteropUtils::TryAddNewElementToMap(void* InAddressOfMap, const FMapProperty* InMapProperty, const void* InAddressOfKeyElementTarget, const void* InAddressOfValueElementTarget, bool InOverrideIfExists) // NOLINT
     {
         FScriptMapHelper Helper(InMapProperty, InAddressOfMap);
 
@@ -98,7 +98,7 @@ namespace UnrealSharp
             return true;
         }
 
-        void* ValueAddress = Helper.FindValueFromHash(InAddressOfKeyElementTarget);
+        const void* ValueAddress = Helper.FindValueFromHash(InAddressOfKeyElementTarget);
 
         if (ValueAddress != nullptr)
         {
@@ -110,7 +110,7 @@ namespace UnrealSharp
         return true;
     }
 
-    bool FInteropUtils::RemoveElementFromMap(void* InAddressOfMap, const FMapProperty* InMapProperty, const void* InAddressOfKeyElementTarget)
+    bool FInteropUtils::RemoveElementFromMap(void* InAddressOfMap, const FMapProperty* InMapProperty, const void* InAddressOfKeyElementTarget) // NOLINT
     {
         FScriptMapHelper Helper(InMapProperty, InAddressOfMap);
 

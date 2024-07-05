@@ -29,7 +29,6 @@
 
 #if WITH_MONO
 #include "MonoRuntime/MonoInteropUtils.h"
-#include "Misc/ScopedExit.h"
 #include "ICSharpRuntime.h"
 #include "ICSharpLibraryAccessor.h"
 
@@ -59,7 +58,7 @@ namespace UnrealSharp::Mono
     {
         checkSlow(InProperty!=nullptr);
 
-        auto Class = InProperty->GetClass();
+        const auto Class = InProperty->GetClass();
 
         return GetMarshaller(Class);
     }
@@ -72,7 +71,7 @@ namespace UnrealSharp::Mono
 
         checkf(Ptr != nullptr, TEXT("Failed find Marshaller for type:%s"), *InFieldClass->GetName());
 
-        return (*Ptr).Get();
+        return Ptr->Get();
     }
 
     void FPropertyMarshaller::CopyValue(const void* InDestination, const void* InSource, FProperty* InProperty) const
@@ -132,12 +131,12 @@ namespace UnrealSharp::Mono
     {
         check(InCSharpDataPointer);
 
-        MonoObject* ObjectPtr = (MonoObject*)InCSharpDataPointer;
-        MonoClass* klass = mono_object_get_class(ObjectPtr);
+        MonoObject* ObjectPtr = (MonoObject*)InCSharpDataPointer;// NOLINT
+        MonoClass* Klass = mono_object_get_class(ObjectPtr);
 
-        if (mono_class_is_valuetype(klass))
+        if (mono_class_is_valuetype(Klass))
         {
-            void* RawAddress = mono_object_unbox(ObjectPtr);
+            const void* RawAddress = mono_object_unbox(ObjectPtr);
 
             CopyProperty(InUnrealDataPointer, RawAddress, InProperty, EMarshalCopyDirection::CSharpToUnreal);
         }
@@ -186,31 +185,31 @@ namespace UnrealSharp::Mono
     {        
         checkSlow(InDestination && InSource);
         
-        const int EnumSize = InProperty->GetSize();
+        const int EnumSize = InProperty->GetSize();// NOLINT
 
         switch (EnumSize)
         {
             case sizeof(ELocalTempEnumSize8) :
             {
-                *(ELocalTempEnumSize8*)InDestination = *(const ELocalTempEnumSize8*)InSource;
+                *(ELocalTempEnumSize8*)InDestination = *(const ELocalTempEnumSize8*)InSource;// NOLINT
             }
             break;
 
             case sizeof(ELocalTempEnumSize32) :
             {
-                *(ELocalTempEnumSize32*)InDestination = *(const ELocalTempEnumSize32*)InSource;
+                *(ELocalTempEnumSize32*)InDestination = *(const ELocalTempEnumSize32*)InSource; // NOLINT
             }
             break;
 
             case sizeof(ELocalTempEnumSize64) :
             {
-                *(ELocalTempEnumSize64*)InDestination = *(const ELocalTempEnumSize64*)InSource;
+                *(ELocalTempEnumSize64*)InDestination = *(const ELocalTempEnumSize64*)InSource; // NOLINT
             }
             break;
 
             case sizeof(ELocalTempEnumSize16) :
             {
-                *(ELocalTempEnumSize16*)InDestination = *(const ELocalTempEnumSize16*)InSource;
+                *(ELocalTempEnumSize16*)InDestination = *(const ELocalTempEnumSize16*)InSource; // NOLINT
             }
             break;
             default:
@@ -223,7 +222,7 @@ namespace UnrealSharp::Mono
     void* FStrPropertyMarshaller::GetPassToCSharpPointer(const FPropertyMarshallerParameters& InParameters) const
     {
         // MonoString* is MonoObject*
-        MonoString* CSharpString = FMonoInteropUtils::GetMonoString(*(FString*)InParameters.InputAddress);
+        MonoString* CSharpString = FMonoInteropUtils::GetMonoString(*(FString*)InParameters.InputAddress); // NOLINT
 
         if (InParameters.bPassAsReference)
         {
@@ -244,17 +243,17 @@ namespace UnrealSharp::Mono
     {
         if (InCopyDirection == EMarshalCopyDirection::CSharpToUnreal)
         {
-            MonoString* CSharpString = (MonoString*)InCSharpDataPointer;
+            MonoString* CSharpString = (MonoString*)InCSharpDataPointer; // NOLINT
 
-            *(FString*)InUnrealDataPointer = FMonoInteropUtils::GetFString(CSharpString);
+            *(FString*)InUnrealDataPointer = FMonoInteropUtils::GetFString(CSharpString); // NOLINT
         }
         else
         {
             check(InUnrealDataPointer && InCSharpDataPointer);
 
-            MonoString* CSharpString = FMonoInteropUtils::GetMonoString(*(FString*)InUnrealDataPointer);
+            MonoString* CSharpString = FMonoInteropUtils::GetMonoString(*(FString*)InUnrealDataPointer); // NOLINT
 
-            *(MonoString**)InCSharpDataPointer = CSharpString;
+            *(MonoString**)InCSharpDataPointer = CSharpString; // NOLINT
         }
     }
 
@@ -271,8 +270,8 @@ namespace UnrealSharp::Mono
 
     void* FNamePropertyMarshaller::GetPassToCSharpPointer(const FPropertyMarshallerParameters& InParameters) const
     {
-        const FName* NamePtr = (const FName*)InParameters.InputAddress;
-        FName* TempBuffer = (FName*)(InParameters.InputReferenceAddress + 1);
+        const FName* NamePtr = (const FName*)InParameters.InputAddress; // NOLINT
+        FName* TempBuffer = (FName*)(InParameters.InputReferenceAddress + 1); // NOLINT
 
         checkSlow((SIZE_T)(void*)TempBuffer - (SIZE_T)(void*)InParameters.InputReferenceAddress == sizeof(void*));
 
@@ -294,15 +293,15 @@ namespace UnrealSharp::Mono
     {
         if (InCopyDirection == EMarshalCopyDirection::CSharpToUnreal)
         {
-            const FName* NamePtr = (const FName*)InCSharpDataPointer;
+            const FName* NamePtr = (const FName*)InCSharpDataPointer; // NOLINT
 
-            *(FName*)InUnrealDataPointer = *NamePtr;
+            *(FName*)InUnrealDataPointer = *NamePtr; // NOLINT
         }
         else if (InCopyDirection == EMarshalCopyDirection::UnrealToCSharp)
         {
-            const FName* NamePtr = (const FName*)InUnrealDataPointer;
+            const FName* NamePtr = (const FName*)InUnrealDataPointer; // NOLINT
 
-            *(FName*)InCSharpDataPointer = *NamePtr;
+            *(FName*)InCSharpDataPointer = *NamePtr; // NOLINT
         }
     }    
 
@@ -313,10 +312,10 @@ namespace UnrealSharp::Mono
 
     void* FTextPropertyMarshaller::GetPassToCSharpPointer(const FPropertyMarshallerParameters& InParameters) const
     {
-        const FText* TextPtr = (const FText*)InParameters.InputAddress;
-        FString Text = TextPtr->ToString();
+        const FText* TextPtr = (const FText*)InParameters.InputAddress; // NOLINT
+        const FString Text = TextPtr->ToString();
 
-        FCSharpText* TempBuffer = (FCSharpText*)(InParameters.InputReferenceAddress + 1);
+        FCSharpText* TempBuffer = (FCSharpText*)(InParameters.InputReferenceAddress + 1); // NOLINT
         checkSlow((SIZE_T)(void*)TempBuffer - (SIZE_T)(void*)InParameters.InputReferenceAddress == sizeof(void*));
 
         // For special processing of this type, we obtain more temporary space through GetTempParameterBufferSize, 
@@ -337,19 +336,19 @@ namespace UnrealSharp::Mono
     {
         if (InCopyDirection == EMarshalCopyDirection::CSharpToUnreal)
         {
-            FCSharpText* TextPtr = (FCSharpText*)InCSharpDataPointer;
+            FCSharpText* TextPtr = (FCSharpText*)InCSharpDataPointer; // NOLINT
 
-            FString Text = FMonoInteropUtils::GetFString((MonoString*)TextPtr->Text);
+            FString Text = FMonoInteropUtils::GetFString((MonoString*)TextPtr->Text); // NOLINT
 
-            *(FText*)InUnrealDataPointer = FText::FromString(Text);
+            *(FText*)InUnrealDataPointer = FText::FromString(Text); // NOLINT
         }
         else if (InCopyDirection == EMarshalCopyDirection::UnrealToCSharp)
         {
-            const FText* TextPtr = (const FText*)InUnrealDataPointer;
+            const FText* TextPtr = (const FText*)InUnrealDataPointer; // NOLINT
 
-            FCSharpText* CSharpText = (FCSharpText*)InCSharpDataPointer;
+            FCSharpText* CSharpText = (FCSharpText*)InCSharpDataPointer; // NOLINT
 
-            FString Text = TextPtr->ToString();
+            const FString Text = TextPtr->ToString();
 
             CSharpText->Text = FMonoInteropUtils::GetMonoString(Text);
         }
@@ -357,8 +356,8 @@ namespace UnrealSharp::Mono
 
     void* FObjectPropertyMarshaller::GetPassToCSharpPointer(const FPropertyMarshallerParameters& InParameters) const
     {
-        FCSharpObjectMarshalValue Value = FMonoInteropUtils::GetCSharpObjectOfUnrealObject(*(UObject**)InParameters.InputAddress);
-        MonoObject* ObjectPtr = (MonoObject*)Value.ObjectPtr;
+        FCSharpObjectMarshalValue Value = FMonoInteropUtils::GetCSharpObjectOfUnrealObject(*(UObject**)InParameters.InputAddress); // NOLINT
+        MonoObject* ObjectPtr = (MonoObject*)Value.ObjectPtr; // NOLINT
 
         if (InParameters.bPassAsReference)
         {
@@ -374,23 +373,23 @@ namespace UnrealSharp::Mono
     {
         if (InCopyDirection == EMarshalCopyDirection::CSharpToUnreal)
         {
-            MonoObject* ObjectPtr = (MonoObject*)InCSharpDataPointer;
+            MonoObject* ObjectPtr = (MonoObject*)InCSharpDataPointer; // NOLINT
 
             FMonoInteropUtils::DumpMonoObjectInformation(ObjectPtr);
 
             UObject* UnrealObjectPtr = FMonoInteropUtils::GetUnrealObjectOfCSharpObject(ObjectPtr);
 
-            *(UObject**)InUnrealDataPointer = UnrealObjectPtr;
+            *(UObject**)InUnrealDataPointer = UnrealObjectPtr; // NOLINT
         }
         else if (InCopyDirection == EMarshalCopyDirection::UnrealToCSharp)
         {
-            UObject* Param = *(UObject**)InUnrealDataPointer;
+            UObject* Param = *(UObject**)InUnrealDataPointer; // NOLINT
 
-            auto Value = FMonoInteropUtils::GetCSharpObjectOfUnrealObject(Param);
+            const auto Value = FMonoInteropUtils::GetCSharpObjectOfUnrealObject(Param); // NOLINT
 
-            MonoObject* ObjectPtr = (MonoObject*)Value.ObjectPtr;
+            MonoObject* ObjectPtr = (MonoObject*)Value.ObjectPtr; // NOLINT
 
-            *(MonoObject**)InCSharpDataPointer = ObjectPtr;
+            *(MonoObject**)InCSharpDataPointer = ObjectPtr; // NOLINT
         }
     }
 
@@ -414,12 +413,12 @@ namespace UnrealSharp::Mono
 
     void* FClassPropertyMarshaller::GetPassToCSharpPointer(const FPropertyMarshallerParameters& InParameters) const
     {
-        FClassProperty* ClassProperty = CastField<FClassProperty>(InParameters.Property);
+        const FClassProperty* ClassProperty = CastField<FClassProperty>(InParameters.Property);
         check(ClassProperty);
         check(ClassProperty->MetaClass);
 
-        const UClass** AddressOfClassPointer = (const UClass**)InParameters.InputAddress;
-        FCSharpSubclassOf* TempBuffer = (FCSharpSubclassOf*)(InParameters.InputReferenceAddress + 1);
+        const UClass** AddressOfClassPointer = (const UClass**)InParameters.InputAddress; // NOLINT
+        FCSharpSubclassOf* TempBuffer = (FCSharpSubclassOf*)(InParameters.InputReferenceAddress + 1); // NOLINT
 
         checkSlow((SIZE_T)(void*)TempBuffer - (SIZE_T)(void*)InParameters.InputReferenceAddress == sizeof(void*));
 
@@ -442,15 +441,15 @@ namespace UnrealSharp::Mono
         // ClassProperty always use TSubclassOf<T>, so it is always value type.
         check(InCSharpDataPointer);
         
-        MonoObject* ObjectPtr = (MonoObject*)InCSharpDataPointer;
+        MonoObject* ObjectPtr = (MonoObject*)InCSharpDataPointer; // NOLINT
 
 #if !UE_BUILD_SHIPPING
-        MonoClass* klass = mono_object_get_class(ObjectPtr);
+        MonoClass* Klass = mono_object_get_class(ObjectPtr);
 
-        check(mono_class_is_valuetype(klass));
+        check(mono_class_is_valuetype(Klass));
 #endif
 
-        void* RawAddress = mono_object_unbox(ObjectPtr);
+        const void* RawAddress = mono_object_unbox(ObjectPtr);
 
         CopyProperty(InUnrealDataPointer, RawAddress, InProperty, EMarshalCopyDirection::CSharpToUnreal);
     }
@@ -459,15 +458,15 @@ namespace UnrealSharp::Mono
     {
         if (InCopyDirection == EMarshalCopyDirection::CSharpToUnreal)
         {
-            const FCSharpSubclassOf* SubclassOfPtr = (const FCSharpSubclassOf*)InCSharpDataPointer;
+            const FCSharpSubclassOf* SubclassOfPtr = (const FCSharpSubclassOf*)InCSharpDataPointer; // NOLINT
 
-            *(const UClass**)InUnrealDataPointer = SubclassOfPtr->ClassPtr;
+            *(const UClass**)InUnrealDataPointer = SubclassOfPtr->ClassPtr; // NOLINT
         }
         else if (InCopyDirection == EMarshalCopyDirection::UnrealToCSharp)
         {
-            const FCSharpSubclassOf* SubclassOfPtr = (const FCSharpSubclassOf*)InUnrealDataPointer;
+            const FCSharpSubclassOf* SubclassOfPtr = (const FCSharpSubclassOf*)InUnrealDataPointer; // NOLINT
 
-            ((FCSharpSubclassOf*)InCSharpDataPointer)->ClassPtr = SubclassOfPtr->ClassPtr;
+            ((FCSharpSubclassOf*)InCSharpDataPointer)->ClassPtr = SubclassOfPtr->ClassPtr; // NOLINT
         }
     }
 
@@ -507,12 +506,12 @@ namespace UnrealSharp::Mono
         if (InCopyDirection == EMarshalCopyDirection::CSharpToUnreal)
         {
             // InCSharpDataPointer is MonoObject*
-            MonoObject* CSharpObject = (MonoObject*)InCSharpDataPointer;
+            MonoObject* CSharpObject = (MonoObject*)InCSharpDataPointer; // NOLINT
             //FMonoInteropUtils::DumpMonoObjectInformation(CSharpObject);
 
             ICSharpRuntime* Runtime = FCSharpRuntimeFactory::GetInstance();
             checkSlow(Runtime);
-            Runtime->GetCSharpLibraryAccessor()->CopySoftObjectPtr((void*)InUnrealDataPointer, CSharpObject);
+            Runtime->GetCSharpLibraryAccessor()->CopySoftObjectPtr((void*)InUnrealDataPointer, CSharpObject); // NOLINT
         }
         else
         {
@@ -557,12 +556,12 @@ namespace UnrealSharp::Mono
         if (InCopyDirection == EMarshalCopyDirection::CSharpToUnreal)
         {
             // InCSharpDataPointer is MonoObject*
-            MonoObject* CSharpObject = (MonoObject*)InCSharpDataPointer;
+            MonoObject* CSharpObject = (MonoObject*)InCSharpDataPointer; // NOLINT
             //FMonoInteropUtils::DumpMonoObjectInformation(CSharpObject);
 
             ICSharpRuntime* Runtime = FCSharpRuntimeFactory::GetInstance();
             checkSlow(Runtime);
-            Runtime->GetCSharpLibraryAccessor()->CopySoftClassPtr((void*)InUnrealDataPointer, CSharpObject);
+            Runtime->GetCSharpLibraryAccessor()->CopySoftClassPtr((void*)InUnrealDataPointer, CSharpObject); // NOLINT
         }
         else
         {
@@ -573,7 +572,7 @@ namespace UnrealSharp::Mono
 
     void* FStructPropertyMarshaller::GetPassToCSharpPointer(const FPropertyMarshallerParameters& InParameters) const
     {
-        FStructProperty* StructProperty = CastField<FStructProperty>(InParameters.Property);
+        const FStructProperty* StructProperty = CastField<FStructProperty>(InParameters.Property);
         checkSlow(StructProperty != nullptr);
 
         UScriptStruct* Struct = Cast<UScriptStruct>(StructProperty->Struct);
@@ -584,10 +583,10 @@ namespace UnrealSharp::Mono
 
 #if !UE_BUILD_SHIPPING
         // validate type
-        check(mono_class_is_valuetype(mono_object_get_class((MonoObject*)CSharpStructPtr)));
+        check(mono_class_is_valuetype(mono_object_get_class((MonoObject*)CSharpStructPtr))); // NOLINT
 #endif
 
-        void* TargetPtr = mono_object_unbox((MonoObject*)CSharpStructPtr);
+        void* TargetPtr = mono_object_unbox((MonoObject*)CSharpStructPtr); // NOLINT
         
         if (InParameters.bPassAsReference)
         {
@@ -601,13 +600,13 @@ namespace UnrealSharp::Mono
     {
         if (InCopyDirection == EMarshalCopyDirection::CSharpToUnreal)
         {
-            FStructProperty* StructProperty = CastField<FStructProperty>(InProperty);
+            const FStructProperty* StructProperty = CastField<FStructProperty>(InProperty);
             checkSlow(StructProperty != nullptr);
 
             UScriptStruct* Struct = Cast<UScriptStruct>(StructProperty->Struct);
             check(Struct);
 
-            FMonoInteropUtils::StructToNative(Struct, (void*)InUnrealDataPointer, InCSharpDataPointer);
+            FMonoInteropUtils::StructToNative(Struct, (void*)InUnrealDataPointer, InCSharpDataPointer); // NOLINT
         }
         else if(InCopyDirection == EMarshalCopyDirection::UnrealToCSharp)
         {
@@ -650,7 +649,7 @@ namespace UnrealSharp::Mono
     {
         if (InCopyDirection == EMarshalCopyDirection::CSharpToUnreal)
         {
-            FMonoInteropUtils::CopyFromCSharpCollection((void*)InUnrealDataPointer, InProperty, (void*)InCSharpDataPointer);
+            FMonoInteropUtils::CopyFromCSharpCollection((void*)InUnrealDataPointer, InProperty, (void*)InCSharpDataPointer); // NOLINT
         }
         else
         {

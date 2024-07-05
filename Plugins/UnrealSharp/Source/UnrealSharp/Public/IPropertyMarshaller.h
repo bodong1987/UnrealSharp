@@ -36,7 +36,7 @@ namespace UnrealSharp
         UnrealToCSharp,
         CSharpToUnreal,
 
-        // copy return value is not be same with CSharpToUnreal
+        // copy return value is not same with CSharpToUnreal
         // for example: In Mono Runtime, value return an MonoObject*, you should unbox it, and then get the data pointer
         // but in common usage, the pointer is the data pointer directly, So we have to distinguish between these two situations
         CSharpReturnValueToUnreal 

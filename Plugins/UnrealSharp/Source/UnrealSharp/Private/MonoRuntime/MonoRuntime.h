@@ -39,11 +39,11 @@ namespace UnrealSharp::Mono
     {
     public:
         FMonoRuntime();
-        ~FMonoRuntime();
+        virtual ~FMonoRuntime() override;
 
         virtual bool                                    InitializeInternal() override;
         virtual void                                    ShutdownInternal() override;
-        virtual const FName&                            GetRuntimeType() const;
+        virtual const FName&                            GetRuntimeType() const override;
 
         virtual TSharedPtr<ICSharpMethod>               LookupMethod(const FString& InAssemblyName, const FString& InFullyQualifiedMethodName) override;        
         virtual TSharedPtr<ICSharpMethod>               LookupMethod(ICSharpType* InType, const FString& InFullyQualifiedMethodName) override;
@@ -59,9 +59,9 @@ namespace UnrealSharp::Mono
         virtual TSharedPtr<ICSharpLibraryAccessor>      CreateCSharpLibraryAccessor() override; 
 
     public:
-        virtual uint32                                  AddRef() const override{ return FRefCountBase::AddRef(); }
-        virtual uint32                                  Release() const override{ return FRefCountBase::Release(); }
-        virtual uint32                                  GetRefCount() const override{ return FRefCountBase::GetRefCount(); }
+        virtual uint32                                  AddRef() const override{ return FRefCountBase::AddRef(); }  // NOLINT
+        virtual uint32                                  Release() const override{ return FRefCountBase::Release(); } // NOLINT
+        virtual uint32                                  GetRefCount() const override{ return FRefCountBase::GetRefCount(); } // NOLINT
     public:
         inline MonoDomain*                              GetDomain() const { return Domain; }
 
@@ -85,7 +85,7 @@ namespace UnrealSharp::Mono
 
         static void                                     InitLibrarySearchPaths();
         static void                                     MonoLog(const char* InDomainName, const char* InLogLevel, const char* InMessage, mono_bool InFatal, void* InUserData);
-        static void                                     MonoPrintf(const char* InString, mono_bool bIsStdout);
+        static void                                     MonoPrintf(const char* InString, mono_bool bIsStdout); // NOLINT
 
         struct FMonoAssemblyCache
         {
@@ -95,7 +95,7 @@ namespace UnrealSharp::Mono
             bool IsValid() const { return Assembly != nullptr && Image != nullptr; }
         };
 
-        static MonoAssembly*                            OnAssemblyLoaded(MonoAssemblyName* aname, char** InAssemblies, void* InUserData);
+        static MonoAssembly*                            OnAssemblyLoaded(MonoAssemblyName* InAssemblyName, char** InAssemblies, void* InUserData);
         static FString                                  SearchLibrary(const FString& InName);
         static FMonoAssemblyCache                       StaticLoadAssembly(const FString& InAssemblyPath);
 
@@ -108,7 +108,7 @@ namespace UnrealSharp::Mono
         
         TUniquePtr<FPropertyMarshallerCollection>       MarshallerCollectionPtr;
 
-        bool                                            bUseTempCoreCLRLibrary = false;
+        bool                                            bUseTempCoreClrLibrary = false;
         static bool                                     bIsDebuggerAvailable;    
         
 #if PLATFORM_MAC

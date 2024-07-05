@@ -24,7 +24,6 @@
     Project URL: https://github.com/bodong1987/UnrealSharp
 */
 #include "Misc/CSharpFunctionRedirectionUtils.h"
-#include "ICSharpRuntime.h"
 #include "Classes/CSharpClass.h"
 
 namespace UnrealSharp

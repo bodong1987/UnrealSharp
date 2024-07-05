@@ -49,10 +49,10 @@ namespace UnrealSharp
         typedef TSharedPtr<FPropertyDefinition> FPropertyDefinitionPtr;
         
         FPropertyDefinition();
-        FPropertyDefinition(UStruct* InStruct, void* InDefaultObjectPtr, FProperty* InProperty, FTypeValidation* InTypeValidation);
+        FPropertyDefinition(UStruct* InStruct, const void* InDefaultObjectPtr, FProperty* InProperty, FTypeValidation* InTypeValidation);
 
         void                                    Write(FJsonObject& InObject);
-        void                                    Read(FJsonObject& InObject);
+        void                                    Read(const FJsonObject& InObject);
 
         bool                                    IsReference() const;
         bool                                    IsOut() const;

@@ -34,8 +34,8 @@ namespace UnrealSharp
     class SHARPBINDINGGEN_API FEnumFieldDefinition
     {
     public:
-        void                            Read(FJsonObject& InObject);
-        void                            Write(FJsonObject& InObject);
+        void                            Read(const FJsonObject& InObject);
+        void                            Write(FJsonObject& InObject) const;
 
     public:
         FString                         Name;
@@ -54,7 +54,7 @@ namespace UnrealSharp
         virtual void                    Write(FJsonObject& InObject) override;
         
     protected:
-        void                            LoadFields(UEnum* InEnum);
+        void                            LoadFields(const UEnum* InEnum);
 
     public:
         TArray<FEnumFieldDefinition>    Fields;

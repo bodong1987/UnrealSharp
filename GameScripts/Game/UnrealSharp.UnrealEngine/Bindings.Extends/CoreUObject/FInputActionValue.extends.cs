@@ -23,174 +23,171 @@
 
     Project URL: https://github.com/bodong1987/UnrealSharp
 */
-namespace UnrealSharp.UnrealEngine
+namespace UnrealSharp.UnrealEngine;
+
+public partial struct FInputActionValue
 {
-    public partial struct FInputActionValue
+    /// <summary>
+    /// Gets the value.
+    /// </summary>
+    /// <value>The value.</value>
+    public FVector Value { get; private set; } = new();
+
+    /// <summary>
+    /// Gets the type of the value.
+    /// </summary>
+    /// <value>The type of the value.</value>
+    public EInputActionValueType ValueType { get; private set; } = EInputActionValueType.Boolean;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FInputActionValue"/> struct.
+    /// </summary>
+    /// <param name="value">if set to <c>true</c> [value].</param>
+    public FInputActionValue(bool value)
     {
-        /// <summary>
-        /// Gets the value.
-        /// </summary>
-        /// <value>The value.</value>
-        public FVector Value { get; private set; } = new FVector();
+        Value = new FVector(value ? 1 : 0, 0, 0);
+        ValueType = EInputActionValueType.Boolean;
+    }
 
-        /// <summary>
-        /// Gets the type of the value.
-        /// </summary>
-        /// <value>The type of the value.</value>
-        public EInputActionValueType ValueType { get; private set; } = EInputActionValueType.Boolean;
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FInputActionValue"/> struct.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    public FInputActionValue(double value)
+    {
+        Value = new FVector(value, 0, 0);
+        ValueType = EInputActionValueType.Axis1D;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FInputActionValue"/> struct.
-        /// </summary>
-        /// <param name="value">if set to <c>true</c> [value].</param>
-        public FInputActionValue(bool value)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FInputActionValue"/> struct.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    public FInputActionValue(FVector2D value)
+    {
+        Value = new FVector(value.X, value.Y, 0);
+        ValueType = EInputActionValueType.Axis2D;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FInputActionValue"/> struct.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    public FInputActionValue(FVector value)
+    {
+        Value = value;
+        ValueType = EInputActionValueType.Axis3D;
+    }
+
+    /// <summary>
+    /// Resets this instance.
+    /// </summary>
+    public void Reset()
+    {
+        Value = new FVector(0, 0, 0);
+    }
+
+    /// <summary>
+    /// Gets the type of the value.
+    /// </summary>
+    /// <returns>EInputActionValueType.</returns>
+    public EInputActionValueType GetValueType()
+    {
+        return ValueType;
+    }
+
+    /// <summary>
+    /// Gets the boolean.
+    /// </summary>
+    public bool GetBoolean()
+    {
+        return IsNonZero();
+    }
+
+    /// <summary>
+    /// Gets the axis1 d.
+    /// </summary>
+    /// <returns>System.Double.</returns>
+    public double GetAxis1D()
+    {
+        return Value.X;
+    }
+
+    /// <summary>
+    /// Gets the axis2 d.
+    /// </summary>
+    /// <returns>FVector2D.</returns>
+    public FVector2D GetAxis2D()
+    {
+        return new FVector2D { X = Value.X, Y = Value.Y };
+    }
+
+    /// <summary>
+    /// Gets the axis3 d.
+    /// </summary>
+    /// <returns>FVector.</returns>
+    public FVector GetAxis3D()
+    {
+        return Value;
+    }
+
+    /// <summary>
+    /// Determines whether [is nonzero] [the specified tolerance].
+    /// </summary>
+    /// <param name="tolerance">The tolerance.</param>
+    /// <returns><c>true</c> if [is nonzero] [the specified tolerance]; otherwise, <c>false</c>.</returns>
+    public bool IsNonZero(double tolerance = UnrealConstants.KindaSmallNumber)
+    {
+        return Value.SizeSquared() >= tolerance * tolerance;
+    }
+
+    /// <summary>
+    /// Implements the + operator.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="right">The right.</param>
+    /// <returns>The result of the operator.</returns>
+    public static FInputActionValue operator +(FInputActionValue left, FInputActionValue right)
+    {
+        var value = new FInputActionValue
         {
-            Value = new FVector(value ? 1 : 0, 0, 0);
-            ValueType = EInputActionValueType.Boolean;
-        }
+            Value = left.Value + right.Value,
+            ValueType = (EInputActionValueType)Math.Max((byte)left.ValueType, (byte)right.ValueType)
+        };
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FInputActionValue"/> struct.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        public FInputActionValue(double value)
+        return value;
+    }
+
+    /// <summary>
+    /// Implements the + operator.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="scalar">The scalar.</param>
+    /// <returns>The result of the operator.</returns>
+    public static FInputActionValue operator +(FInputActionValue left, float scalar)
+    {
+        var value = new FInputActionValue
         {
-            Value = new FVector(value, 0, 0);
-            ValueType = EInputActionValueType.Axis1D;
-        }
+            Value = left.Value * scalar
+        };
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FInputActionValue"/> struct.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        public FInputActionValue(FVector2D value)
+        return value;
+    }
+
+    /// <summary>
+    /// Returns a <see cref="System.String" /> that represents this instance.
+    /// </summary>
+    /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
+    /// <exception cref="System.NotImplementedException"></exception>
+    public override string ToString()
+    {
+        return GetValueType() switch
         {
-            Value = new FVector(value.X, value.Y, 0);
-            ValueType = EInputActionValueType.Axis2D;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FInputActionValue"/> struct.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        public FInputActionValue(FVector value)
-        {
-            Value = value;
-            ValueType = EInputActionValueType.Axis3D;
-        }
-
-        /// <summary>
-        /// Resets this instance.
-        /// </summary>
-        public void Reset()
-        {
-            Value = new FVector(0, 0, 0);
-        }
-
-        /// <summary>
-        /// Gets the type of the value.
-        /// </summary>
-        /// <returns>EInputActionValueType.</returns>
-        public EInputActionValueType GetValueType()
-        {
-            return ValueType;
-        }
-
-        /// <summary>
-        /// Gets the boolean.
-        /// </summary>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        public bool GetBoolean()
-        {
-            return IsNonZero();
-        }
-
-        /// <summary>
-        /// Gets the axis1 d.
-        /// </summary>
-        /// <returns>System.Double.</returns>
-        public double GetAxis1D()
-        {
-            return Value.X;
-        }
-
-        /// <summary>
-        /// Gets the axis2 d.
-        /// </summary>
-        /// <returns>FVector2D.</returns>
-        public FVector2D GetAxis2D()
-        {
-            return new FVector2D() { X = Value.X, Y = Value.Y };
-        }
-
-        /// <summary>
-        /// Gets the axis3 d.
-        /// </summary>
-        /// <returns>FVector.</returns>
-        public FVector GetAxis3D()
-        {
-            return Value;
-        }
-
-        /// <summary>
-        /// Determines whether [is non zero] [the specified tolerance].
-        /// </summary>
-        /// <param name="Tolerance">The tolerance.</param>
-        /// <returns><c>true</c> if [is non zero] [the specified tolerance]; otherwise, <c>false</c>.</returns>
-        public bool IsNonZero(double Tolerance = UnrealConstants.KindaSmallNumber)
-        {
-            return Value.SizeSquared() >= Tolerance * Tolerance;
-        }
-
-        /// <summary>
-        /// Implements the + operator.
-        /// </summary>
-        /// <param name="left">The left.</param>
-        /// <param name="right">The right.</param>
-        /// <returns>The result of the operator.</returns>
-        public static FInputActionValue operator +(FInputActionValue left, FInputActionValue right)
-        {
-            FInputActionValue value = new FInputActionValue();
-            value.Value = left.Value + right.Value;
-            value.ValueType = (EInputActionValueType)Math.Max((byte)left.ValueType, (byte)right.ValueType);
-
-            return value;
-        }
-
-        /// <summary>
-        /// Implements the + operator.
-        /// </summary>
-        /// <param name="left">The left.</param>
-        /// <param name="scalar">The scalar.</param>
-        /// <returns>The result of the operator.</returns>
-        public static FInputActionValue operator +(FInputActionValue left, float scalar)
-        {
-            FInputActionValue value = new FInputActionValue();
-            value.Value = left.Value * scalar;
-
-            return value;
-        }
-
-        /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
-        /// </summary>
-        /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
-        /// <exception cref="System.NotImplementedException"></exception>
-        public override string ToString()
-        {
-            switch (GetValueType())
-            {
-                case EInputActionValueType.Boolean:
-                    return IsNonZero() ? "true" : "false";
-                case EInputActionValueType.Axis1D:
-                    return string.Format("{0:F3}", Value.X);
-                case EInputActionValueType.Axis2D:
-                    return string.Format("X={0:F3} Y={1:F3}", Value.X, Value.Y);
-                case EInputActionValueType.Axis3D:
-                    return string.Format("X={0:F3} Y={1:F3} Z={2:F3}", Value.X, Value.Y, Value.Z);
-            }
-
-            throw new NotImplementedException();
-        }
+            EInputActionValueType.Boolean => IsNonZero() ? "true" : "false",
+            EInputActionValueType.Axis1D => $"{Value.X:F3}",
+            EInputActionValueType.Axis2D => $"X={Value.X:F3} Y={Value.Y:F3}",
+            EInputActionValueType.Axis3D => $"X={Value.X:F3} Y={Value.Y:F3} Z={Value.Z:F3}",
+            _ => throw new NotImplementedException()
+        };
     }
 }

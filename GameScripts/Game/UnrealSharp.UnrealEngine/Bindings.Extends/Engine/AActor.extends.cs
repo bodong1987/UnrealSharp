@@ -25,34 +25,33 @@
 */
 using UnrealSharp.UnrealEngine.InteropService;
 
-namespace UnrealSharp.UnrealEngine
+namespace UnrealSharp.UnrealEngine;
+
+partial class AActor
 {
-    partial class AActor
+    /// <summary>
+    /// Gets the world.
+    /// </summary>
+    /// <returns>System.Nullable&lt;UWorld&gt;.</returns>
+    public UWorld? GetWorld()
     {
-        /// <summary>
-        /// Gets the world.
-        /// </summary>
-        /// <returns>System.Nullable&lt;UWorld&gt;.</returns>
-        public UWorld? GetWorld()
-        {
-            return ActorInteropUtils.GetWorld(this);
-        }
+        return ActorInteropUtils.GetWorld(this);
+    }
 
-        /// <summary>
-        /// Gets the game instance.
-        /// </summary>
-        /// <returns>System.Nullable&lt;UGameInstance&gt;.</returns>
-        public UGameInstance? GetGameInstance()
-        {
-            return ActorInteropUtils.GetGameInstance(this);
-        }
+    /// <summary>
+    /// Gets the game instance.
+    /// </summary>
+    /// <returns>System.Nullable&lt;UGameInstance&gt;.</returns>
+    public UGameInstance? GetGameInstance()
+    {
+        return ActorInteropUtils.GetGameInstance(this);
+    }
 
-        /// <summary>
-        /// Destroys the actor.
-        /// </summary>
-        public void DestroyActor()
-        {
-            K2_DestroyActor();
-        }
+    /// <summary>
+    /// Destroys the actor.
+    /// </summary>
+    public void DestroyActor()
+    {
+        K2_DestroyActor();
     }
 }

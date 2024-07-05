@@ -95,7 +95,7 @@ namespace UnrealSharp
 
         // Verify the compilation configuration information of C++ and C#. 
         // Mismatched or incompatible C# code and compilation configuration will cause errors.
-        static void                         ValidateUnrealSharpBuildInfo(FUnrealSharpBuildInfo* InBuildInfo);
+        static void                         ValidateUnrealSharpBuildInfo(const FUnrealSharpBuildInfo* InBuildInfo);
 
         // get interop function pointer
         static void*                        GetUnrealInteropFunctionPointer(const FUnrealInteropFunctions* InInstance, const char* InCSharpText);
@@ -107,9 +107,9 @@ namespace UnrealSharp
         TMap<FString, void*>                InteropFunctions;
     };
 
-#define US_ADD_GLOBAL_INTEROPFUNCTION(InteropFunctionsName, FunctionName) \
+#define US_ADD_GLOBAL_INTEROP_FUNCTION(InteropFunctionsName, FunctionName) \
     InteropFunctionsName->AddInteropFunction(TEXT(#FunctionName), (void*)FunctionName)
 
-#define US_ADD_GENERATED_GLOBAL_INTEROPFUNCTION_HELPER(FunctionName) \
-    US_ADD_GLOBAL_INTEROPFUNCTION(InInteropFunctions, FunctionName)
+#define US_ADD_GENERATED_GLOBAL_INTEROP_FUNCTION_HELPER(FunctionName) \
+    US_ADD_GLOBAL_INTEROP_FUNCTION(InInteropFunctions, FunctionName)
 }

@@ -25,6 +25,7 @@
 */
 using UnrealBuildTool;
 
+// ReSharper disable all
 /// <summary>
 /// Class UnrealSharpEditor.
 /// Responsible for adding the UnrealSharp menu to the editor,
@@ -59,3 +60,5 @@ public class UnrealSharpEditor : ModuleRules
         );
     }
 }
+
+// ReSharper restore all

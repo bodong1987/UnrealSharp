@@ -1,18 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>	
 	<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	  <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <AssemblyVersion>1.0.0.12</AssemblyVersion>
-    <FileVersion>1.0.0.12</FileVersion>	
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <FileVersion>1.2.0.0</FileVersion>	
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="UnrealSharp.Toolkit" Version="1.0.0.12" />
+    <PackageReference Include="UnrealSharp.Toolkit" Version="1.2.1.0" />
   </ItemGroup>
 
   <ItemGroup>

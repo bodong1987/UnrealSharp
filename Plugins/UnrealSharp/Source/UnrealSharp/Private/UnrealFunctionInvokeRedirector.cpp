@@ -40,7 +40,7 @@ namespace UnrealSharp
     // check FBlueprintCompilationManagerImpl::FastGenerateSkeletonClass in BlueprintCompilationManager.cpp
     const FString FUnrealFunctionMarshallerLinker::WorldContextName = TEXT("__WorldContext");
 
-    FUnrealFunctionMarshallerLinker::FUnrealFunctionMarshallerLinker(ICSharpRuntime* InRuntime, UFunction* InFunction, const FCSharpFunctionData* InFunctionData)
+    FUnrealFunctionMarshallerLinker::FUnrealFunctionMarshallerLinker(const ICSharpRuntime* InRuntime, const UFunction* InFunction, const FCSharpFunctionData* InFunctionData)
     {
         // step 1 : cache all properties
         for (TFieldIterator<FProperty> PropertyIter(InFunction, EFieldIterationFlags::Default); PropertyIter; ++PropertyIter)
@@ -50,15 +50,15 @@ namespace UnrealSharp
             PropertyQueue.Add({Property});
         }
 
-        // step 2 : construct Marshallers from function data
+        // step 2 : construct Marshaller from function data
         check(InFunctionData != nullptr);
 
         // It can only be initialized from FunctionData, because the order of function parameters of C# may be inconsistent with UFunction. 
         // The main purpose of Marshaller is to pass parameters to C#.
         for (auto& ArgumentData : InFunctionData->Arguments)
         {
-            auto* PropertyInfoPtr = PropertyQueue.FindByPredicate([&](const FPropertyInfo& info){
-                return info.Property->GetFName() == ArgumentData.Name;
+            auto* PropertyInfoPtr = PropertyQueue.FindByPredicate([&](const FPropertyInfo& Info){
+                return Info.Property->GetFName() == ArgumentData.Name;
             });
 
             checkf(PropertyInfoPtr, TEXT("Failed find argument <%s> on UFunction:%s, Signature:%s"), *ArgumentData.Name.ToString(), *InFunction->GetName(), *InFunctionData->FunctionSignature);
@@ -94,7 +94,7 @@ namespace UnrealSharp
         const FStackMemory& InParameterBuffer,
         const FStackMemory& InTempInteropParameterPointers,
         const FStackMemory& InUnrealParameterReferencePointers,
-        UObject* Context, 
+        UObject* /*Context*/, 
         FFrame& Stack, 
         RESULT_DECL
         ) const
@@ -103,9 +103,8 @@ namespace UnrealSharp
         // When reading parameters in the unreal stack, you need to read them in the unreal order.
         for (int Index = 0; Index < PropertyQueue.Num(); ++Index)
         {
-            const FPropertyInfo& PropertyInfo = PropertyQueue[Index];
-            const FProperty* Property = PropertyInfo.Property;
-
+            const auto& [Property, MarshallerInfoPtr] = PropertyQueue[Index];
+            
             checkSlow(InParameterBuffer.StackPointer);
 
             // when invoke C# method, the memory of return param is not used.
@@ -120,7 +119,7 @@ namespace UnrealSharp
                 // Functions passed by non-reference in a blueprint are treated as output. 
                 // Therefore, the buffer of the output parameter needs to be reset here, 
                 // otherwise the ref parameter contains the residue of the old parameter.
-                if (PropertyInfo.MarshallerInfoPtr && PropertyInfo.MarshallerInfoPtr->bPassByReference)
+                if (MarshallerInfoPtr && MarshallerInfoPtr->bPassByReference)
                 {
                     // destroy old value
                     Property->DestroyValue(PropertyAddress);
@@ -130,7 +129,7 @@ namespace UnrealSharp
                 }                
 
                 // get reference 
-                void* RefPropertyAddress = Stack.MostRecentPropertyAddress != NULL ? Stack.MostRecentPropertyAddress : PropertyAddress;
+                void* RefPropertyAddress = Stack.MostRecentPropertyAddress != nullptr ? Stack.MostRecentPropertyAddress : PropertyAddress;
 
                 checkSlow(InUnrealParameterReferencePointers.StackPointer);
 
@@ -173,9 +172,8 @@ namespace UnrealSharp
     {
         for (int Index = 0; Index < PropertyQueue.Num(); ++Index)
         {
-            const FPropertyInfo& PropertyInfo = PropertyQueue[Index];
-            const FProperty* Property = PropertyInfo.Property;
-
+            const auto& [Property, MarshallerInfoPtr] = PropertyQueue[Index];
+            
             checkSlow(InParameterBuffer.StackPointer);
 
             // destroy values
@@ -195,10 +193,7 @@ namespace UnrealSharp
         // copy ref parameters first
         for (int Index = 0; Index < PropertyQueue.Num(); ++Index)
         {
-            const FPropertyInfo& PropertyInfo = PropertyQueue[Index];
-            auto& MarshallerPtr = PropertyInfo.MarshallerInfoPtr;
-
-            if (MarshallerPtr && MarshallerPtr->bPassByReference)
+            if (const auto& [Property, MarshallerPtr] = PropertyQueue[Index]; MarshallerPtr && MarshallerPtr->bPassByReference)
             {
                 checkSlow(MarshallerPtr->Property == PropertyInfo.Property);
 
@@ -208,7 +203,7 @@ namespace UnrealSharp
                 MarshallerPtr->MarshallerPtr->Copy(
                     *UnrealInternalDataPointerAddress, 
                     *InteropTempDataPointerAddress, 
-                    PropertyInfo.Property, 
+                    Property, 
                     EMarshalCopyDirection::CSharpToUnreal
                 );
             }
@@ -220,7 +215,8 @@ namespace UnrealSharp
         checkSlow(InUnrealParameterReferencePointers.StackPointer);
         check(InIndexInProperties*sizeof(void*) < InUnrealParameterReferencePointers.Size);
 
-        return (void**)((uint8*)InUnrealParameterReferencePointers.StackPointer + sizeof(void*) * InIndexInProperties);
+        return reinterpret_cast<void**>(static_cast<uint8*>(InUnrealParameterReferencePointers.StackPointer) + sizeof(void*) *
+            InIndexInProperties);
     }
 
     void** FUnrealFunctionMarshallerLinker::GetTempParameterPointerAddress(const FStackMemory& InTempInteropParameterPointers, int InOffsetInTempParameterBuffer)
@@ -229,15 +225,16 @@ namespace UnrealSharp
         checkSlow(InOffsetInTempParameterBuffer >= 0);
         check(InOffsetInTempParameterBuffer < InTempInteropParameterPointers.Size);
 
-        return (void**)((uint8*)InTempInteropParameterPointers.StackPointer + InOffsetInTempParameterBuffer);
+        return reinterpret_cast<void**>(static_cast<uint8*>(InTempInteropParameterPointers.StackPointer) +
+            InOffsetInTempParameterBuffer);
     }
 
     FUnrealFunctionInvokeRedirector::FUnrealFunctionInvokeRedirector(
         ICSharpRuntime* InRuntime, 
-        UCSharpClass* InClass, 
+        UCSharpClass* /*InClass*/, 
         UFunction* InFunction, 
         const FCSharpFunctionData* InFunctionData, 
-        TSharedPtr<ICSharpMethodInvocation> InInvocation) :
+        const TSharedPtr<ICSharpMethodInvocation>& InInvocation) :
         Runtime(InRuntime),
         Function(InFunction),
         FunctionData(InFunctionData),
@@ -259,7 +256,7 @@ namespace UnrealSharp
     {
         check(Invocation);
 
-        UNREALSHARP_SCOPED_CSHARP_METHOD_INVOCATION(Invocation);
+        US_SCOPED_CSHARP_METHOD_INVOCATION(Invocation);
 
         // We need to copy the unreal data separately, because the order of function parameters in C# and the order in the UFunction stack may be different.
         // used to save all parameters in it
@@ -291,7 +288,7 @@ namespace UnrealSharp
             RESULT_PARAM
         );
 
-        UNREALSHARP_SCOPED_EXIT(Linker.FinishInvoke(ParameterMemory));
+        US_SCOPED_EXIT(Linker.FinishInvoke(ParameterMemory));
         
         P_NATIVE_BEGIN;
 
@@ -299,9 +296,9 @@ namespace UnrealSharp
         void* CSharpObject = (Function->FunctionFlags & FUNC_Static) != 0 || Context == nullptr ? nullptr : Runtime->GetObjectTable()->GetCSharpObject(Context);
 
         TUniquePtr<ICSharpMethodInvocationException> ExceptionContext;
-        void* Result = Invocation->Invoke(CSharpObject, ExceptionContext);
+        const void* Result = Invocation->Invoke(CSharpObject, ExceptionContext);
 
-        // Copy Reference parameter back, if need
+        // Copy Reference parameter back
         Linker.CopyReferenceParameters(TempParameterMemory, UnrealParameterReferenceMemory);
         
         // convert result value to unreal data type

@@ -96,7 +96,7 @@ namespace UnrealSharp
         checkSlow(IsNativeField(InNativeField));
 
         const UUnrealSharpSettings* Settings = GetDefault<UUnrealSharpSettings>();
-        FName ModuleName = GetFieldModuleName(InNativeField);
+        const FName ModuleName = GetFieldModuleName(InNativeField);
 
         return Settings->IsExportToGameScripts(ModuleName);
     }
@@ -181,9 +181,9 @@ namespace UnrealSharp
 
         const FString& ClassName = InClass->GetName();
 
-        for (auto& header : SpecialHeaders)
+        for (auto& Header : SpecialHeaders)
         {
-            if (ClassName.StartsWith(header))
+            if (ClassName.StartsWith(Header))
             {
                 return true;
             }
@@ -194,11 +194,11 @@ namespace UnrealSharp
 
     FString FUnrealSharpUtils::GetCppTypeName(const UField* InField)
     {
-        if (auto Class = Cast<UClass>(InField))
+        if (const auto Class = Cast<UClass>(InField))
         {
             return Class->GetPrefixCPP() + Class->GetName();
         }
-        else if (auto Struct = Cast<UScriptStruct>(InField))
+        else if (const auto Struct = Cast<UScriptStruct>(InField))
         {
             return Struct->GetStructCPPName();
         }
@@ -263,15 +263,15 @@ namespace UnrealSharp
             return CSharpType->GetCSharpFullName();
         }
 
-        FString CppName = GetCppTypeName(InField);
-        FString DefaultExportNamespace = GetDefaultExportNamespace(InField);
+        const FString CppName = GetCppTypeName(InField);
+        const FString DefaultExportNamespace = GetDefaultExportNamespace(InField);
 
         return DefaultExportNamespace + TEXT(".") + CppName;
     }
 
     const FString& FUnrealSharpUtils::GetAssemblyName(const FProperty* InProperty)
     {
-        UField* InnerField = GetPropertyInnerField(InProperty);
+        const UField* InnerField = GetPropertyInnerField(InProperty);
         static const FString Z_Temp;
 
         return InnerField != nullptr ? GetAssemblyName(InnerField) : Z_Temp;
@@ -279,7 +279,7 @@ namespace UnrealSharp
 
     FString FUnrealSharpUtils::GetCSharpFullPath(const FProperty* InProperty)
     {
-        UField* InnerField = GetPropertyInnerField(InProperty);
+        const UField* InnerField = GetPropertyInnerField(InProperty);
 
         return InnerField != nullptr ? GetCSharpFullPath(InnerField) : FString();
     }
@@ -325,7 +325,7 @@ namespace UnrealSharp
 
     TSharedPtr<ICSharpMethodInvocation> FUnrealSharpUtils::BindCSharpMethodChecked(ICSharpRuntime* InRuntime, const FString& InAssemblyName, const FString& InNamespace, const FString& InClassName, const FString& InBaseSignature)
     {
-        FString FullSignature = FString::Printf(TEXT("%s.%s:%s"), *InNamespace, *InClassName, *InBaseSignature);
+        const FString FullSignature = FString::Printf(TEXT("%s.%s:%s"), *InNamespace, *InClassName, *InBaseSignature);
 
         TSharedPtr<ICSharpMethodInvocation> Invocation = InRuntime->CreateCSharpMethodInvocation(
             InAssemblyName,
@@ -361,7 +361,7 @@ namespace UnrealSharp
         {
             return sizeof(int32);
         }
-        else if ((uint64)MaxValue > (std::numeric_limits<uint64>::min)() && (uint64)MaxValue <= (std::numeric_limits<uint64>::max)())
+        else if (static_cast<uint64>(MaxValue) > (std::numeric_limits<uint64>::min)() && static_cast<uint64>(MaxValue) <= (std::numeric_limits<uint64>::max)())
         {
             return sizeof(int64);
         }
@@ -373,7 +373,7 @@ namespace UnrealSharp
     {
         int PropertyCount = 0;
 
-        for (FProperty* Property = InStruct->PropertyLink; Property != nullptr; Property = Property->PropertyLinkNext)
+        for (const FProperty* Property = InStruct->PropertyLink; Property != nullptr; Property = Property->PropertyLinkNext)
         {
             ++PropertyCount;
         }
@@ -381,11 +381,11 @@ namespace UnrealSharp
         return PropertyCount;
     }
 
-    int FUnrealSharpUtils::GetPropertyCount(const UStruct* InStruct, TFunction<bool(const FProperty*)> InFilter)
+    int FUnrealSharpUtils::GetPropertyCount(const UStruct* InStruct, const TFunction<bool(const FProperty*)>& InFilter)
     {
         int PropertyCount = 0;
 
-        for (FProperty* Property = InStruct->PropertyLink; Property != nullptr; Property = Property->PropertyLinkNext)
+        for (const FProperty* Property = InStruct->PropertyLink; Property != nullptr; Property = Property->PropertyLinkNext)
         {
             if (InFilter(Property))
             {
@@ -404,10 +404,10 @@ namespace UnrealSharp
         constexpr int32 GuidStrLen = 32;
 
         // Find the position of the last two underscores
-        int32 LastUnderscoreIndex = PropertyName.Find(TEXT("_"), ESearchCase::CaseSensitive, ESearchDir::FromEnd);
+        const int32 LastUnderscoreIndex = PropertyName.Find(TEXT("_"), ESearchCase::CaseSensitive, ESearchDir::FromEnd);
         if (LastUnderscoreIndex != INDEX_NONE)
         {
-            int32 SecondLastUnderscoreIndex = PropertyName.Find(TEXT("_"), ESearchCase::CaseSensitive, ESearchDir::FromEnd, LastUnderscoreIndex - 1);
+            const int32 SecondLastUnderscoreIndex = PropertyName.Find(TEXT("_"), ESearchCase::CaseSensitive, ESearchDir::FromEnd, LastUnderscoreIndex - 1);
 
             // Check if the underscores were found and if the length of GUID is correct
             if (SecondLastUnderscoreIndex != INDEX_NONE && PropertyName.Len() - LastUnderscoreIndex - 1 == GuidStrLen)

@@ -52,7 +52,7 @@ namespace UnrealSharp
         // create C# struct
         static void*               CreateCSharpStruct(const void* InUnrealStructPtr, UScriptStruct* InStruct);
 
-        // copy C# struct's data to unreal
+        // copy C# struct 's data to unreal
         static void                StructToNative(UScriptStruct* InStructType, void* InNativePtr, const void* InCSharpStructPtr);
 
         // create C# collection

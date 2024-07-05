@@ -23,23 +23,21 @@
 
     Project URL: https://github.com/bodong1987/UnrealSharp
 */
-namespace UnrealSharp.UnrealEngine
+namespace UnrealSharp.UnrealEngine;
+
+/// <summary>
+/// Class APlayerController.
+/// Implements the <see cref="UnrealSharp.UnrealEngine.AController" />
+/// </summary>
+/// <seealso cref="UnrealSharp.UnrealEngine.AController" />
+public partial class APlayerController
 {
     /// <summary>
-    /// Class APlayerController.
-    /// Implements the <see cref="UnrealSharp.UnrealEngine.AController" />
+    /// Gets the local player.
     /// </summary>
-    /// <seealso cref="UnrealSharp.UnrealEngine.AController" />
-    public partial class APlayerController
+    /// <returns>System.Nullable&lt;ULocalPlayer&gt;.</returns>
+    public ULocalPlayer? GetLocalPlayer()
     {
-        /// <summary>
-        /// Gets the local player.
-        /// </summary>
-        /// <returns>System.Nullable&lt;ULocalPlayer&gt;.</returns>
-        public ULocalPlayer? GetLocalPlayer()
-        {
-            return this.Player as ULocalPlayer;
-        }
+        return Player as ULocalPlayer;
     }
 }
-

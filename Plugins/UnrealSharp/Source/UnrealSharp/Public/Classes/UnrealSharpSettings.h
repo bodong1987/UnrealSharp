@@ -42,7 +42,7 @@ public:
     UUnrealSharpSettings();
 
 public:
-    bool IsExportToGameScripts(UField* InField) const;
+    bool IsExportToGameScripts(const UField* InField) const;
     bool IsExportToGameScripts(const FName& InModuleName) const;
 
 public:

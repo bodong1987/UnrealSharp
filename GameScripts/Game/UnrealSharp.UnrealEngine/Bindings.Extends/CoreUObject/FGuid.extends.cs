@@ -25,128 +25,129 @@
 */
 using UnrealSharp.UnrealEngine.InteropService;
 
-namespace UnrealSharp.UnrealEngine
+namespace UnrealSharp.UnrealEngine;
+
+public partial struct FGuid
 {
-    public partial struct FGuid
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FGuid" /> struct.
+    /// </summary>
+    /// <param name="a">a.</param>
+    /// <param name="b">The b.</param>
+    /// <param name="c">The c.</param>
+    /// <param name="d">The d.</param>
+    public FGuid(uint a, uint b, uint c, uint d)
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FGuid" /> struct.
-        /// </summary>
-        /// <param name="a">a.</param>
-        /// <param name="b">The b.</param>
-        /// <param name="c">The c.</param>
-        /// <param name="d">The d.</param>
-        public FGuid(uint a, uint b, uint c, uint d)
+        A = (int)a;
+        B = (int)b;
+        C = (int)c;
+        D = (int)d;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FGuid"/> struct.
+    /// </summary>
+    /// <param name="a">a.</param>
+    /// <param name="b">The b.</param>
+    /// <param name="c">The c.</param>
+    /// <param name="d">The d.</param>
+    public FGuid(int a, int b, int c, int d)
+    {
+        A = a;
+        B = b;
+        C = c;
+        D = d;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FGuid"/> struct.
+    /// </summary>
+    /// <param name="guidString">The unique identifier string.</param>
+    public FGuid(string guidString)
+    {
+        this = MiscInteropUtils.MakeGuidFromString(guidString);
+    }
+
+    /// <summary>
+    /// Returns a <see cref="System.String" /> that represents this instance.
+    /// </summary>
+    /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
+    public override string ToString()
+    {
+        return $"{A:X8}-{B:X8}-{C:X8}-{D:X8}";
+    }
+
+    /// <summary>
+    /// Invalidates this instance.
+    /// </summary>
+    public void Invalidate()
+    {
+        A = B = C = D = 0;
+    }
+
+    /// <summary>
+    /// Implements the == operator.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="right">The right.</param>
+    /// <returns>The result of the operator.</returns>
+    public static bool operator ==(FGuid left, FGuid right)
+    {
+        return left.A == right.A && left.B == right.B && left.C == right.C && left.D == right.D;
+    }
+
+    /// <summary>
+    /// Implements the != operator.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="right">The right.</param>
+    /// <returns>The result of the operator.</returns>
+    public static bool operator !=(FGuid left, FGuid right)
+    {
+        return !(left == right);
+    }
+
+    /// <summary>
+    /// Determines whether the specified <see cref="System.Object" /> is equal to this instance.
+    /// </summary>
+    /// <param name="obj">The object to compare with the current instance.</param>
+    /// <returns><c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.</returns>
+    public override bool Equals(object? obj)
+    {
+        if (obj is FGuid guid)
         {
-            A = (int)a;
-            B = (int)b;
-            C = (int)c;
-            D = (int)d;
+            return A == guid.A && B == guid.B && C == guid.C && D == guid.D;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FGuid"/> struct.
-        /// </summary>
-        /// <param name="a">a.</param>
-        /// <param name="b">The b.</param>
-        /// <param name="c">The c.</param>
-        /// <param name="d">The d.</param>
-        public FGuid(int a, int b, int c, int d)
-        {
-            A = a;
-            B = b;
-            C = c;
-            D = d;
-        }
+        return false;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FGuid"/> struct.
-        /// </summary>
-        /// <param name="guidString">The unique identifier string.</param>
-        public FGuid(string guidString)
-        {
-            this = MiscInteropUtils.MakeGuidFromString(guidString);
-        }
+    /// <summary>
+    /// Returns a hash code for this instance.
+    /// </summary>
+    /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(A, B, C, D);
+    }
 
-        /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
-        /// </summary>
-        /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
-        public override string ToString()
-        {
-            return string.Format("{0:X8}-{1:X8}-{2:X8}-{3:X8}", A, B, C, D);
-        }
+    /// <summary>
+    /// Creates new guid.
+    /// </summary>
+    /// <returns>FGuid.</returns>
+    public static FGuid NewGuid()
+    {
+        var guid = Guid.NewGuid();
 
-        /// <summary>
-        /// Invalidates this instance.
-        /// </summary>
-        public void Invalidate()
-        {
-            A = B = C = D = 0;
-        }
+        var bytes = guid.ToByteArray();
+        
+        // ReSharper disable once UseStringInterpolation
+        var formattedGuid = string.Format("{0:X8}-{1:X8}-{2:X8}-{3:X8}",
+            BitConverter.ToInt32(bytes, 0),
+            BitConverter.ToInt32(bytes, 4),
+            BitConverter.ToInt32(bytes, 8),
+            BitConverter.ToInt32(bytes, 12));
 
-        /// <summary>
-        /// Implements the == operator.
-        /// </summary>
-        /// <param name="left">The left.</param>
-        /// <param name="right">The right.</param>
-        /// <returns>The result of the operator.</returns>
-        public static bool operator ==(FGuid left, FGuid right)
-        {
-            return left.A == right.A && left.B == right.B && left.C == right.C && left.D == right.D;
-        }
-
-        /// <summary>
-        /// Implements the != operator.
-        /// </summary>
-        /// <param name="left">The left.</param>
-        /// <param name="right">The right.</param>
-        /// <returns>The result of the operator.</returns>
-        public static bool operator !=(FGuid left, FGuid right)
-        {
-            return !(left == right);
-        }
-
-        /// <summary>
-        /// Determines whether the specified <see cref="System.Object" /> is equal to this instance.
-        /// </summary>
-        /// <param name="obj">The object to compare with the current instance.</param>
-        /// <returns><c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.</returns>
-        public override bool Equals(object? obj)
-        {
-            if (obj is FGuid G)
-            {
-                return A == G.A && B == G.B && C == G.C && D == G.D;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Returns a hash code for this instance.
-        /// </summary>
-        /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(A, B, C, D);
-        }
-
-        /// <summary>
-        /// Creates new guid.
-        /// </summary>
-        /// <returns>FGuid.</returns>
-        public static FGuid NewGuid()
-        {
-            var guid = Guid.NewGuid();
-
-            byte[] bytes = guid.ToByteArray();
-            string formattedGuid = string.Format("{0:X8}-{1:X8}-{2:X8}-{3:X8}",
-                BitConverter.ToInt32(bytes, 0),
-                BitConverter.ToInt32(bytes, 4),
-                BitConverter.ToInt32(bytes, 8),
-                BitConverter.ToInt32(bytes, 12));
-
-            return new FGuid(formattedGuid);
-        }
+        return new FGuid(formattedGuid);
     }
 }

@@ -28,131 +28,152 @@ using System.Runtime.CompilerServices;
 using UnrealSharp.UnrealEngine.InteropService;
 using UnrealSharp.Utils.Misc;
 
-namespace UnrealSharp.UnrealEngine
+namespace UnrealSharp.UnrealEngine;
+
+/// <summary>
+/// Struct FStringView
+/// Implements the <see cref="UnrealSharp.UnrealEngine.IUnrealDataView" />
+/// </summary>
+/// <seealso cref="UnrealSharp.UnrealEngine.IUnrealDataView" />
+public struct FStringView : IUnrealDataView
 {
     /// <summary>
-    /// Struct FStringView
-    /// Implements the <see cref="UnrealSharp.UnrealEngine.IUnrealDataView" />
+    /// The native PTR
     /// </summary>
-    /// <seealso cref="UnrealSharp.UnrealEngine.IUnrealDataView" />
-    public struct FStringView : IUnrealDataView
+    private IntPtr _nativePtr;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FStringView"/> struct.
+    /// </summary>
+    /// <param name="nativePtr">The native PTR.</param>
+    public FStringView(IntPtr nativePtr)
     {
-        /// <summary>
-        /// The native PTR
-        /// </summary>
-        IntPtr NativePtr;
+        _nativePtr = nativePtr;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FStringView"/> struct.
-        /// </summary>
-        /// <param name="nativePtr">The native PTR.</param>
-        public FStringView(IntPtr nativePtr)
+    /// <summary>
+    /// Returns a <see cref="System.String" /> that represents this instance.
+    /// </summary>
+    /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
+    public override string? ToString()
+    {
+        return StringInteropUtils.GetStringFromUnrealString(_nativePtr);
+    }
+
+    /// <summary>
+    /// Returns a hash code for this instance.
+    /// </summary>
+    /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
+    public override int GetHashCode()
+    {
+        return _nativePtr.ToInt32();
+    }
+
+    /// <summary>
+    /// Determines whether the specified <see cref="System.Object" /> is equal to this instance.
+    /// </summary>
+    /// <param name="obj">The object to compare with the current instance.</param>
+    /// <returns><c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.</returns>
+    public override bool Equals([NotNullWhen(true)] object? obj)
+    {
+        return obj is FStringView fs && fs._nativePtr == _nativePtr;
+    }
+
+    /// <summary>
+    /// From the string.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    public void FromString(string? value)
+    {
+        Logger.Assert(_nativePtr != IntPtr.Zero);
+        StringInteropUtils.SetUnrealString(_nativePtr, value);
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this instance is empty.
+    /// </summary>
+    /// <value><c>true</c> if this instance is empty; otherwise, <c>false</c>.</value>
+    public bool IsEmpty => _nativePtr != IntPtr.Zero && StringInteropUtils.GetUnrealStringLength(_nativePtr) <= 0;
+
+    /// <summary>
+    /// Gets the length.
+    /// </summary>
+    /// <value>The length.</value>
+    public int Length => _nativePtr != IntPtr.Zero ? StringInteropUtils.GetUnrealStringLength(_nativePtr) : 0;
+
+    /// <summary>
+    /// Converts to name.
+    /// </summary>
+    /// <returns>FName.</returns>
+    public FName ToName()
+    {
+        var text = ToString();
+        return text != null ? new FName(text) : new FName();
+    }
+
+    /// <summary>
+    /// Converts to native.
+    /// </summary>
+    /// <param name="address">The address.</param>
+    /// <param name="offset">The offset.</param>
+    /// <param name="value">The value.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void ToNative(IntPtr address, int offset, ref FStringView value)
+    {
+        if(address != IntPtr.Zero && value._nativePtr != address && value._nativePtr != IntPtr.Zero)
         {
-            NativePtr = nativePtr;
+            StringInteropUtils.CopyUnrealString(IntPtr.Add(address, offset), value._nativePtr);
         }
+    }
 
-        /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
-        /// </summary>
-        /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
-        public override string? ToString()
-        {
-            return StringInteropUtils.GetStringFromUnrealString(NativePtr);
-        }
+    /// <summary>
+    /// From the native.
+    /// </summary>
+    /// <param name="address">The address.</param>
+    /// <param name="offset">The offset.</param>
+    /// <returns>FStringView.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static FStringView FromNative(IntPtr address, int offset)
+    {
+        return new FStringView(IntPtr.Add(address, offset));
+    }
 
-        /// <summary>
-        /// Returns a hash code for this instance.
-        /// </summary>
-        /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
-        public override int GetHashCode()
-        {
-            return NativePtr.ToInt32();
-        }
+    /// <summary>
+    /// Gets the native PTR.
+    /// </summary>
+    /// <returns>IntPtr.</returns>
+    public nint GetNativePtr()
+    {
+        return _nativePtr;
+    }
 
-        /// <summary>
-        /// Determines whether the specified <see cref="System.Object" /> is equal to this instance.
-        /// </summary>
-        /// <param name="obj">The object to compare with the current instance.</param>
-        /// <returns><c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.</returns>
-        public override bool Equals([NotNullWhen(true)] object? obj)
-        {
-            return obj is FStringView fs && fs.NativePtr == NativePtr;
-        }
+    /// <summary>
+    /// Disconnects from native.
+    /// </summary>
+    public void DisconnectFromNative()
+    {
+        _nativePtr = IntPtr.Zero;
+    }
 
-        /// <summary>
-        /// Froms the string.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        public void FromString(string? value)
-        {
-            Logger.Assert(NativePtr != IntPtr.Zero);
-            StringInteropUtils.SetUnrealString(NativePtr, value);
-        }
+    /// <summary>
+    /// equals
+    /// </summary>
+    /// <param name="left"></param>
+    /// <param name="right"></param>
+    /// <returns></returns>
+    public static bool operator ==(FStringView left, FStringView right)
+    {
+        return left.Equals(right);
+    }
 
-        /// <summary>
-        /// Gets a value indicating whether this instance is empty.
-        /// </summary>
-        /// <value><c>true</c> if this instance is empty; otherwise, <c>false</c>.</value>
-        public bool IsEmpty => NativePtr != IntPtr.Zero ? StringInteropUtils.GetUnrealStringLength(NativePtr) <= 0 : false;
-
-        /// <summary>
-        /// Gets the length.
-        /// </summary>
-        /// <value>The length.</value>
-        public int Length => NativePtr != IntPtr.Zero ? StringInteropUtils.GetUnrealStringLength(NativePtr) : 0;
-
-        /// <summary>
-        /// Converts to name.
-        /// </summary>
-        /// <returns>FName.</returns>
-        public FName ToName()
-        {
-            var text = ToString();
-            return text != null ? new FName(text) : new FName();
-        }
-
-        /// <summary>
-        /// Converts to native.
-        /// </summary>
-        /// <param name="address">The address.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="value">The value.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ToNative(IntPtr address, int offset, ref FStringView value)
-        {
-            if(address != IntPtr.Zero && value.NativePtr != address && value.NativePtr != IntPtr.Zero)
-            {
-                StringInteropUtils.CopyUnrealString(IntPtr.Add(address, offset), value.NativePtr);
-            }
-        }
-
-        /// <summary>
-        /// Froms the native.
-        /// </summary>
-        /// <param name="address">The address.</param>
-        /// <param name="offset">The offset.</param>
-        /// <returns>FStringView.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static FStringView FromNative(IntPtr address, int offset)
-        {
-            return new FStringView(IntPtr.Add(address, offset));
-        }
-
-        /// <summary>
-        /// Gets the native PTR.
-        /// </summary>
-        /// <returns>IntPtr.</returns>
-        public nint GetNativePtr()
-        {
-            return NativePtr;
-        }
-
-        /// <summary>
-        /// Disconnects from native.
-        /// </summary>
-        public void DisconnectFromNative()
-        {
-            NativePtr = IntPtr.Zero;
-        }
+    /// <summary>
+    /// not equals
+    /// </summary>
+    /// <param name="left"></param>
+    /// <param name="right"></param>
+    /// <returns></returns>
+    public static bool operator !=(FStringView left, FStringView right)
+    {
+        return !(left == right);
     }
 }

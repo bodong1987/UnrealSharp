@@ -34,13 +34,13 @@ namespace UnrealSharp
     {
     }
 
-    FPropertyDefinition::FPropertyDefinition(UStruct* InStruct, void* InDefaultObjectPtr, FProperty* InProperty, FTypeValidation* InTypeValidation)
+    FPropertyDefinition::FPropertyDefinition(UStruct* InStruct, const void* InDefaultObjectPtr, FProperty* InProperty, FTypeValidation* InTypeValidation)
     {
         TypeName = CppTypeName = InProperty->GetCPPType();         
         TypeClass = InProperty->GetClass()->GetName();
         Name = InProperty->GetName();        
         Offset = InProperty->GetOffset_ReplaceWith_ContainerPtrToValuePtr();
-        PropertyFlags = (uint64)InProperty->GetPropertyFlags();
+        PropertyFlags = static_cast<uint64>(InProperty->GetPropertyFlags());
         Size = InProperty->GetSize();
 
         if (InDefaultObjectPtr != nullptr)
@@ -60,7 +60,7 @@ namespace UnrealSharp
             ReferenceType = EReferenceType::BuiltInType;
         }        
 
-        if (FBoolProperty* BoolProperty = CastField<FBoolProperty>(InProperty))
+        if (const FBoolProperty* BoolProperty = CastField<FBoolProperty>(InProperty))
         {
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
             FieldMask = BoolProperty->GetFieldMask();
@@ -72,42 +72,42 @@ namespace UnrealSharp
             }
 #endif
         }
-        else if (FEnumProperty* EnumProperty = CastField<FEnumProperty>(InProperty))
+        else if (const FEnumProperty* EnumProperty = CastField<FEnumProperty>(InProperty))
         {
             ClassPath = EnumProperty->GetEnum()->GetPathName();
         }
-        else if (FClassProperty* ClassProperty = CastField<FClassProperty>(InProperty))
+        else if (const FClassProperty* ClassProperty = CastField<FClassProperty>(InProperty))
         {
             if (ClassProperty->MetaClass)
             {
                 MetaClass = FUnrealSharpUtils::GetCppTypeName(ClassProperty->MetaClass);
             }            
         }
-        else if (FObjectProperty* ObjectProperty = CastField<FObjectProperty>(InProperty))
+        else if (const FObjectProperty* ObjectProperty = CastField<FObjectProperty>(InProperty))
         {
             ClassPath = ObjectProperty->PropertyClass->GetPathName();
             TypeName = ObjectProperty->PropertyClass->GetName();
         }
-        else if (FStructProperty* StructProperty = CastField<FStructProperty>(InProperty))
+        else if (const FStructProperty* StructProperty = CastField<FStructProperty>(InProperty))
         {
             ClassPath = StructProperty->Struct->GetPathName();
             TypeName = StructProperty->Struct->GetName();
         }
-        else if (FArrayProperty* ArrayProperty = CastField<FArrayProperty>(InProperty))
+        else if (const FArrayProperty* ArrayProperty = CastField<FArrayProperty>(InProperty))
         {
             FProperty* Property = ArrayProperty->Inner;
             check(Property != nullptr);
 
             InnerProperties.Add(MakeShared<FPropertyDefinition>(InStruct, nullptr, Property, InTypeValidation));
         }
-        else if (FSetProperty* SetProperty = CastField<FSetProperty>(InProperty))
+        else if (const FSetProperty* SetProperty = CastField<FSetProperty>(InProperty))
         {
             FProperty* Property = SetProperty->ElementProp;
             check(Property != nullptr);
 
             InnerProperties.Add(MakeShared<FPropertyDefinition>(InStruct, nullptr, Property, InTypeValidation));
         }
-        else if (FMapProperty* MapProperty = CastField<FMapProperty>(InProperty))
+        else if (const FMapProperty* MapProperty = CastField<FMapProperty>(InProperty))
         {
             FProperty* KeyProperty = MapProperty->KeyProp;
             FProperty* ValueProperty = MapProperty->ValueProp;
@@ -151,7 +151,7 @@ namespace UnrealSharp
             InObject.SetNumberField(TEXT("FieldMask"), FieldMask);
         }
         
-        InObject.SetNumberField(TEXT("ReferenceType"), (int)ReferenceType);
+        InObject.SetNumberField(TEXT("ReferenceType"), static_cast<int>(ReferenceType));
 
         if (Guid.IsValid())
         {
@@ -166,7 +166,7 @@ namespace UnrealSharp
         if (!InnerProperties.IsEmpty())
         {
             TArray<TSharedPtr<FJsonValue>> TempInnerProperties;
-            for (auto& Property : InnerProperties)
+            for (const auto& Property : InnerProperties)
             {
                 TSharedPtr<FJsonObject> PropertyObject = MakeShared<FJsonObject>();
                 Property->Write(*PropertyObject);
@@ -178,7 +178,7 @@ namespace UnrealSharp
 
         if (SignatureFunction)
         {
-            TSharedPtr<FJsonObject> SignatureFunctionObject = MakeShared<FJsonObject>();
+            const TSharedPtr<FJsonObject> SignatureFunctionObject = MakeShared<FJsonObject>();
             SignatureFunction->Write(*SignatureFunctionObject);
 
             InObject.SetObjectField(TEXT("SignatureFunction"), SignatureFunctionObject);
@@ -187,23 +187,23 @@ namespace UnrealSharp
         Metas.Write(InObject);
     }
 
-    void FPropertyDefinition::Read(FJsonObject& InObject)
+    void FPropertyDefinition::Read(const FJsonObject& InObject)
     {
         CppTypeName = InObject.GetStringField(TEXT("CppTypeName"));
         TypeName = InObject.GetStringField(TEXT("TypeName"));
         TypeClass = InObject.GetStringField(TEXT("TypeClass"));
         Name = InObject.GetStringField(TEXT("Name"));
         ClassPath = InObject.GetStringField(TEXT("ClassPath"));
-        Offset = (int)InObject.GetNumberField(TEXT("Offset"));        
+        Offset = static_cast<int>(InObject.GetNumberField(TEXT("Offset")));        
         LexFromString(PropertyFlags, *InObject.GetStringField(TEXT("FlagsT")));
-        Size = (int)InObject.GetNumberField(TEXT("Size"));
+        Size = static_cast<int>(InObject.GetNumberField(TEXT("Size")));
 
         if (InObject.HasField(TEXT("FieldMask")))
         {
-            FieldMask = (uint8)InObject.GetNumberField(TEXT("FieldMask"));
+            FieldMask = static_cast<uint8>(InObject.GetNumberField(TEXT("FieldMask")));
         }
         
-        ReferenceType = (EReferenceType)InObject.GetNumberField(TEXT("ReferenceType"));
+        ReferenceType = static_cast<EReferenceType>(InObject.GetNumberField(TEXT("ReferenceType")));
 
         InObject.TryGetStringField(TEXT("DefaultValue"), DefaultValue);
         InObject.TryGetStringField(TEXT("MetaClass"), MetaClass);
@@ -211,15 +211,13 @@ namespace UnrealSharp
         if (InObject.HasField(TEXT("Guid")))
         {
             FGuid::Parse(InObject.GetStringField(TEXT("Guid")), Guid);
-        }        
+        }
 
-        const TArray< TSharedPtr<FJsonValue> >* InnerPropertiesRefPtr;
-        if (InObject.TryGetArrayField(TEXT("InnerProperties"), InnerPropertiesRefPtr) && InnerPropertiesRefPtr)
+        if (const TArray< TSharedPtr<FJsonValue> >* InnerPropertiesRefPtr; InObject.TryGetArrayField(TEXT("InnerProperties"), InnerPropertiesRefPtr) && InnerPropertiesRefPtr)
         {
             for (auto& PropertyObject : *InnerPropertiesRefPtr)
             {
-                TSharedPtr<FJsonObject>* ObjectPtr = nullptr;
-                if (PropertyObject->TryGetObject(ObjectPtr) && ObjectPtr != nullptr)
+                if (TSharedPtr<FJsonObject>* ObjectPtr = nullptr; PropertyObject->TryGetObject(ObjectPtr) && ObjectPtr != nullptr)
                 {
                     FPropertyDefinitionPtr Def = MakeShared<FPropertyDefinition>();
                     Def->Read(**ObjectPtr);
@@ -228,8 +226,7 @@ namespace UnrealSharp
             }
         }
 
-        const TSharedPtr<FJsonObject>* SignatureFunctionObject;
-        if (InObject.TryGetObjectField(TEXT("SignatureFunction"), SignatureFunctionObject) && SignatureFunctionObject)
+        if (const TSharedPtr<FJsonObject>* SignatureFunctionObject; InObject.TryGetObjectField(TEXT("SignatureFunction"), SignatureFunctionObject) && SignatureFunctionObject)
         {
             SignatureFunction = MakeShared<FFunctionTypeDefinition>();
 
@@ -242,7 +239,7 @@ namespace UnrealSharp
         Metas.TryGetMeta(TEXT("AttachToComponentName"), AttachToComponentName);
         Metas.TryGetMeta(TEXT("AttachToSocketName"), AttachToSocketName);
         Metas.TryGetMeta(TEXT("ReplicatedUsing"), ReplicatedUsing);
-        Metas.TryGetMeta(TEXT("ReplicationCondition"), *(int*)&ReplicationCondition);
+        Metas.TryGetMeta(TEXT("ReplicationCondition"), *reinterpret_cast<int*>(&ReplicationCondition));
     }
 
     bool FPropertyDefinition::IsReference() const

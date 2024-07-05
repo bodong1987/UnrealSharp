@@ -36,7 +36,7 @@ namespace UnrealSharp
     {
         if (InTargetStringPtr)
         {
-            *InTargetStringPtr = InCSharpString ? FString(UNREALSHARP_STRING_TO_TCHAR(InCSharpString)) : FString();
+            *InTargetStringPtr = InCSharpString ? FString(US_STRING_TO_TCHAR(InCSharpString)) : FString();
         }
     }
 

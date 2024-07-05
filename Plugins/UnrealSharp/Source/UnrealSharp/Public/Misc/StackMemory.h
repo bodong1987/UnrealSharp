@@ -29,7 +29,7 @@ namespace UnrealSharp
 {
     /*
     * A simple stack memory encapsulation, 
-    * used to store memory allocated on the stack using APIs such as FMemory_Alloca/FMemory_Alloca_Aligned. 
+    * used to store memory allocated on the stack using APIs such as FMemory_Alloca/FMemory_Alloca_Aligned.  
     * The additional Size mainly functions as a verification range to improve security.
     */
     struct UNREALSHARP_API FStackMemory

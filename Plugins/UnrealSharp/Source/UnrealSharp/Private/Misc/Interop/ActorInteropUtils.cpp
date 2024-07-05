@@ -30,14 +30,14 @@ namespace UnrealSharp
 {
     FCSharpObjectMarshalValue FInteropUtils::GetActorWorld(const AActor* InActor)
     {
-        UWorld* World = InActor != nullptr ? InActor->GetWorld() : nullptr;
+        const UWorld* World = InActor != nullptr ? InActor->GetWorld() : nullptr;
 
         return World != nullptr ? GetCSharpObjectOfUnrealObject(World) : FCSharpObjectMarshalValue();
     }
 
     FCSharpObjectMarshalValue FInteropUtils::GetActorGameInstance(const AActor* InActor)
     {
-        UGameInstance* Instance = InActor != nullptr ? InActor->GetGameInstance() : nullptr;
+        const UGameInstance* Instance = InActor != nullptr ? InActor->GetGameInstance() : nullptr;
 
         return Instance != nullptr ? GetCSharpObjectOfUnrealObject(Instance) : FCSharpObjectMarshalValue();
     }
@@ -54,7 +54,7 @@ namespace UnrealSharp
 
         check(InWorld);
 
-        AActor* Actor = InWorld->SpawnActor<AActor>(InClass, Transform);
+        const AActor* Actor = InWorld->SpawnActor<AActor>(InClass, Transform);
 
         return Actor != nullptr ? GetCSharpObjectOfUnrealObject(Actor) : FCSharpObjectMarshalValue();
     }
@@ -65,7 +65,7 @@ namespace UnrealSharp
         check(InLocation);
         check(InRotation);
 
-        AActor* Actor = InWorld->SpawnActor<AActor>(InClass, *InLocation, *InRotation);
+        const AActor* Actor = InWorld->SpawnActor<AActor>(InClass, *InLocation, *InRotation);
 
         return Actor != nullptr ? GetCSharpObjectOfUnrealObject(Actor) : FCSharpObjectMarshalValue();
     }

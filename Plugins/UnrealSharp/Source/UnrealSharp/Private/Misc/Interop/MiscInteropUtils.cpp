@@ -31,13 +31,13 @@ namespace UnrealSharp
 {
     FGuid FInteropUtils::MakeGuidFromString(const char* InCSharpGuidString)
     {
-        FGuid guid;
-        FGuid::Parse(UNREALSHARP_STRING_TO_TCHAR(InCSharpGuidString), guid);
+        FGuid GUID;
+        FGuid::Parse(US_STRING_TO_TCHAR(InCSharpGuidString), GUID);
 
-        return guid;
+        return GUID;
     }
 
-    void* FInteropUtils::CreateCSharpStruct(const void* InUnrealStructPtr, UScriptStruct* InStruct)
+    void* FInteropUtils::CreateCSharpStruct(const void* InUnrealStructPtr, UScriptStruct* InStruct) // NOLINT
     {
         ICSharpRuntime* Runtime = FCSharpRuntimeFactory::GetInstance();
 
@@ -46,7 +46,7 @@ namespace UnrealSharp
         return Runtime->GetCSharpLibraryAccessor()->CreateCSharpStruct(InUnrealStructPtr, InStruct);
     }
 
-    void FInteropUtils::StructToNative(UScriptStruct* InStructType, void* InNativePtr, const void* InCSharpStructPtr)
+    void FInteropUtils::StructToNative(UScriptStruct* InStructType, void* InNativePtr, const void* InCSharpStructPtr) // NOLINT
     {
         ICSharpRuntime* Runtime = FCSharpRuntimeFactory::GetInstance();
 

@@ -26,7 +26,6 @@
 #pragma once
 
 #include "IPropertyMarshaller.h"
-#include "ICSharpMethodInvocation.h"
 
 #if WITH_MONO
 namespace UnrealSharp::Mono
@@ -96,14 +95,13 @@ namespace UnrealSharp::Mono
         {
             checkSlow(InDestination && InSource);
 
-            *(TCppType*)InDestination = *(const TCppType*)InSource;
+            *(TCppType*)InDestination = *(const TCppType*)InSource; // NOLINT
         }
     };
 
     template <typename TPropertyType>
     class TPropertyMarshaller : public TBasePropertyMarshaller<TPropertyType, typename TPropertyType::TCppType>
-    {
-    public:
+    {    
     };
 
     class FBoolPropertyMarshaller : public TPropertyMarshaller<FBoolProperty>

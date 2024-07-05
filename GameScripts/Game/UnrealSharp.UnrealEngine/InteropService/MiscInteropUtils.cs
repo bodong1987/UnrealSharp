@@ -23,50 +23,51 @@
 
     Project URL: https://github.com/bodong1987/UnrealSharp
 */
-namespace UnrealSharp.UnrealEngine.InteropService
+// ReSharper disable MemberHidesStaticFromOuterClass
+namespace UnrealSharp.UnrealEngine.InteropService;
+
+/// <summary>
+/// Class MiscInteropUtils.
+/// </summary>
+public static unsafe class MiscInteropUtils
 {
+    #region Interop Function Pointers     
     /// <summary>
-    /// Class MiscInteropUtils.
+    /// Class InteropFunctionPointers
+    /// Since mono does not support setting delegate* unmanaged type fields directly through reflection,
+    /// Therefore we cannot directly declare delegate* unmanaged fields and set them through reflection
+    /// So we use this method to set it indirectly, first save the external function pointer to these IntPtr,
+    /// and then solve it through forced type conversion when calling.Although this is a bit inconvenient,
+    /// there is currently no other way unless Mono supports it in the future.
+    /// ReSharper disable once CommentTypo
+    /// @reference check here: https://github.com/dotnet/runtime/blob/main/src/mono/mono/metadata/icall.c#L2134  ves_icall_RuntimeFieldInfo_SetValueInternal
     /// </summary>
-    public unsafe static class MiscInteropUtils
+    private static class InteropFunctionPointers
     {
-        #region Interop Function Pointers     
-        /// <summary>
-        /// Class InteropFunctionPointers.
-        /// Since mono does not support setting delegate* unamaged type fields directly through reflection,
-        /// Therefore we cannot directly declare delegate* unmanged fields and set them through reflection
-        /// So we use this method to set it indirectly, first save the external function pointer to these IntPtrs,
-        /// and then solve it through forced type conversion when calling.Although this is a bit inconvenient,
-        /// there is currently no other way unless Mono supports it in the future.
-        /// @reference check here: https://github.com/dotnet/runtime/blob/main/src/mono/mono/metadata/icall.c#L2134  ves_icall_RuntimeFieldInfo_SetValueInternal
-        /// </summary>
-        private static class InteropFunctionPointers
-        {
 #pragma warning disable CS0649 // The compiler detected an uninitialized private or internal field declaration that is never assigned a value. [We use reflection to bind all fields of this class]
-            /// <summary>
-            /// The make unique identifier from string
-            /// </summary>
-            public readonly static IntPtr MakeGuidFromString;
+        /// <summary>
+        /// The make unique identifier from string
+        /// </summary>
+        public static readonly IntPtr MakeGuidFromString;
 #pragma warning restore CS0649
 
-            /// <summary>
-            /// Cctors this instance.
-            /// </summary>
-            static InteropFunctionPointers()
-            {
-                InteropFunctions.BindInteropFunctionPointers(typeof(InteropFunctionPointers));
-            }
-        }
-        #endregion
-
         /// <summary>
-        /// Makes the unique identifier from string.
+        /// static constructor
         /// </summary>
-        /// <param name="guidString">The unique identifier string.</param>
-        /// <returns>UnrealSharp.UnrealEngine.FGuid.</returns>
-        public static FGuid MakeGuidFromString(string guidString)
+        static InteropFunctionPointers()
         {
-            return ((delegate* unmanaged[Cdecl]<string, FGuid>)InteropFunctionPointers.MakeGuidFromString)(guidString);
+            InteropFunctions.BindInteropFunctionPointers(typeof(InteropFunctionPointers));
         }
+    }
+    #endregion
+
+    /// <summary>
+    /// Makes the unique identifier from string.
+    /// </summary>
+    /// <param name="guidString">The unique identifier string.</param>
+    /// <returns>UnrealSharp.UnrealEngine.FGuid.</returns>
+    public static FGuid MakeGuidFromString(string guidString)
+    {
+        return ((delegate* unmanaged[Cdecl]<string, FGuid>)InteropFunctionPointers.MakeGuidFromString)(guidString);
     }
 }

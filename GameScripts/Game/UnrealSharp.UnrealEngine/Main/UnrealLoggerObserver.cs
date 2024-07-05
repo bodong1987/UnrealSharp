@@ -25,25 +25,24 @@
 */
 using UnrealSharp.Utils.Misc;
 
-namespace UnrealSharp.UnrealEngine.Main
+namespace UnrealSharp.UnrealEngine.Main;
+
+/// <summary>
+/// Class UnrealLoggerObserver.
+/// Implements the <see cref="ILoggerObserver" />
+/// </summary>
+/// <seealso cref="ILoggerObserver" />
+internal class UnrealLoggerObserver : ILoggerObserver
 {
     /// <summary>
-    /// Class UnrealLoggerObserver.
-    /// Implements the <see cref="ILoggerObserver" />
+    /// Called when [receive].
+    /// May called from any thread...
     /// </summary>
-    /// <seealso cref="ILoggerObserver" />
-    class UnrealLoggerObserver : ILoggerObserver
+    /// <param name="level">The level.</param>
+    /// <param name="tag">The tag.</param>
+    /// <param name="message">The message.</param>
+    public void OnEvent(LoggerLevel level, string? tag, string message)
     {
-        /// <summary>
-        /// Called when [receive].
-        /// May called from any thread...
-        /// </summary>
-        /// <param name="level">The level.</param>
-        /// <param name="tag">The tag.</param>
-        /// <param name="message">The message.</param>
-        public void OnEvent(LoggerLevel level, string? tag, string message)
-        {
-            UnrealSharpEntry.LogMessage(level, message);
-        }
+        UnrealSharpEntry.LogMessage(level, message);
     }
 }

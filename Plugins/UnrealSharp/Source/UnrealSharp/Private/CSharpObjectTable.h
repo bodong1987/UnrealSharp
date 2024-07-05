@@ -38,9 +38,9 @@ namespace UnrealSharp
     struct UNREALSHARP_API FCSharpObjectFactory
     {
     public:
-        FCSharpObjectFactory(TSharedPtr<ICSharpType> InType, TSharedPtr<ICSharpMethodInvocation> InInvocation);
+        FCSharpObjectFactory(const TSharedPtr<ICSharpType>& InType, const TSharedPtr<ICSharpMethodInvocation>& InInvocation);
 
-        void*                                               Create(UObject* InObject);
+        void*                                               Create(UObject* InObject) const;
 
     private:
         TSharedPtr<ICSharpType>                             Type;
@@ -59,7 +59,7 @@ namespace UnrealSharp
     {
     public:
         FCSharpObjectTable(ICSharpRuntime* InRuntime);
-        ~FCSharpObjectTable();
+        virtual ~FCSharpObjectTable() override;
 
         virtual void*                                       GetCSharpObject(UObject* InObject) override;
         virtual UObject*                                    GetUnrealObject(void* InCSharpObject) override;
@@ -72,10 +72,10 @@ namespace UnrealSharp
 
     protected:
         void                                                RegisterDelegates();
-        void                                                UnRegisterDelegates();
+        void                                                UnRegisterDelegates() const;
 
         // make C# UObject disconnect from Native UObject*
-        void                                                BreakCSharpObjectConnection(FCSharpObjectHandle& InHandle);
+        void                                                BreakCSharpObjectConnection(const FCSharpObjectHandle& InHandle) const;
 
         FCSharpObjectHandle                                 CreateCSharpObjectHandle(UObject* InObject);
         void*                                               CreateCSharpObject(UClass* InClass, UObject* InObject);

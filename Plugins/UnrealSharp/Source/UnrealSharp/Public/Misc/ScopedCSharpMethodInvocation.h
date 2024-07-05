@@ -26,22 +26,22 @@
 #pragma once
 
 #include "ICSharpMethodInvocation.h"
-#include "Misc/StackMemory.h"
+#include "StackMemory.h" // NOLINT, used in Macros
 
 namespace UnrealSharp
 {
     /*
     * The secondary encapsulation of ICSharpMethodInvocation.
     * it is based on the RAII mechanism and template functions, 
-    * combined with the use of the macro UNREALSHARP_SCOPED_CSHARP_METHOD_INVOCATION, 
+    * combined with the use of the macro US_SCOPED_CSHARP_METHOD_INVOCATION, 
     * making the invocation of C# methods more streamlined.
     * @example:
-    *    UNREALSHARP_SCOPED_CSHARP_METHOD_INVOCATION(WriteSoftObjectPtrInvocation);
+    *    US_SCOPED_CSHARP_METHOD_INVOCATION(WriteSoftObjectPtrInvocation);
     *    WriteSoftObjectPtrInvocationInvoker.Invoke(nullptr, &InDestinationAddress, InSourceObjectInterface);
     * 
     *   Use a macro to define an Invoker, and then calling the C# method will be similar to calling the C# method directly, 
     *   without the need to manually call 
-    *        BeinInvoke
+    *        BeginInvoke
     *        AddParameter
     *        Invoke
     *        EndInvoke, etc.
@@ -50,7 +50,7 @@ namespace UnrealSharp
     {
     public:
         FScopedCSharpMethodInvocation(ICSharpMethodInvocation& InInvocationRef, const FStackMemory& InParameterBuffer);
-        FScopedCSharpMethodInvocation(TSharedPtr<ICSharpMethodInvocation> InInvocationPtr, const FStackMemory& InParameterBuffer);
+        FScopedCSharpMethodInvocation(const TSharedPtr<ICSharpMethodInvocation>& InInvocationPtr, const FStackMemory& InParameterBuffer);
         FScopedCSharpMethodInvocation(TSharedPtr<ICSharpMethodInvocation>&& InInvocationPtr, const FStackMemory& InParameterBuffer);
         ~FScopedCSharpMethodInvocation();
 
@@ -76,15 +76,15 @@ namespace UnrealSharp
         // invoke C# method with instance(can be null for static method), capture exception information, auto decode return value
         void*                        DecodedInvoke(void* InInstance, TUniquePtr<ICSharpMethodInvocationException>& OutException);
 
-        ICSharpMethodInvocation*     GetInvocation() { return &Invocation; }
+        ICSharpMethodInvocation*     GetInvocation() const { return &Invocation; }
 
         void                         AddArgument(void* InArgumentPtr);
 
         // Parameters are automatically packaged during compilation, and there is no need to manually AddParameter, making the call easier and more convenient.
         template <typename... T>
-        inline void*                 Invoke(void* InInstance, T*... args)
+        void*                        Invoke(void* InInstance, T*... InArgs)
         {
-            AddParameter<T...>(args...);
+            AddParameter<T...>(InArgs...);
 
             return Invoke(InInstance);
         }
@@ -92,38 +92,38 @@ namespace UnrealSharp
         // Parameters are automatically packaged during compilation, and there is no need to manually AddParameter, making the call easier and more convenient.
         // auto decode return value
         template <typename... T>
-        inline void*                 DecodedInvoke(void* InInstance, T*... args)
+        void*                        DecodedInvoke(void* InInstance, T*... InArgs)
         {
-            AddParameter<T...>(args...);
+            AddParameter<T...>(InArgs...);
 
             return DecodedInvoke(InInstance);
         }
 
         // If your C# function returns a simple value type, it is more convenient to use this interface directly.
         template <typename TReturnType, typename... T>
-        inline TReturnType           Invoke(void* InInstance, T*... args)
+        TReturnType                  Invoke(void* InInstance, T*... InArgs)
         {
             static_assert(TIsPODType<TReturnType>::Value, "This interface is only available for value types (same on C# and C++ sides)");
 
             if constexpr (sizeof...(T) > 0)
             {
-                AddParameter<T...>(args...);
+                AddParameter<T...>(InArgs...);
             }
 
-            TReturnType* ReturnValuePointer = (TReturnType*)DecodedInvoke(InInstance);
-
+            TReturnType* ReturnValuePointer = static_cast<TReturnType*>(DecodedInvoke(InInstance));
+            
             return *ReturnValuePointer;
         }
 
     private:
         template <typename T, typename... TExtraTypes>
-        inline void                  AddParameter(T* args, TExtraTypes* ... extraArgs)
+        void                         AddParameter(T* InArgs, TExtraTypes* ... InExtraArgs)
         {
-            AddArgument((void*)args);
+            AddArgument((void*)(InArgs)); // NOLINT
 
             if constexpr (sizeof...(TExtraTypes) > 0)
             {
-                AddParameter(extraArgs...);
+                AddParameter(InExtraArgs...);
             }
         }
 
@@ -133,7 +133,7 @@ namespace UnrealSharp
 
 // don't use FScopedCSharpMethodInvocation directly
 // use this macro.
-#define UNREALSHARP_SCOPED_CSHARP_METHOD_INVOCATION(name) \
+#define US_SCOPED_CSHARP_METHOD_INVOCATION(name) \
         checkSlow(name); \
         const int name##ParameterCount = name->GetCSharpFunctionParameterCount(); \
         const int name##ParameterBufferSize = sizeof(void*)*name##ParameterCount; \

@@ -66,7 +66,7 @@ namespace UnrealSharp
         void                            SetState(ECSharpObjectHandleState InState);
 
     private:
-        ICSharpRuntime*                 Runtime;
+        ICSharpRuntime*                 Runtime = nullptr;
         ECSharpObjectHandleState        State;
         TSharedPtr<ICSharpGCHandle>     Handle;
     };

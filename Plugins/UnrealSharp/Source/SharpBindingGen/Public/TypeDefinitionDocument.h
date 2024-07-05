@@ -25,7 +25,6 @@
 */
 #pragma once
 
-#include "MetaDefinition.h"
 #include "BaseTypeDefinition.h"
 
 namespace UnrealSharp
@@ -48,15 +47,15 @@ namespace UnrealSharp
     class SHARPBINDINGGEN_API FTypeDefinitionDocument
     {
     public:
-        typedef TSharedPtr<FBaseTypeDefinition>         TypeDefinitionPtr;
+        typedef TSharedPtr<FBaseTypeDefinition>         FTypeDefinitionPtr;
 
         FTypeDefinitionDocument();
         virtual ~FTypeDefinitionDocument();
 
     public:
         virtual bool                                    LoadFromFile(const TCHAR* InFilePath);
-        virtual bool                                    LoadFromEngine(ETypeValidationFlags InFlags);
-        virtual bool                                    LoadFromEngine(FTypeValidation* InTypeValidation, ETypeValidationFlags InFlags);
+        virtual bool                                    LoadFromEngine(const ETypeValidationFlags InFlags);
+        virtual bool                                    LoadFromEngine(FTypeValidation* InTypeValidation, const ETypeValidationFlags InFlags);
 
         virtual bool                                    SaveToFile(const TCHAR* InFilePath);
 
@@ -64,22 +63,22 @@ namespace UnrealSharp
 
         void                                            Merge(const FTypeDefinitionDocument& InDocument);
 
-        const TSortedMap<FString, TypeDefinitionPtr>&   GetTypes() const{ return Types; }
-        TypeDefinitionPtr                               GetType(const FString& InCppName);
+        const TSortedMap<FString, FTypeDefinitionPtr>&   GetTypes() const{ return Types; }
+        FTypeDefinitionPtr                               GetType(const FString& InCppName);
         
     protected:
-        virtual TypeDefinitionPtr                       CreateTypeDefinition(UField* InField, FTypeValidation* InTypeValidation) const;
-        virtual TypeDefinitionPtr                       CreateTypeDefinition(EDefinitionType InType) const;  
+        virtual FTypeDefinitionPtr                       CreateTypeDefinition(UField* InField, FTypeValidation* InTypeValidation) const;
+        virtual FTypeDefinitionPtr                       CreateTypeDefinition(const EDefinitionType InType) const;  
 
     private:
         template <typename T>
         void                                            SaveStringCollection(TSharedPtr<FJsonObject>& InDocument, const T& InCollectionRef, const FString& InName);
         
         template <typename T>
-        void                                            ReadStringCollection(TSharedPtr<FJsonObject>& InDocument, T& InCollectionRef, const FString& InName);
+        static void                                     ReadStringCollection(TSharedPtr<FJsonObject>& InDocument, T& InCollectionRef, const FString& InName);
 
     protected:
-        TSortedMap<FString, TypeDefinitionPtr>          Types;        
+        TSortedMap<FString, FTypeDefinitionPtr>          Types;        
         TSet<FString>                                   FastAccessStructTypes;
         TSet<FString>                                   FastFunctionInvokeModuleNames;
         TSet<FString>                                   FastFunctionInvokeIgnoreNames;

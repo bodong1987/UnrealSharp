@@ -1,7 +1,6 @@
-﻿namespace UnrealSharpTool.Core.Utils
+﻿namespace UnrealSharpTool.Core.Utils;
+
+public static class CoreVersion
 {
-    public static class CoreVersion
-    {
-        public readonly static Version Version = new Version(1, 1, 0, 0);
-    }
+    public static readonly Version Version = new(1, 1, 0, 0);
 }

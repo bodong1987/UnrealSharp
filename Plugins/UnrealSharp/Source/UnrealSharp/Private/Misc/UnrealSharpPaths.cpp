@@ -51,7 +51,7 @@ namespace UnrealSharp
 
     void FUnrealSharpPaths::EnsureUnrealSharpIntermediateDirExists()
     {
-        FString Path = GetUnrealSharpIntermediateDirInner();
+        const FString Path = GetUnrealSharpIntermediateDirInner();
 
         if (!FPaths::DirectoryExists(Path))
         {
@@ -61,8 +61,8 @@ namespace UnrealSharp
 
     FString FUnrealSharpPaths::GetUnrealSharpManagedLibraryDir()
     {
-        // MANAGED_DIRECTORYNAME is defined in Build.cs
-        FString ManagedPath = FPaths::ConvertRelativePathToFull(FPaths::Combine(FPaths::ProjectDir(), TEXT("Managed/") TEXT(MANAGED_DIRECTORYNAME)));
+        // MANAGED_DIRECTORY_NAME is defined in Build.cs
+        FString ManagedPath = FPaths::ConvertRelativePathToFull(FPaths::Combine(FPaths::ProjectDir(), TEXT("Managed/") TEXT(MANAGED_DIRECTORY_NAME)));
         return ManagedPath;
     }
 

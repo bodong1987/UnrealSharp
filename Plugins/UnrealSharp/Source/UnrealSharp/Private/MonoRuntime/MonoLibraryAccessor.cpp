@@ -24,16 +24,8 @@
     Project URL: https://github.com/bodong1987/UnrealSharp
 */
 #include "MonoRuntime/MonoLibraryAccessor.h"
-#include "ICSharpRuntime.h"
-#include "ICSharpMethodInvocation.h"
-#include "Misc/ScopedCSharpMethodInvocation.h"
-#include "Misc/ScopedExit.h"
-#include "Misc/UnrealSharpUtils.h"
-#include "Misc/StackMemory.h"
 
 #if WITH_MONO
-#include "MonoRuntime/MonoInteropUtils.h"
-
 namespace UnrealSharp::Mono
 {
     FMonoLibraryAccessor::FMonoLibraryAccessor(ICSharpRuntime* InRuntime) :

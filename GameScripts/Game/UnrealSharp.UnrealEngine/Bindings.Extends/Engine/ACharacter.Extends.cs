@@ -23,28 +23,25 @@
 
     Project URL: https://github.com/bodong1987/UnrealSharp
 */
-namespace UnrealSharp.UnrealEngine
-{
-    public partial class ACharacter
-    {
-        /// <summary>
-        /// Gets the capsule component.
-        /// </summary>
-        /// <returns>System.Nullable&lt;UCapsuleComponent&gt;.</returns>
-        public UCapsuleComponent? GetCapsuleComponent()
-        {
-            return CapsuleComponent;
-        }
+namespace UnrealSharp.UnrealEngine;
 
-        /// <summary>
-        /// Gets the character movement.
-        /// </summary>
-        /// <returns>System.Nullable&lt;UCharacterMovementComponent&gt;.</returns>
-        public UCharacterMovementComponent? GetCharacterMovement()
-        {
-            return CharacterMovement;
-        }
+public partial class ACharacter
+{
+    /// <summary>
+    /// Gets the capsule component.
+    /// </summary>
+    /// <returns>System.Nullable&lt;UCapsuleComponent&gt;.</returns>
+    public UCapsuleComponent? GetCapsuleComponent()
+    {
+        return CapsuleComponent;
+    }
+
+    /// <summary>
+    /// Gets the character movement.
+    /// </summary>
+    /// <returns>System.Nullable&lt;UCharacterMovementComponent&gt;.</returns>
+    public UCharacterMovementComponent? GetCharacterMovement()
+    {
+        return CharacterMovement;
     }
 }
-
-

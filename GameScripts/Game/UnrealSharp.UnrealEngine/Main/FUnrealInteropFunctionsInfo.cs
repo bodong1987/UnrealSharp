@@ -26,47 +26,46 @@
 
 using System.Runtime.InteropServices;
 
-namespace UnrealSharp.UnrealEngine.Main
+namespace UnrealSharp.UnrealEngine.Main;
+
+/// <summary>
+/// Struct FUnrealInteropFunctionsInfo
+/// </summary>
+[StructLayout(LayoutKind.Sequential)]
+public unsafe struct FUnrealInteropFunctionsInfo
 {
     /// <summary>
-    /// Struct FUnrealInteropFunctionsInfo
+    /// The size of this
     /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct FUnrealInteropFunctionsInfo
-    {
-        /// <summary>
-        /// The size of this
-        /// </summary>
-        public int SizeOfThis;
+    public int SizeOfThis;
 
-        /// <summary>
-        /// The native interop functions PTR
-        /// </summary>
-        public void* NativeInteropFunctionsPtr;
+    /// <summary>
+    /// The native interop functions PTR
+    /// </summary>
+    public void* NativeInteropFunctionsPtr;
 
-        /// <summary>
-        /// The get unreal interop function pointer pointer
-        /// </summary>
-        public void* GetUnrealInteropFunctionPointerPointer;
+    /// <summary>
+    /// The get unreal interop function pointer
+    /// </summary>
+    public void* GetUnrealInteropFunctionPointerFunc;
 
-        /// <summary>
-        /// The log message function pointer
-        /// </summary>
-        public void* LogMessageFunctionPointer;
+    /// <summary>
+    /// The log message function pointer
+    /// </summary>
+    public void* LogMessageFunctionPointer;
 
-        /// <summary>
-        /// The unreal major version
-        /// </summary>
-        public int UnrealMajorVersion;
+    /// <summary>
+    /// The unreal major version
+    /// </summary>
+    public int UnrealMajorVersion;
 
-        /// <summary>
-        /// The unreal minor version
-        /// </summary>
-        public int UnrealMinorVersion;
+    /// <summary>
+    /// The unreal minor version
+    /// </summary>
+    public int UnrealMinorVersion;
 
-        /// <summary>
-        /// The unreal patch version
-        /// </summary>
-        public int UnrealPatchVersion;
-    }
+    /// <summary>
+    /// The unreal patch version
+    /// </summary>
+    public int UnrealPatchVersion;
 }

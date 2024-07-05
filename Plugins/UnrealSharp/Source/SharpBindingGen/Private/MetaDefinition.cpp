@@ -33,11 +33,11 @@ namespace UnrealSharp
         {
             TArray<TSharedPtr<FJsonValue>> MetaValues;
 
-            for (auto& pair : Metas)
+            for (const auto& Pair : Metas)
             {
                 TSharedPtr<FJsonObject> MetaPtr = MakeShared<FJsonObject>();
-                MetaPtr->SetStringField(TEXT("Name"), pair.Key);
-                MetaPtr->SetStringField(TEXT("Value"), pair.Value);
+                MetaPtr->SetStringField(TEXT("Name"), Pair.Key);
+                MetaPtr->SetStringField(TEXT("Value"), Pair.Value);
 
                 MetaValues.Add(MakeShared<FJsonValueObject>(MetaPtr));
             }
@@ -46,15 +46,13 @@ namespace UnrealSharp
         }        
     }
 
-    void FMetaDefinition::Read(FJsonObject& InObject)
+    void FMetaDefinition::Read(const FJsonObject& InObject)
     {
-        const TArray< TSharedPtr<FJsonValue> >* MetasRefPtr = nullptr;
-        if (InObject.TryGetArrayField(TEXT("Metas"), MetasRefPtr) && MetasRefPtr)
+        if (const TArray< TSharedPtr<FJsonValue> >* MetasRefPtr = nullptr; InObject.TryGetArrayField(TEXT("Metas"), MetasRefPtr) && MetasRefPtr)
         {
             for (auto& MetaObject : *MetasRefPtr)
             {
-                TSharedPtr<FJsonObject>* ObjectPtr = nullptr;
-                if (MetaObject->TryGetObject(ObjectPtr) && ObjectPtr != nullptr)
+                if (TSharedPtr<FJsonObject>* ObjectPtr = nullptr; MetaObject->TryGetObject(ObjectPtr) && ObjectPtr != nullptr)
                 {
                     FString Key = (*ObjectPtr)->GetStringField(TEXT("Name"));
                     FString Value = (*ObjectPtr)->GetStringField(TEXT("Value"));
@@ -80,35 +78,31 @@ namespace UnrealSharp
             {
                 if (const TMap<FName, FString>* SourceObjectMetaData = SourceMetaData->ObjectMetaDataMap.Find(InField))
                 {
-                    for (auto& pair : *SourceObjectMetaData)
+                    for (auto& Pair : *SourceObjectMetaData)
                     {
-                        Metas.Add(pair.Key.ToString(), pair.Value);
+                        Metas.Add(Pair.Key.ToString(), Pair.Value);
                     }
                 }
             }
         }
     }
 
-    void FMetaDefinition::Load(FProperty* InProperty)
+    void FMetaDefinition::Load(const FProperty* InProperty)
     {
         Reset();
 
-        const TMap<FName, FString>* PropertyMetaDataMap = InProperty->GetMetaDataMap();
-
-        if (PropertyMetaDataMap != nullptr)
+        if (const TMap<FName, FString>* PropertyMetaDataMap = InProperty->GetMetaDataMap(); PropertyMetaDataMap != nullptr)
         {
-            for (auto& pair : *PropertyMetaDataMap)
+            for (auto& Pair : *PropertyMetaDataMap)
             {
-                Metas.Add(pair.Key.ToString(), pair.Value);
+                Metas.Add(Pair.Key.ToString(), Pair.Value);
             }
         }
     }
 
     bool FMetaDefinition::TryGetMeta(const FString& InKey, FString& OutMeta) const
     {
-        auto* Result = Metas.Find(InKey);
-
-        if (Result != nullptr)
+        if (const auto* Result = Metas.Find(InKey); Result != nullptr)
         {
             OutMeta = *Result;
 
@@ -120,9 +114,7 @@ namespace UnrealSharp
 
     bool FMetaDefinition::TryGetMeta(const FString& InKey, bool& OutMeta) const
     {
-        auto* Result = Metas.Find(InKey);
-
-        if (Result != nullptr)
+        if (const auto* Result = Metas.Find(InKey); Result != nullptr)
         {
             OutMeta = FCString::Stricmp(**Result, TEXT("True")) == 0;
 
@@ -134,9 +126,7 @@ namespace UnrealSharp
 
     bool FMetaDefinition::TryGetMeta(const FString& InKey, int& OutMeta) const
     {
-        auto* Result = Metas.Find(InKey);
-
-        if (Result != nullptr)
+        if (const auto* Result = Metas.Find(InKey); Result != nullptr)
         {
             OutMeta = FCString::Atoi(**Result);
 

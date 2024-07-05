@@ -74,7 +74,7 @@ namespace UnrealSharp
         virtual void*                         Invoke(void* InInstance, TUniquePtr<ICSharpMethodInvocationException>& OutException) = 0;
 
         // finish invoke
-        // release temp buffer if need
+        // release temp buffer need
         virtual void                          EndInvoke() = 0;
 
         // add argument for this invoke

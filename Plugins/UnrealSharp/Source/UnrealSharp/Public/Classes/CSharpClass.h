@@ -86,7 +86,7 @@ public:
 */
 struct UNREALSHARP_API FCSharpFunctionRedirectionData
 {
-    typedef TSharedPtr<UnrealSharp::IUnrealFunctionInvokeRedirector> InvokeRedirectorPtr;
+    typedef TSharedPtr<UnrealSharp::IUnrealFunctionInvokeRedirector> FInvokeRedirectorPtr;
 
     UFunction*                              Function;
     const FCSharpFunctionData*              FunctionData;
@@ -96,7 +96,7 @@ struct UNREALSHARP_API FCSharpFunctionRedirectionData
     
     TArray<uint8>                           Script;
 
-    InvokeRedirectorPtr                     Invoker;
+    FInvokeRedirectorPtr                    Invoker;
 
     FCSharpFunctionRedirectionData();
     FCSharpFunctionRedirectionData(UFunction* InFunction, const FCSharpFunctionData* InFunctionData);
@@ -114,10 +114,10 @@ class UNREALSHARP_API UCSharpClass : public UBlueprintGeneratedClass, public ICS
 {
     GENERATED_BODY()
 public:
-    typedef TMap<UFunction*, FCSharpFunctionRedirectionData>  RedirectionDataMappingType;
+    typedef TMap<UFunction*, FCSharpFunctionRedirectionData>  FRedirectionDataMappingType;
 
     // get crc code
-    // If the crccode changes, it means that the code on the C# side has changed significantly, 
+    // If the crc code changes, it means that the code on the C# side has changed significantly, 
     // and the tool should regenerate the blueprint proxy class to match the change.
     virtual int64                           GetCrcCode() const override { return CrcCode; }
 
@@ -159,7 +159,7 @@ public:
     void                                    RestoreAllCSharpFunctions();
 
     // get redirection data cache for UFunction*
-    FCSharpFunctionRedirectionData*         GetCSharpFunctionRedirection(UFunction* InFunction);
+    FCSharpFunctionRedirectionData*         GetCSharpFunctionRedirection(const UFunction* InFunction);
 
 private:
     // call C# method
@@ -190,5 +190,5 @@ private:
     TMap<FName, FCSharpFunctionData>        CSharpFunctions;
 
     // caches
-    RedirectionDataMappingType              RedirectionCaches;
+    FRedirectionDataMappingType             RedirectionCaches;
 };

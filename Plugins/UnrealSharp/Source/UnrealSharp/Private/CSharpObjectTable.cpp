@@ -25,10 +25,8 @@
 */
 #include "CSharpObjectTable.h"
 #include "ICSharpMethodInvocation.h"
-#include "Misc/ScopedExit.h"
 #include "ICSharpRuntime.h"
 #include "ICSharpLibraryAccessor.h"
-#include "Classes/CSharpClass.h"
 #include "Misc/UnrealSharpUtils.h"
 #include "ICSharpType.h"
 #include "Misc/StackMemory.h"
@@ -38,13 +36,13 @@
 
 namespace UnrealSharp
 {
-    FCSharpObjectFactory::FCSharpObjectFactory(TSharedPtr<ICSharpType> InType, TSharedPtr<ICSharpMethodInvocation> InInvocation) :
+    FCSharpObjectFactory::FCSharpObjectFactory(const TSharedPtr<ICSharpType>& InType, const TSharedPtr<ICSharpMethodInvocation>& InInvocation) :
         Type(InType),
         Invocation(InInvocation)
     {
     }
 
-    void* FCSharpObjectFactory::Create(UObject* InObject)
+    void* FCSharpObjectFactory::Create(UObject* InObject) const
     {
         check(Type && Invocation);
 
@@ -52,12 +50,11 @@ namespace UnrealSharp
         void* ObjectInstance = Type->NewObject();
         check(ObjectInstance);
 
-        UNREALSHARP_SCOPED_CSHARP_METHOD_INVOCATION(Invocation);
+        US_SCOPED_CSHARP_METHOD_INVOCATION(Invocation);
 
         // let's call the constructor
         // which has a parameter is (IntPtr nativePtr)
-        void* Result = InvocationInvoker.Invoke(ObjectInstance, &InObject);
-
+        void* Result = InvocationInvoker.Invoke(ObjectInstance, &InObject); // NOLINT
         return ObjectInstance;
     }
 
@@ -83,14 +80,14 @@ namespace UnrealSharp
         PostGarbageCollectHandle = FCoreUObjectDelegates::GetPostGarbageCollect().AddRaw(this, &FCSharpObjectTable::OnPostGarbageCollect);
     }
 
-    void FCSharpObjectTable::UnRegisterDelegates()
+    void FCSharpObjectTable::UnRegisterDelegates() const
     {
         FWorldDelegates::OnWorldCleanup.Remove(OnWorldCleanupHandle);
         FCoreUObjectDelegates::PostReachabilityAnalysis.Remove(PostReachabilityAnalysisHandle);
         FCoreUObjectDelegates::GetPostGarbageCollect().Remove(PostGarbageCollectHandle);
     }
 
-    void FCSharpObjectTable::BreakCSharpObjectConnection(FCSharpObjectHandle& InHandle)
+    void FCSharpObjectTable::BreakCSharpObjectConnection(const FCSharpObjectHandle& InHandle) const
     {
         if (InHandle.IsValid())
         {
@@ -98,7 +95,7 @@ namespace UnrealSharp
 
             if (CSharpObject != nullptr)
             {
-                auto FastAccessor = Runtime->GetCSharpLibraryAccessor();
+                const auto FastAccessor = Runtime->GetCSharpLibraryAccessor();
                 check(FastAccessor);
 
                 FastAccessor->BreakCSharpObjectNativeConnection(CSharpObject);
@@ -114,7 +111,7 @@ namespace UnrealSharp
 
             for (decltype(CSharpObjectMapping)::TIterator It(CSharpObjectMapping); It; ++It)
             {
-                UObject* ReferencedObject = It.Key();
+                const UObject* ReferencedObject = It.Key();
                 FCSharpObjectHandle& Handle = It.Value();
 
                 if (!IsValid(ReferencedObject) || ReferencedObject->IsUnreachable())
@@ -125,8 +122,8 @@ namespace UnrealSharp
                 }
             }
 
-            double CSharpGCTime = 0.0;
             {
+                double CSharpGCTime = 0.0;
                 SCOPE_SECONDS_COUNTER(CSharpGCTime)
                 
                 Runtime->ExecuteGarbageCollect(true);
@@ -139,20 +136,19 @@ namespace UnrealSharp
         }
     }
 
-    void FCSharpObjectTable::OnPostGarbageCollect()
+    void FCSharpObjectTable::OnPostGarbageCollect() // NOLINT
     {
 
     }
 
-    void FCSharpObjectTable::OnWorldCleanup(UWorld* InWorld, bool bSessionEnded, bool bCleanupResources)
+    void FCSharpObjectTable::OnWorldCleanup(UWorld* InWorld, bool bSessionEnded, bool bCleanupResources) // NOLINT
     {
         check(InWorld);
-        UPackage* Outermost = InWorld->GetOutermost();
+        const UPackage* Outermost = InWorld->GetOutermost();
         
         for (TMap<UObject*, FCSharpObjectHandle>::TIterator It(CSharpObjectMapping); It; ++It)
         {
-            UObject* Object = It.Key();
-            if (Object->IsIn(Outermost))
+            if (const UObject* Object = It.Key(); Object->IsIn(Outermost))
             {
                 auto& Handle = It.Value();
                 BreakCSharpObjectConnection(Handle);
@@ -169,19 +165,17 @@ namespace UnrealSharp
             return nullptr;
         }
 
-        auto Ptr = CSharpObjectMapping.Find(InObject);
-
-        if (Ptr != nullptr)
+        if (const auto Ptr = CSharpObjectMapping.Find(InObject); Ptr != nullptr)
         {
-            return (*Ptr).GetObject();
+            return Ptr->GetObject();
         }
 
-        FCSharpObjectHandle handle = CreateCSharpObjectHandle(InObject);
-        checkSlow(handle.IsValid());
+        FCSharpObjectHandle Handle = CreateCSharpObjectHandle(InObject);
+        checkSlow(Handle.IsValid());
 
-        void* ObjectPtr = handle.GetObject();
+        void* ObjectPtr = Handle.GetObject();
 
-        CSharpObjectMapping.Add(InObject, MoveTemp(handle));
+        CSharpObjectMapping.Add(InObject, MoveTemp(Handle));
 
         return ObjectPtr;
     }
@@ -218,21 +212,21 @@ namespace UnrealSharp
         void* ObjectPtr = CreateCSharpObject(ObjectClass, InObject);
         checkf(ObjectPtr != nullptr, TEXT("Failed create C# proxy object for unreal class:%s"), *ObjectClass->GetPathName());
 
-        FCSharpObjectHandle handle(Runtime, ObjectPtr, false);
-        return handle;
+        FCSharpObjectHandle Handle(Runtime, ObjectPtr, false);
+        return Handle;
     }
 
     void* FCSharpObjectTable::CreateCSharpObject(UClass* InClass, UObject* InObject)
     {
-        auto Ptr = CSharpObjectFactoryMapping.Find(InClass);
+        const auto Ptr = CSharpObjectFactoryMapping.Find(InClass);
 
         if (Ptr != nullptr)
         {
             return Ptr->Create(InObject);
         }
 
-        FString AssemblyName = FUnrealSharpUtils::GetAssemblyName(InClass);
-        FString ClassFullPath = FUnrealSharpUtils::GetCSharpFullPath(InClass);
+        const FString AssemblyName = FUnrealSharpUtils::GetAssemblyName(InClass);
+        const FString ClassFullPath = FUnrealSharpUtils::GetCSharpFullPath(InClass);
 
 #if UE_BUILD_DEBUG
         // US_LOG(TEXT("Get CSharpObject:%s, ClassPathName:%s"), *InObject->GetName(), *InClass->GetPathName());
@@ -242,8 +236,8 @@ namespace UnrealSharp
         checkf(ClassType, TEXT("Failed find C# class %s in %s"), *ClassFullPath, *AssemblyName);
         
         const bool IsBlueprintLibrary = InClass->IsChildOf<UBlueprintFunctionLibrary>();
-        FString ConstructorSignature = FString::Printf(TEXT("%s:.ctor (%s)"), *ClassFullPath, IsBlueprintLibrary?TEXT(""):TEXT("intptr"));
-        TSharedPtr<ICSharpMethod> Method = Runtime->LookupMethod(ClassType.Get(), ConstructorSignature);
+        const FString ConstructorSignature = FString::Printf(TEXT("%s:.ctor (%s)"), *ClassFullPath, IsBlueprintLibrary?TEXT(""):TEXT("intptr"));
+        const TSharedPtr<ICSharpMethod> Method = Runtime->LookupMethod(ClassType.Get(), ConstructorSignature);
 
         // TSharedPtr<ICSharpMethod> Method = Runtime->LookupMethod(ClassType.Get(), TEXT(".ctor"), 1);
 
@@ -251,7 +245,7 @@ namespace UnrealSharp
 
         TSharedPtr<ICSharpMethodInvocation> Invocation = Runtime->CreateCSharpMethodInvocation(Method);
 
-        FCSharpObjectFactory FactoryRef = CSharpObjectFactoryMapping.Add(InClass, { ClassType, Invocation });
+        const FCSharpObjectFactory FactoryRef = CSharpObjectFactoryMapping.Add(InClass, { ClassType, Invocation });
         return FactoryRef.Create(InObject);
     }
 }

@@ -49,6 +49,6 @@ namespace UnrealSharp
 
     public:
         FString                             Signature;
-        bool                                bIsOverrideFunction;
+        bool                                bIsOverrideFunction = false;
     };
 }

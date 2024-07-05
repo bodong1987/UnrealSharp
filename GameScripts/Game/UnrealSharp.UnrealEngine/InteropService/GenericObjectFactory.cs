@@ -23,6 +23,7 @@
 
     Project URL: https://github.com/bodong1987/UnrealSharp
 */
+
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using UnrealSharp.UnrealEngine.Collections;
@@ -31,599 +32,611 @@ using UnrealSharp.Utils.Extensions;
 using UnrealSharp.Utils.Misc;
 using UnrealSharp.Utils.UnrealEngine;
 
-namespace UnrealSharp.UnrealEngine
+namespace UnrealSharp.UnrealEngine;
+
+/// <summary>
+/// Class GenericObjectFactory.
+/// This class is generally not used directly on the C# side. 
+/// It is mainly used to initiate calls from the C++ side, 
+/// to dynamically create C# objects, and to call C# functions.
+/// Various cached or delegated indexes will be created internally to speed up the creation process.
+/// </summary>
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+public static class GenericObjectFactory
 {
+    #region Cached Types
     /// <summary>
-    /// Class GenericObjectFactory.
-    /// This class is generally not used directly on the C# side. 
-    /// It is mainly used to initiate calls from the C++ side, 
-    /// to dynamically create C# objects, and to call C# functions.
-    /// Various cached or delegated indexes will be created internally to speed up the creation process.
+    /// The object types
+    /// string to Type map
     /// </summary>
-    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
-    public static class GenericObjectFactory
+    private static Dictionary<string, Type> _objectTypes = new();
+        
+    /// <summary>
+    /// The field types
+    /// UField* to Type map
+    /// </summary>
+    private static Dictionary<IntPtr, Type> _fieldTypes = new();
+
+    /// <summary>
+    /// Delegate CreateArrayDelegateType
+    /// </summary>
+    /// <param name="addressOfArray">The address of array.</param>
+    /// <param name="addressOfArrayProperty">The address of array property.</param>
+    /// <returns>System.Object.</returns>
+    public delegate object CreateArrayDelegateType(IntPtr addressOfArray, IntPtr addressOfArrayProperty);
+
+    /// <summary>
+    /// Delegate CreateSetDelegateType
+    /// </summary>
+    /// <param name="addressOfSet">The address of set.</param>
+    /// <param name="addressOfSetProperty">The address of set property.</param>
+    /// <returns>System.Object.</returns>
+    public delegate object CreateSetDelegateType(IntPtr addressOfSet, IntPtr addressOfSetProperty);
+
+    /// <summary>
+    /// Delegate CreateMapDelegateType
+    /// </summary>
+    /// <param name="addressOfMap">The address of map.</param>
+    /// <param name="addressOfMapProperty">The address of map property.</param>
+    /// <returns>System.Object.</returns>
+    public delegate object CreateMapDelegateType(IntPtr addressOfMap, IntPtr addressOfMapProperty);
+
+    /// <summary>
+    /// Delegate CreateSoftObjectDelegateType
+    /// </summary>
+    /// <param name="addressOfSoftObjectPtr">The address of soft object PTR.</param>
+    /// <returns>System.Object.</returns>
+    public delegate object CreateSoftObjectDelegateType(IntPtr addressOfSoftObjectPtr);
+
+    /// <summary>
+    /// Delegate CreateSoftClassDelegateType
+    /// </summary>
+    /// <param name="addressOfSoftClassPtr">The address of soft class PTR.</param>
+    /// <returns>System.Object.</returns>
+    public delegate object CreateSoftClassDelegateType(IntPtr addressOfSoftClassPtr);
+
+    /// <summary>
+    /// array factory
+    /// </summary>
+    private static Dictionary<Type, CreateArrayDelegateType> _createArrayFactory = new();
+
+    /// <summary>
+    /// set factory
+    /// </summary>
+    private static Dictionary<Type, CreateSetDelegateType> _createSetFactory = new();
+
+    /// <summary>
+    /// map factory
+    /// </summary>
+    private static Dictionary<int, CreateMapDelegateType> _createMapFactory = new();
+
+    /// <summary>
+    /// soft object factory
+    /// </summary>
+    private static Dictionary<Type, CreateSoftObjectDelegateType> _createSoftObjectFactory = new();
+
+    /// <summary>
+    /// soft class factory
+    /// </summary>
+    private static Dictionary<Type, CreateSoftClassDelegateType> _createSoftClassFactory = new();
+
+    #endregion
+
+    #region Type Accessor
+    /// <summary>
+    /// Gets the type.
+    /// </summary>
+    /// <param name="fullPath">The fullPath.</param>
+    /// <returns>System.Nullable&lt;System.Type&gt;.</returns>
+    /// <exception cref="System.Exception">Failed find C# type:{fullPath}</exception>
+    public static Type GetType(string fullPath)
     {
-        #region Cached Types
-        /// <summary>
-        /// The object types
-        /// string to Type map
-        /// </summary>
-        private static Dictionary<string, Type> ObjectTypes = new Dictionary<string, Type>();
-        /// <summary>
-        /// The field types
-        /// UField* to Type map
-        /// </summary>
-        private static Dictionary<IntPtr, Type> FieldTypes = new Dictionary<IntPtr, Type>();
-
-        /// <summary>
-        /// Delegate CreateArrayDelegateType
-        /// </summary>
-        /// <param name="addressOfArray">The address of array.</param>
-        /// <param name="addressOfArrayProperty">The address of array property.</param>
-        /// <returns>System.Object.</returns>
-        public delegate object CreateArrayDelegateType(IntPtr addressOfArray, IntPtr addressOfArrayProperty);
-
-        /// <summary>
-        /// Delegate CreateSetDelegateType
-        /// </summary>
-        /// <param name="addressOfSet">The address of set.</param>
-        /// <param name="addressOfSetProperty">The address of set property.</param>
-        /// <returns>System.Object.</returns>
-        public delegate object CreateSetDelegateType(IntPtr addressOfSet, IntPtr addressOfSetProperty);
-
-        /// <summary>
-        /// Delegate CreateMapDelegateType
-        /// </summary>
-        /// <param name="addressOfMap">The address of map.</param>
-        /// <param name="addressOfMapProperty">The address of map property.</param>
-        /// <returns>System.Object.</returns>
-        public delegate object CreateMapDelegateType(IntPtr addressOfMap, IntPtr addressOfMapProperty);
-
-        /// <summary>
-        /// Delegate CreateSoftObjectDelegateType
-        /// </summary>
-        /// <param name="addressOfSoftObjectPtr">The address of soft object PTR.</param>
-        /// <returns>System.Object.</returns>
-        public delegate object CreateSoftObjectDelegateType(IntPtr addressOfSoftObjectPtr);
-
-        /// <summary>
-        /// Delegate CreateSoftClassDelegateType
-        /// </summary>
-        /// <param name="addressOfSoftClassPtr">The address of soft class PTR.</param>
-        /// <returns>System.Object.</returns>
-        public delegate object CreateSoftClassDelegateType(IntPtr addressOfSoftClassPtr);
-
-        /// <summary>
-        /// The create array factory
-        /// </summary>
-        private static Dictionary<Type, CreateArrayDelegateType> CreateArrayFactory = new Dictionary<Type, CreateArrayDelegateType>();
-
-        /// <summary>
-        /// The create set factory
-        /// </summary>
-        private static Dictionary<Type, CreateSetDelegateType> CreateSetFactory = new Dictionary<Type, CreateSetDelegateType>();
-
-        /// <summary>
-        /// The create map factory
-        /// </summary>
-        private static Dictionary<int, CreateMapDelegateType> CreateMapFactory = new Dictionary<int, CreateMapDelegateType>();
-
-        /// <summary>
-        /// The create soft object factory
-        /// </summary>
-        private static Dictionary<Type, CreateSoftObjectDelegateType> CreateSoftObjectFactory = new Dictionary<Type, CreateSoftObjectDelegateType>();
-
-        /// <summary>
-        /// The create soft class factory
-        /// </summary>
-        private static Dictionary<Type, CreateSoftClassDelegateType> CreateSoftClassFactory = new Dictionary<Type, CreateSoftClassDelegateType>();
-
-        #endregion
-
-        #region Type Accessor
-        /// <summary>
-        /// Gets the type.
-        /// </summary>
-        /// <param name="fullpath">The fullpath.</param>
-        /// <returns>System.Nullable&lt;System.Type&gt;.</returns>
-        /// <exception cref="System.Exception">Failed find C# type:{fullpath}</exception>
-        public static System.Type? GetType(string fullpath)
+        if (_objectTypes.TryGetValue(fullPath, out var type))
         {
-            if (ObjectTypes.TryGetValue(fullpath, out var type))
-            {
-                return type;
-            }
-
-            type = TypeExtensions.GetType(fullpath);
-
-            if (type != null)
-            {
-                ObjectTypes.Add(fullpath, type);
-                return type;
-            }
-
-            throw new Exception($"Failed find C# type:{fullpath}");
-        }
-
-        /// <summary>
-        /// Gets the type.
-        /// </summary>
-        /// <param name="fieldPtr">The field PTR.</param>
-        /// <returns>System.Nullable&lt;System.Type&gt;.</returns>
-        public static System.Type? GetType(IntPtr fieldPtr)
-        {
-            if(FieldTypes.TryGetValue(fieldPtr, out var type))
-            {
-                return type;
-            }
-
-            var fullpath = ClassInteropUtils.GetCSharpFullPathOfNativeField(fieldPtr);
-
-            Logger.Ensure<Exception>(fullpath.IsNotNullOrEmpty());
-
-            type = GetType(fullpath!);
-            if (type != null)
-            {
-                FieldTypes.Add(fieldPtr, type);
-            }
-
             return type;
         }
 
-        /// <summary>
-        /// Gets the type of the element.
-        /// </summary>
-        /// <param name="addressOfProperty">The address of property.</param>
-        /// <returns>System.Type.</returns>
-        /// <exception cref="System.Exception">Unsupported type. property address:0x{addressOfProperty:x}</exception>
-        public static System.Type GetElementType(IntPtr addressOfProperty)
+        type = TypeExtensions.GetType(fullPath);
+
+        if (type == null)
         {
-            UInt64 castFlags = PropertyInteropUtils.GetPropertyCastFlags(addressOfProperty);
-
-            if ((castFlags & (UInt64)EClassCastFlags.FIntProperty) != 0)
-            {
-                return typeof(int);
-            }
-            else if ((castFlags & (UInt64)EClassCastFlags.FUInt32Property) != 0)
-            {
-                return typeof(uint);
-            }
-            else if ((castFlags & (UInt64)EClassCastFlags.FBoolProperty) != 0)
-            {
-                return typeof(bool);
-            }
-            else if ((castFlags & (UInt64)EClassCastFlags.FFloatProperty) != 0)
-            {
-                return typeof(float);
-            }
-            else if ((castFlags & (UInt64)EClassCastFlags.FDoubleProperty) != 0)
-            {
-                return typeof(double);
-            }
-            else if ((castFlags & (UInt64)EClassCastFlags.FInt64Property) != 0)
-            {
-                return typeof(Int64);
-            }
-            else if ((castFlags & (UInt64)EClassCastFlags.FUInt64Property) != 0)
-            {
-                return typeof(UInt64);
-            }
-            else if ((castFlags & (UInt64)EClassCastFlags.FStrProperty) != 0)
-            {
-                return typeof(string);
-            }
-            else if ((castFlags & (UInt64)EClassCastFlags.FNameProperty) != 0)
-            {
-                return typeof(FName);
-            }
-            else if ((castFlags & (UInt64)EClassCastFlags.FObjectProperty) != 0 ||
-                (castFlags & (UInt64)EClassCastFlags.FStructProperty) != 0 ||
-                (castFlags & (UInt64)EClassCastFlags.FEnumProperty) != 0)
-            {
-                var fieldPtr = PropertyInteropUtils.GetPropertyInnerField(addressOfProperty);
-
-                Logger.Ensure<Exception>(fieldPtr != IntPtr.Zero, $"Failed find C# type of property 0x{addressOfProperty:x}");
-
-                return GetType(fieldPtr)!;
-            }
-            else if ((castFlags & (UInt64)EClassCastFlags.FByteProperty) != 0)
-            {
-                return typeof(byte);
-            }
-            else if ((castFlags & (UInt64)EClassCastFlags.FTextProperty) != 0)
-            {
-                return typeof(FText);
-            }
-            else if ((castFlags & (UInt64)EClassCastFlags.FInt8Property) != 0)
-            {
-                return typeof(sbyte);
-            }            
-            else if ((castFlags & (UInt64)EClassCastFlags.FInt16Property) != 0)
-            {
-                return typeof(Int16);
-            }
-            else if ((castFlags & (UInt64)EClassCastFlags.FUInt16Property) != 0)
-            {
-                return typeof(UInt16);
-            }
+            throw new Exception($"Failed find C# type:{fullPath}");
+        }
             
-            else if ((castFlags & (UInt64)EClassCastFlags.FArrayProperty) != 0)
-            {
-                return typeof(TArray<>);
-            }
-            else if ((castFlags & (UInt64)EClassCastFlags.FSetProperty) != 0)
-            {
-                return typeof(TSet<>);
-            }
-            else if ((castFlags & (UInt64)EClassCastFlags.FMapProperty) != 0)
-            {
-                return typeof(TMap<,>);
-            }
-            else if ((castFlags & (UInt64)EClassCastFlags.FSoftObjectProperty) != 0)
-            {
-                return typeof(TSoftObjectPtr<>);
-            }
-            else if ((castFlags & (UInt64)EClassCastFlags.FSoftObjectProperty) != 0)
-            {
-                return typeof(TSoftClassPtr<>);
-            }
+        _objectTypes.Add(fullPath, type);
+            
+        return type;
 
-            throw new Exception($"Unsupported type. property address:0x{addressOfProperty:x}");
+    }
+
+    /// <summary>
+    /// Gets the type.
+    /// </summary>
+    /// <param name="fieldPtr">The field PTR.</param>
+    /// <returns>System.Nullable&lt;System.Type&gt;.</returns>
+    public static Type GetType(IntPtr fieldPtr)
+    {
+        if(_fieldTypes.TryGetValue(fieldPtr, out var type))
+        {
+            return type;
         }
 
-        /// <summary>
-        /// Queries the create array delegate.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns>CreateArrayDelegateType.</returns>
-        [UnconditionalSuppressMessage("ReflectionAnalysis", "IL3050:RequiresDynamicCode")]
-        public static CreateArrayDelegateType QueryCreateArrayDelegate(Type type)
+        var fullPath = ClassInteropUtils.GetCSharpFullPathOfNativeField(fieldPtr);
+
+        Logger.Ensure<Exception>(fullPath.IsNotNullOrEmpty());
+
+        type = GetType(fullPath!);
+
+        _fieldTypes.Add(fieldPtr, type);
+
+        return type;
+    }
+
+    /// <summary>
+    /// Gets the type of the element.
+    /// </summary>
+    /// <param name="addressOfProperty">The address of property.</param>
+    /// <returns>System.Type.</returns>
+    /// <exception cref="System.Exception">Unsupported type. property address:0x{addressOfProperty:x}</exception>
+    public static Type GetElementType(IntPtr addressOfProperty)
+    {
+        var castFlags = PropertyInteropUtils.GetPropertyCastFlags(addressOfProperty);
+
+        if ((castFlags & (ulong)EClassCastFlags.FIntProperty) != 0)
         {
-            if(CreateArrayFactory.TryGetValue(type, out var arrayFactory))
-            {
-                return arrayFactory;
-            }
+            return typeof(int);
+        }
 
-            Type? arrayType;
+        if ((castFlags & (ulong)EClassCastFlags.FUInt32Property) != 0)
+        {
+            return typeof(uint);
+        }
 
-            try
-            {
-                arrayType = typeof(TArray<>).MakeGenericType(type);
-            }
-            catch (Exception ex)
-            {
-                // If you use AOT, then you should ensure that this type actually appears in the code, otherwise you will not be able to dynamically construct this type.
-                Logger.LogError(ex.Message);
-                Logger.LogError($"Failed construct Generic TArray<{type.Name}>{Environment.NewLine}If you use AOT, then you should ensure that this type actually appears in the code, otherwise you will not be able to dynamically construct this type.");
-                throw;
-            }
+        if ((castFlags & (ulong)EClassCastFlags.FBoolProperty) != 0)
+        {
+            return typeof(bool);
+        }
 
-            arrayFactory = (IntPtr addressOfArray, IntPtr addressOfArrayProperty) => Activator.CreateInstance(arrayType!, addressOfArray, addressOfArrayProperty)!;
+        if ((castFlags & (ulong)EClassCastFlags.FFloatProperty) != 0)
+        {
+            return typeof(float);
+        }
 
-            CreateArrayFactory.Add(type, arrayFactory);
+        if ((castFlags & (ulong)EClassCastFlags.FDoubleProperty) != 0)
+        {
+            return typeof(double);
+        }
 
+        if ((castFlags & (ulong)EClassCastFlags.FInt64Property) != 0)
+        {
+            return typeof(long);
+        }
+
+        if ((castFlags & (ulong)EClassCastFlags.FUInt64Property) != 0)
+        {
+            return typeof(ulong);
+        }
+
+        if ((castFlags & (ulong)EClassCastFlags.FStrProperty) != 0)
+        {
+            return typeof(string);
+        }
+
+        if ((castFlags & (ulong)EClassCastFlags.FNameProperty) != 0)
+        {
+            return typeof(FName);
+        }
+
+        if ((castFlags & (ulong)EClassCastFlags.FObjectProperty) != 0 ||
+            (castFlags & (ulong)EClassCastFlags.FStructProperty) != 0 ||
+            (castFlags & (ulong)EClassCastFlags.FEnumProperty) != 0)
+        {
+            var fieldPtr = PropertyInteropUtils.GetPropertyInnerField(addressOfProperty);
+
+            Logger.Ensure<Exception>(fieldPtr != IntPtr.Zero, $"Failed find C# type of property 0x{addressOfProperty:x}");
+
+            return GetType(fieldPtr);
+        }
+
+        if ((castFlags & (ulong)EClassCastFlags.FByteProperty) != 0)
+        {
+            return typeof(byte);
+        }
+
+        if ((castFlags & (ulong)EClassCastFlags.FTextProperty) != 0)
+        {
+            return typeof(FText);
+        }
+
+        if ((castFlags & (ulong)EClassCastFlags.FInt8Property) != 0)
+        {
+            return typeof(sbyte);
+        }
+
+        if ((castFlags & (ulong)EClassCastFlags.FInt16Property) != 0)
+        {
+            return typeof(short);
+        }
+
+        if ((castFlags & (ulong)EClassCastFlags.FUInt16Property) != 0)
+        {
+            return typeof(ushort);
+        }
+
+        if ((castFlags & (ulong)EClassCastFlags.FArrayProperty) != 0)
+        {
+            return typeof(TArray<>);
+        }
+
+        if ((castFlags & (ulong)EClassCastFlags.FSetProperty) != 0)
+        {
+            return typeof(TSet<>);
+        }
+
+        if ((castFlags & (ulong)EClassCastFlags.FMapProperty) != 0)
+        {
+            return typeof(TMap<,>);
+        }
+
+        if ((castFlags & (ulong)EClassCastFlags.FSoftObjectProperty) != 0)
+        {
+            return typeof(TSoftObjectPtr<>);
+        }
+
+        if ((castFlags & (ulong)EClassCastFlags.FSoftObjectProperty) != 0)
+        {
+            return typeof(TSoftClassPtr<>);
+        }
+
+        throw new Exception($"Unsupported type. property address:0x{addressOfProperty:x}");
+    }
+
+    /// <summary>
+    /// Queries create array delegate.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns>CreateArrayDelegateType.</returns>
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL3050:RequiresDynamicCode")]
+    public static CreateArrayDelegateType QueryCreateArrayDelegate(Type type)
+    {
+        if(_createArrayFactory.TryGetValue(type, out var arrayFactory))
+        {
             return arrayFactory;
         }
 
-        /// <summary>
-        /// Queries the create set delegate.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns>CreateSetDelegateType.</returns>
-        [UnconditionalSuppressMessage("ReflectionAnalysis", "IL3050:RequiresDynamicCode")]
-        public static CreateSetDelegateType QueryCreateSetDelegate(Type type)
+        Type? arrayType;
+
+        try
         {
-            if(CreateSetFactory.TryGetValue(type, out var setFactory))
-            {
-                return setFactory;
-            }
+            arrayType = typeof(TArray<>).MakeGenericType(type);
+        }
+        catch (Exception ex)
+        {
+            // If you use AOT, then you should ensure that this type actually appears in the code, otherwise you will not be able to dynamically construct this type.
+            Logger.LogError(ex.Message);
+            Logger.LogError($"Failed construct Generic TArray<{type.Name}>{Environment.NewLine}If you use AOT, then you should ensure that this type actually appears in the code, otherwise you will not be able to dynamically construct this type.");
+            throw;
+        }
 
-            Type? setType;
+        arrayFactory = (addressOfArray, addressOfArrayProperty) => Activator.CreateInstance(arrayType!, addressOfArray, addressOfArrayProperty)!;
 
-            try
-            {
-                setType = typeof(TSet<>).MakeGenericType(type);
-            }
-            catch (Exception ex)
-            {
-                // If you use AOT, then you should ensure that this type actually appears in the code, otherwise you will not be able to dynamically construct this type.
-                Logger.LogError(ex.Message);
-                Logger.LogError($"Failed construct Generic TSet<{type.Name}>{Environment.NewLine}If you use AOT, then you should ensure that this type actually appears in the code, otherwise you will not be able to dynamically construct this type.");
-                throw;
-            }
+        _createArrayFactory.Add(type, arrayFactory);
 
-            setFactory = (IntPtr addressOfSet, IntPtr addressOfSetProperty) => Activator.CreateInstance(setType!, addressOfSet, addressOfSetProperty)!;
+        return arrayFactory;
+    }
 
-            CreateSetFactory.Add(type, setFactory);
-
+    /// <summary>
+    /// Queries create set delegate.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns>CreateSetDelegateType.</returns>
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL3050:RequiresDynamicCode")]
+    public static CreateSetDelegateType QueryCreateSetDelegate(Type type)
+    {
+        if(_createSetFactory.TryGetValue(type, out var setFactory))
+        {
             return setFactory;
         }
 
-        /// <summary>
-        /// Queries the create map delegate.
-        /// </summary>
-        /// <param name="keyType">Type of the key.</param>
-        /// <param name="valueType">Type of the value.</param>
-        /// <returns>CreateMapDelegateType.</returns>
-        [UnconditionalSuppressMessage("ReflectionAnalysis", "IL3050:RequiresDynamicCode")]
-        public static CreateMapDelegateType QueryCreateMapDelegate(Type keyType, Type valueType)
+        Type? setType;
+
+        try
         {
-            int hashCode = HashCode.Combine(keyType.GetHashCode(), valueType.GetHashCode());
+            setType = typeof(TSet<>).MakeGenericType(type);
+        }
+        catch (Exception ex)
+        {
+            // If you use AOT, then you should ensure that this type actually appears in the code, otherwise you will not be able to dynamically construct this type.
+            Logger.LogError(ex.Message);
+            Logger.LogError($"Failed construct Generic TSet<{type.Name}>{Environment.NewLine}If you use AOT, then you should ensure that this type actually appears in the code, otherwise you will not be able to dynamically construct this type.");
+            throw;
+        }
 
-            if(CreateMapFactory.TryGetValue(hashCode, out var createMapFactory))
-            {
-                return createMapFactory;
-            }
+        setFactory = (addressOfSet, addressOfSetProperty) => Activator.CreateInstance(setType!, addressOfSet, addressOfSetProperty)!;
 
-            Type? mapType;
+        _createSetFactory.Add(type, setFactory);
 
-            try
-            {
-                mapType = typeof(TMap<,>).MakeGenericType(keyType, valueType);
-            }
-            catch (Exception ex)
-            {
-                // If you use AOT, then you should ensure that this type actually appears in the code, otherwise you will not be able to dynamically construct this type.
-                Logger.LogError(ex.Message);
-                Logger.LogError($"Failed construct Generic TMap<{keyType.Name},{valueType.Name}>{Environment.NewLine}If you use AOT, then you should ensure that this type actually appears in the code, otherwise you will not be able to dynamically construct this type.");
-                throw;
-            }
+        return setFactory;
+    }
 
-            createMapFactory = (IntPtr addressOfMap, IntPtr addressOfMapProperty) => Activator.CreateInstance(mapType!, addressOfMap, addressOfMapProperty)!;
+    /// <summary>
+    /// Queries create map delegate.
+    /// </summary>
+    /// <param name="keyType">Type of the key.</param>
+    /// <param name="valueType">Type of the value.</param>
+    /// <returns>CreateMapDelegateType.</returns>
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL3050:RequiresDynamicCode")]
+    public static CreateMapDelegateType QueryCreateMapDelegate(Type keyType, Type valueType)
+    {
+        var hashCode = HashCode.Combine(keyType.GetHashCode(), valueType.GetHashCode());
 
-            CreateMapFactory.Add(hashCode, createMapFactory);
-
+        if(_createMapFactory.TryGetValue(hashCode, out var createMapFactory))
+        {
             return createMapFactory;
         }
 
-        /// <summary>
-        /// Queries the create soft object delegate.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns>CreateSoftObjectDelegateType.</returns>
-        [UnconditionalSuppressMessage("ReflectionAnalysis", "IL3050:RequiresDynamicCode")]
-        public static CreateSoftObjectDelegateType QueryCreateSoftObjectDelegate(Type type)
+        Type? mapType;
+
+        try
         {
-            if(CreateSoftObjectFactory.TryGetValue(type, out var createSoftObjectFactory))
-            {
-                return createSoftObjectFactory;
-            }
+            mapType = typeof(TMap<,>).MakeGenericType(keyType, valueType);
+        }
+        catch (Exception ex)
+        {
+            // If you use AOT, then you should ensure that this type actually appears in the code, otherwise you will not be able to dynamically construct this type.
+            Logger.LogError(ex.Message);
+            Logger.LogError($"Failed construct Generic TMap<{keyType.Name},{valueType.Name}>{Environment.NewLine}If you use AOT, then you should ensure that this type actually appears in the code, otherwise you will not be able to dynamically construct this type.");
+            throw;
+        }
 
-            Type? SoftObjectPtrType = null;
+        createMapFactory = (addressOfMap, addressOfMapProperty) => Activator.CreateInstance(mapType!, addressOfMap, addressOfMapProperty)!;
 
-            try
-            {
-                SoftObjectPtrType = typeof(TSoftObjectPtr<>).MakeGenericType(type!);
-            }
-            catch (Exception ex)
-            {
-                // If you use AOT, then you should ensure that this type actually appears in the code, otherwise you will not be able to dynamically construct this type.
-                Logger.LogError(ex.Message);
-                Logger.LogError($"Failed construct Generic TSoftObjectPtr<{type!.Name}>{Environment.NewLine}If you use AOT, then you should ensure that this type actually appears in the code, otherwise you will not be able to dynamically construct this type.");
-                throw;
-            }
+        _createMapFactory.Add(hashCode, createMapFactory);
 
-            createSoftObjectFactory = (IntPtr addressOfSoftObjectPtr) => Activator.CreateInstance(SoftObjectPtrType!, addressOfSoftObjectPtr)!;
+        return createMapFactory;
+    }
 
-            CreateSoftObjectFactory.Add(type, createSoftObjectFactory);
-
+    /// <summary>
+    /// Queries create soft object delegate.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns>CreateSoftObjectDelegateType.</returns>
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL3050:RequiresDynamicCode")]
+    public static CreateSoftObjectDelegateType QueryCreateSoftObjectDelegate(Type type)
+    {
+        if(_createSoftObjectFactory.TryGetValue(type, out var createSoftObjectFactory))
+        {
             return createSoftObjectFactory;
         }
 
-        /// <summary>
-        /// Queries the create soft class delegate.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns>CreateSoftClassDelegateType.</returns>
-        [UnconditionalSuppressMessage("ReflectionAnalysis", "IL3050:RequiresDynamicCode")]
-        public static CreateSoftClassDelegateType QueryCreateSoftClassDelegate(Type type)
+        Type? softObjectPtrType;
+
+        try
         {
-            if (CreateSoftClassFactory.TryGetValue(type, out var createSoftClassFactory))
-            {
-                return createSoftClassFactory;
-            }
+            softObjectPtrType = typeof(TSoftObjectPtr<>).MakeGenericType(type);
+        }
+        catch (Exception ex)
+        {
+            // If you use AOT, then you should ensure that this type actually appears in the code, otherwise you will not be able to dynamically construct this type.
+            Logger.LogError(ex.Message);
+            Logger.LogError($"Failed construct Generic TSoftObjectPtr<{type.Name}>{Environment.NewLine}If you use AOT, then you should ensure that this type actually appears in the code, otherwise you will not be able to dynamically construct this type.");
+            throw;
+        }
 
-            Type? SoftClassPtrType = null;
+        createSoftObjectFactory = addressOfSoftObjectPtr => Activator.CreateInstance(softObjectPtrType!, addressOfSoftObjectPtr)!;
 
-            try
-            {
-                SoftClassPtrType = typeof(TSoftClassPtr<>).MakeGenericType(type!);
-            }
-            catch (Exception ex)
-            {
-                // If you use AOT, then you should ensure that this type actually appears in the code, otherwise you will not be able to dynamically construct this type.
-                Logger.LogError(ex.Message);
-                Logger.LogError($"Failed construct Generic TSoftClassPtr<{type!.Name}>{Environment.NewLine}If you use AOT, then you should ensure that this type actually appears in the code, otherwise you will not be able to dynamically construct this type.");
-                throw;
-            }
+        _createSoftObjectFactory.Add(type, createSoftObjectFactory);
 
-            createSoftClassFactory = (IntPtr addressOfSoftClassPtr) => Activator.CreateInstance(SoftClassPtrType!, addressOfSoftClassPtr)!;
+        return createSoftObjectFactory;
+    }
 
-            CreateSoftClassFactory.Add(type, createSoftClassFactory);
-
+    /// <summary>
+    /// Queries create soft class delegate.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns>CreateSoftClassDelegateType.</returns>
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL3050:RequiresDynamicCode")]
+    public static CreateSoftClassDelegateType QueryCreateSoftClassDelegate(Type type)
+    {
+        if (_createSoftClassFactory.TryGetValue(type, out var createSoftClassFactory))
+        {
             return createSoftClassFactory;
         }
-        #endregion
 
-        #region Array
-        /// <summary>
-        /// Creates the array.
-        /// </summary>
-        /// <param name="addressOfArray">The address of array.</param>
-        /// <param name="addressOfArrayProperty">The address of array property.</param>
-        /// <returns>System.Object.</returns>        
-        public static object CreateArray(IntPtr addressOfArray, IntPtr addressOfArrayProperty)
+        Type? softClassPtrType;
+
+        try
         {
-            IntPtr ElementProperty = ArrayInteropUtils.GetElementPropertyOfArray(addressOfArrayProperty);
-
-            Logger.Ensure<Exception>(ElementProperty != IntPtr.Zero, "Failed get ElementProperty of ArrayProperty:0x{0:x}", addressOfArrayProperty);
-
-            Type elementType = GetElementType(ElementProperty);
-            var factory = QueryCreateArrayDelegate(elementType);
-
-            return factory(addressOfArray, addressOfArrayProperty);
+            softClassPtrType = typeof(TSoftClassPtr<>).MakeGenericType(type);
+        }
+        catch (Exception ex)
+        {
+            // If you use AOT, then you should ensure that this type actually appears in the code, otherwise you will not be able to dynamically construct this type.
+            Logger.LogError(ex.Message);
+            Logger.LogError($"Failed construct Generic TSoftClassPtr<{type.Name}>{Environment.NewLine}If you use AOT, then you should ensure that this type actually appears in the code, otherwise you will not be able to dynamically construct this type.");
+            throw;
         }
 
-        /// <summary>
-        /// Writes the array.
-        /// </summary>
-        /// <param name="addressOfArray">The address of array.</param>
-        /// <param name="addressOfArrayProperty">The address of array property.</param>
-        /// <param name="enumerable">The enumerable.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        public static bool WriteArray(IntPtr addressOfArray, IntPtr addressOfArrayProperty, IEnumerable enumerable)
-        {
-            object NewArray = CreateArray(addressOfArray, addressOfArrayProperty);
-            IUnrealCollectionDataView? dataView = NewArray as IUnrealCollectionDataView;
+        createSoftClassFactory = addressOfSoftClassPtr => Activator.CreateInstance(softClassPtrType!, addressOfSoftClassPtr)!;
 
-            return dataView != null && dataView.CopyFrom(enumerable);
-        }
-        #endregion
+        _createSoftClassFactory.Add(type, createSoftClassFactory);
 
-        #region Set
-        /// <summary>
-        /// Creates the set.
-        /// </summary>
-        /// <param name="addressOfSet">The address of set.</param>
-        /// <param name="addressOfSetProperty">The address of set property.</param>
-        /// <returns>System.Object.</returns>
-        public static object CreateSet(IntPtr addressOfSet, IntPtr addressOfSetProperty)
-        {
-            IntPtr ElementProperty = SetInteropUtils.GetElementPropertyOfSet(addressOfSetProperty);
-
-            Logger.Ensure<Exception>(ElementProperty != IntPtr.Zero, "Failed get ElementProperty of SetProperty:0x{0:x}", addressOfSetProperty);
-
-            Type elementType = GetElementType(ElementProperty);
-            var factory = QueryCreateSetDelegate(elementType);
-
-            return factory(addressOfSet, addressOfSetProperty);
-        }
-
-        /// <summary>
-        /// Writes the set.
-        /// </summary>
-        /// <param name="addressOfSet">The address of set.</param>
-        /// <param name="addressOfSetProperty">The address of set property.</param>
-        /// <param name="enumerable">The enumerable.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        public static bool WriteSet(IntPtr addressOfSet, IntPtr addressOfSetProperty, IEnumerable enumerable)
-        {
-            object NewSet = CreateSet(addressOfSet, addressOfSetProperty);
-            IUnrealCollectionDataView? dataView = NewSet as IUnrealCollectionDataView;
-
-            return dataView != null && dataView.CopyFrom(enumerable);
-        }
-        #endregion
-
-        #region Map
-        /// <summary>
-        /// Creates the map.
-        /// </summary>
-        /// <param name="addressOfMap">The address of map.</param>
-        /// <param name="addressOfMapProperty">The address of map property.</param>
-        /// <returns>System.Object.</returns>
-        public static object CreateMap(IntPtr addressOfMap, IntPtr addressOfMapProperty)
-        {
-            IntPtr KeyElementProperty = MapInteropUtils.GetKeyPropertyOfMap(addressOfMapProperty);
-            IntPtr ValueElementProperty = MapInteropUtils.GetValuePropertyOfMap(addressOfMapProperty);
-
-            Logger.Ensure<Exception>(KeyElementProperty != IntPtr.Zero, "Failed get KeyElementProperty of MapProperty:0x{0:x}", addressOfMapProperty);
-            Logger.Ensure<Exception>(ValueElementProperty != IntPtr.Zero, "Failed get ValueElementProperty of MapProperty:0x{0:x}", addressOfMapProperty);
-
-            Type KeyElementType = GetElementType(KeyElementProperty);
-            Type ValueElementType = GetElementType(ValueElementProperty);
-
-            var factory = QueryCreateMapDelegate(KeyElementType, ValueElementType);
-
-            return factory(addressOfMap, addressOfMapProperty);
-        }
-
-        /// <summary>
-        /// Writes the map.
-        /// </summary>
-        /// <param name="addressOfMap">The address of map.</param>
-        /// <param name="addressOfMapProperty">The address of map property.</param>
-        /// <param name="enumerable">The enumerable.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        public static bool WriteMap(IntPtr addressOfMap, IntPtr addressOfMapProperty, IEnumerable enumerable)
-        {
-            object NewMap = CreateMap(addressOfMap, addressOfMapProperty);
-            IUnrealCollectionDataView? dataView = NewMap as IUnrealCollectionDataView;
-
-            return dataView != null && dataView.CopyFrom(enumerable);
-        }
-        #endregion
-
-        #region Soft Object
-        /// <summary>
-        /// Creates the soft object PTR.
-        /// </summary>
-        /// <param name="addressOfSoftObjectPtr">The address of soft object PTR.</param>
-        /// <param name="addressOfSoftObjectProperty">The address of soft object property.</param>
-        /// <returns>System.Object.</returns>
-        public static object CreateSoftObjectPtr(IntPtr addressOfSoftObjectPtr, IntPtr addressOfSoftObjectProperty)
-        {
-            IntPtr TypeClass = PropertyInteropUtils.GetPropertyInnerField(addressOfSoftObjectProperty);
-
-            Logger.Ensure<Exception>(TypeClass != IntPtr.Zero);
-
-            var type = GetType(TypeClass);
-
-            Logger.EnsureNotNull(type);
-
-            var factory = QueryCreateSoftObjectDelegate(type);
-
-            return factory(addressOfSoftObjectPtr);
-        }
-
-        /// <summary>
-        /// Writes the soft object PTR.
-        /// </summary>
-        /// <param name="addressOfNativeSoftObjectPtr">The address of native soft object PTR.</param>
-        /// <param name="softObjectPtr">The soft object PTR.</param>
-        public static void WriteSoftObjectPtr(IntPtr addressOfNativeSoftObjectPtr, ISoftObjectPtr softObjectPtr)
-        {
-            if(softObjectPtr != null)
-            {
-                softObjectPtr.WriteTo(addressOfNativeSoftObjectPtr);
-            }
-        }
-        #endregion
-
-        #region Soft Class
-        /// <summary>
-        /// Creates the soft class PTR.
-        /// </summary>
-        /// <param name="addressOfSoftClassPtr">The address of soft class PTR.</param>
-        /// <param name="addressOfSoftClassProperty">The address of soft class property.</param>
-        /// <returns>System.Object.</returns>
-        public static object CreateSoftClassPtr(IntPtr addressOfSoftClassPtr, IntPtr addressOfSoftClassProperty)
-        {
-            IntPtr TypeClass = PropertyInteropUtils.GetPropertyInnerField(addressOfSoftClassProperty);
-
-            Logger.Ensure<Exception>(TypeClass != IntPtr.Zero);
-
-            var type = GetType(TypeClass);
-
-            Logger.EnsureNotNull(type);
-
-            var factory = QueryCreateSoftClassDelegate(type);
-
-            return factory(addressOfSoftClassPtr);
-        }
-
-        /// <summary>
-        /// Writes the soft class PTR.
-        /// </summary>
-        /// <param name="addressOfNativeSoftClassPtr">The address of native soft class PTR.</param>
-        /// <param name="softClassPtr">The soft class PTR.</param>
-        public static void WriteSoftClassPtr(IntPtr addressOfNativeSoftClassPtr, ISoftClassPtr softClassPtr)
-        {
-            if(softClassPtr != null)
-            {
-                softClassPtr.WriteTo(addressOfNativeSoftClassPtr);
-            }            
-        }
-        #endregion
+        return createSoftClassFactory;
     }
+    #endregion
+
+    #region Array
+    /// <summary>
+    /// Creates the array.
+    /// </summary>
+    /// <param name="addressOfArray">The address of array.</param>
+    /// <param name="addressOfArrayProperty">The address of array property.</param>
+    /// <returns>System.Object.</returns>        
+    public static object CreateArray(IntPtr addressOfArray, IntPtr addressOfArrayProperty)
+    {
+        var elementProperty = ArrayInteropUtils.GetElementPropertyOfArray(addressOfArrayProperty);
+
+        Logger.Ensure<Exception>(elementProperty != IntPtr.Zero, "Failed get ElementProperty of ArrayProperty:0x{0:x}", addressOfArrayProperty);
+
+        var elementType = GetElementType(elementProperty);
+        var factory = QueryCreateArrayDelegate(elementType);
+
+        return factory(addressOfArray, addressOfArrayProperty);
+    }
+
+    /// <summary>
+    /// Writes the array.
+    /// </summary>
+    /// <param name="addressOfArray">The address of array.</param>
+    /// <param name="addressOfArrayProperty">The address of array property.</param>
+    /// <param name="enumerable">The enumerable.</param>
+    /// <returns><c>true</c> if success, <c>false</c> otherwise.</returns>
+    public static bool WriteArray(IntPtr addressOfArray, IntPtr addressOfArrayProperty, IEnumerable enumerable)
+    {
+        var newArray = CreateArray(addressOfArray, addressOfArrayProperty);
+        var dataView = newArray as IUnrealCollectionDataView;
+
+        return dataView != null && dataView.CopyFrom(enumerable);
+    }
+    #endregion
+
+    #region Set
+    /// <summary>
+    /// Creates the set.
+    /// </summary>
+    /// <param name="addressOfSet">The address of set.</param>
+    /// <param name="addressOfSetProperty">The address of set property.</param>
+    /// <returns>System.Object.</returns>
+    public static object CreateSet(IntPtr addressOfSet, IntPtr addressOfSetProperty)
+    {
+        var elementProperty = SetInteropUtils.GetElementPropertyOfSet(addressOfSetProperty);
+
+        Logger.Ensure<Exception>(elementProperty != IntPtr.Zero, "Failed get ElementProperty of SetProperty:0x{0:x}", addressOfSetProperty);
+
+        var elementType = GetElementType(elementProperty);
+        var factory = QueryCreateSetDelegate(elementType);
+
+        return factory(addressOfSet, addressOfSetProperty);
+    }
+
+    /// <summary>
+    /// Writes the set.
+    /// </summary>
+    /// <param name="addressOfSet">The address of set.</param>
+    /// <param name="addressOfSetProperty">The address of set property.</param>
+    /// <param name="enumerable">The enumerable.</param>
+    /// <returns><c>true</c> if success, <c>false</c> otherwise.</returns>
+    public static bool WriteSet(IntPtr addressOfSet, IntPtr addressOfSetProperty, IEnumerable enumerable)
+    {
+        var newSet = CreateSet(addressOfSet, addressOfSetProperty);
+        var dataView = newSet as IUnrealCollectionDataView;
+
+        return dataView != null && dataView.CopyFrom(enumerable);
+    }
+    #endregion
+
+    #region Map
+    /// <summary>
+    /// Creates the map.
+    /// </summary>
+    /// <param name="addressOfMap">The address of map.</param>
+    /// <param name="addressOfMapProperty">The address of map property.</param>
+    /// <returns>System.Object.</returns>
+    public static object CreateMap(IntPtr addressOfMap, IntPtr addressOfMapProperty)
+    {
+        var keyElementProperty = MapInteropUtils.GetKeyPropertyOfMap(addressOfMapProperty);
+        var valueElementProperty = MapInteropUtils.GetValuePropertyOfMap(addressOfMapProperty);
+
+        Logger.Ensure<Exception>(keyElementProperty != IntPtr.Zero, "Failed get KeyElementProperty of MapProperty:0x{0:x}", addressOfMapProperty);
+        Logger.Ensure<Exception>(valueElementProperty != IntPtr.Zero, "Failed get ValueElementProperty of MapProperty:0x{0:x}", addressOfMapProperty);
+
+        var keyElementType = GetElementType(keyElementProperty);
+        var valueElementType = GetElementType(valueElementProperty);
+
+        var factory = QueryCreateMapDelegate(keyElementType, valueElementType);
+
+        return factory(addressOfMap, addressOfMapProperty);
+    }
+
+    /// <summary>
+    /// Writes the map.
+    /// </summary>
+    /// <param name="addressOfMap">The address of map.</param>
+    /// <param name="addressOfMapProperty">The address of map property.</param>
+    /// <param name="enumerable">The enumerable.</param>
+    /// <returns><c>true</c> if success, <c>false</c> otherwise.</returns>
+    public static bool WriteMap(IntPtr addressOfMap, IntPtr addressOfMapProperty, IEnumerable enumerable)
+    {
+        var newMap = CreateMap(addressOfMap, addressOfMapProperty);
+        var dataView = newMap as IUnrealCollectionDataView;
+
+        return dataView != null && dataView.CopyFrom(enumerable);
+    }
+    #endregion
+
+    #region Soft Object
+    /// <summary>
+    /// Creates the soft object PTR.
+    /// </summary>
+    /// <param name="addressOfSoftObjectPtr">The address of soft object PTR.</param>
+    /// <param name="addressOfSoftObjectProperty">The address of soft object property.</param>
+    /// <returns>System.Object.</returns>
+    public static object CreateSoftObjectPtr(IntPtr addressOfSoftObjectPtr, IntPtr addressOfSoftObjectProperty)
+    {
+        var typeClass = PropertyInteropUtils.GetPropertyInnerField(addressOfSoftObjectProperty);
+
+        Logger.Ensure<Exception>(typeClass != IntPtr.Zero);
+
+        var type = GetType(typeClass);
+
+        Logger.EnsureNotNull(type);
+
+        var factory = QueryCreateSoftObjectDelegate(type);
+
+        return factory(addressOfSoftObjectPtr);
+    }
+
+    /// <summary>
+    /// Writes the soft object PTR.
+    /// </summary>
+    /// <param name="addressOfNativeSoftObjectPtr">The address of native soft object PTR.</param>
+    /// <param name="softObjectPtr">The soft object PTR.</param>
+    public static void WriteSoftObjectPtr(IntPtr addressOfNativeSoftObjectPtr, ISoftObjectPtr? softObjectPtr)
+    {
+        softObjectPtr?.WriteTo(addressOfNativeSoftObjectPtr);
+    }
+    #endregion
+
+    #region Soft Class
+    /// <summary>
+    /// Creates the soft class PTR.
+    /// </summary>
+    /// <param name="addressOfSoftClassPtr">The address of soft class PTR.</param>
+    /// <param name="addressOfSoftClassProperty">The address of soft class property.</param>
+    /// <returns>System.Object.</returns>
+    public static object CreateSoftClassPtr(IntPtr addressOfSoftClassPtr, IntPtr addressOfSoftClassProperty)
+    {
+        var typeClass = PropertyInteropUtils.GetPropertyInnerField(addressOfSoftClassProperty);
+
+        Logger.Ensure<Exception>(typeClass != IntPtr.Zero);
+
+        var type = GetType(typeClass);
+
+        Logger.EnsureNotNull(type);
+
+        var factory = QueryCreateSoftClassDelegate(type);
+
+        return factory(addressOfSoftClassPtr);
+    }
+
+    /// <summary>
+    /// Writes the soft class PTR.
+    /// </summary>
+    /// <param name="addressOfNativeSoftClassPtr">The address of native soft class PTR.</param>
+    /// <param name="softClassPtr">The soft class PTR.</param>
+    public static void WriteSoftClassPtr(IntPtr addressOfNativeSoftClassPtr, ISoftClassPtr? softClassPtr)
+    {
+        softClassPtr?.WriteTo(addressOfNativeSoftClassPtr);
+    }
+    #endregion
 }

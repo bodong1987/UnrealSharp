@@ -27,83 +27,84 @@ using System.Diagnostics.CodeAnalysis;
 using UnrealSharp.UnrealEngine.Main;
 using UnrealSharp.Utils.Misc;
 
-namespace UnrealSharp.UnrealEngine.InteropService
+namespace UnrealSharp.UnrealEngine.InteropService;
+
+/// <summary>
+/// Class InteropFunctions.
+/// </summary>
+public static unsafe class InteropFunctions
 {
     /// <summary>
-    /// Class InteropFunctions.
+    /// The native instance
     /// </summary>
-    public unsafe static class InteropFunctions
+    public static readonly IntPtr NativeInstance;
+
+    /// <summary>
+    /// static constructor
+    /// </summary>
+    static InteropFunctions()
     {
-        /// <summary>
-        /// The native instance
-        /// </summary>
-        public static readonly IntPtr NativeInstance;
+        var interopInfo = UnrealSharpEntry.InteropFunctionInfo;
+        NativeInstance = new IntPtr(interopInfo.NativeInteropFunctionsPtr);
 
-        /// <summary>
-        /// Cctors this instance.
-        /// </summary>
-        static InteropFunctions()
-        {
-            var InteropInfo = UnrealSharpEntry.InteropFunctionInfo;
-            NativeInstance = new IntPtr(InteropInfo.NativeInteropFunctionsPtr);
-
-            Logger.Ensure<Exception>(InteropInfo.GetUnrealInteropFunctionPointerPointer != null, "Failed bind Main interop function : GetUnrealInteropFunctionPointer");
+        Logger.Ensure<Exception>(interopInfo.GetUnrealInteropFunctionPointerFunc != null, "Failed bind Main interop function : GetUnrealInteropFunctionPointer");
                         
-            GetUnrealInteropFunctionPointer = (delegate* unmanaged[Cdecl]<IntPtr, string, IntPtr>)InteropInfo.GetUnrealInteropFunctionPointerPointer;
-            ValidateUnrealSharpBuildInfo = (delegate* unmanaged[Cdecl] < FUnrealSharpBuildInfo *, void>)GetUnrealInteropFunctionPointer(NativeInstance, "ValidateUnrealSharpBuildInfo");
+        GetUnrealInteropFunctionPointer = (delegate* unmanaged[Cdecl]<IntPtr, string, IntPtr>)interopInfo.GetUnrealInteropFunctionPointerFunc;
+        ValidateUnrealSharpBuildInfo = (delegate* unmanaged[Cdecl] < FUnrealSharpBuildInfo *, void>)GetUnrealInteropFunctionPointer(NativeInstance, "ValidateUnrealSharpBuildInfo");
 
-            Logger.Ensure<Exception>(ValidateUnrealSharpBuildInfo != null, "Failed find interop function:ValidateUnrealSharpBuildInfo");
-        }
-
-        #region Internal Methods
-
-        /// <summary>
-        /// The get function pointer index
-        /// </summary>
-        public readonly static delegate* unmanaged[Cdecl]<IntPtr, string, IntPtr> GetUnrealInteropFunctionPointer;
-
-        /// <summary>
-        /// The validate unreal sharp build information
-        /// </summary>
-        public readonly static delegate* unmanaged[Cdecl]<FUnrealSharpBuildInfo*, void> ValidateUnrealSharpBuildInfo;
-        #endregion
-
-        #region Binding Help Utils
-        /// <summary>
-        /// Binds the interop function pointers.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        public static void BindInteropFunctionPointers([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields|DynamicallyAccessedMemberTypes.NonPublicFields)]Type type)
-        {
-            foreach (var field in type.GetFields(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic))
-            {
-                if(field.FieldType == typeof(IntPtr))
-                {
-                    string name = field.Name;
-                    IntPtr FuncPointer = GetUnrealInteropFunctionPointer(NativeInstance, name);
-                    Logger.Ensure<Exception>(FuncPointer != IntPtr.Zero, "Failed bind interop function {0} in class {1}", name, type.FullName!);
-                                                            
-                    field.SetValue(null, FuncPointer);
-
-                    Logger.LogD("Bind {0}:{1} at 0x{2:x}", type.FullName!, name, FuncPointer);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Binds the interop function pointer.
-        /// bind single function pointer
-        /// </summary>
-        /// <param name="pointer">The pointer.</param>
-        /// <param name="interopMethodName">Name of the interop method.</param>
-        /// <param name="typeName">Name of the type.</param>
-        public static void BindInteropFunctionPointer(ref IntPtr pointer, string interopMethodName, string typeName)
-        {
-            IntPtr FuncPointer = GetUnrealInteropFunctionPointer(NativeInstance, interopMethodName);
-            Logger.Ensure<Exception>(FuncPointer != IntPtr.Zero, "Failed bind interop function {0} in class {1}", interopMethodName, typeName);
-
-            pointer = FuncPointer;
-        }
-        #endregion
+        Logger.Ensure<Exception>(ValidateUnrealSharpBuildInfo != null, "Failed find interop function:ValidateUnrealSharpBuildInfo");
     }
+
+    #region Internal Methods
+
+    /// <summary>
+    /// The get function pointer index
+    /// </summary>
+    public static readonly delegate* unmanaged[Cdecl]<IntPtr, string, IntPtr> GetUnrealInteropFunctionPointer;
+
+    /// <summary>
+    /// The validate unreal sharp build information
+    /// </summary>
+    public static readonly delegate* unmanaged[Cdecl]<FUnrealSharpBuildInfo*, void> ValidateUnrealSharpBuildInfo;
+    #endregion
+
+    #region Binding Help Utils
+    /// <summary>
+    /// Binds the interop function pointers.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    public static void BindInteropFunctionPointers([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields|DynamicallyAccessedMemberTypes.NonPublicFields)]Type type)
+    {
+        foreach (var field in type.GetFields(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic))
+        {
+            if (field.FieldType != typeof(IntPtr))
+            {
+                continue;
+            }
+            
+            var name = field.Name;
+            var funcPointer = GetUnrealInteropFunctionPointer(NativeInstance, name);
+            Logger.Ensure<Exception>(funcPointer != IntPtr.Zero, "Failed bind interop function {0} in class {1}", name, type.FullName!);
+                                                            
+            field.SetValue(null, funcPointer);
+
+            Logger.LogD("Bind {0}:{1} at 0x{2:x}", type.FullName!, name, funcPointer);
+        }
+    }
+
+    /// <summary>
+    /// Binds the interop function pointer.
+    /// bind single function pointer
+    /// </summary>
+    /// <param name="pointer">The pointer.</param>
+    /// <param name="interopMethodName">Name of the interop method.</param>
+    /// <param name="typeName">Name of the type.</param>
+    public static void BindInteropFunctionPointer(ref IntPtr pointer, string interopMethodName, string typeName)
+    {
+        var funcPointer = GetUnrealInteropFunctionPointer(NativeInstance, interopMethodName);
+        Logger.Ensure<Exception>(funcPointer != IntPtr.Zero, "Failed bind interop function {0} in class {1}", interopMethodName, typeName);
+
+        pointer = funcPointer;
+    }
+    #endregion
 }

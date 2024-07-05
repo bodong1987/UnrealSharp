@@ -163,7 +163,7 @@ DECLARE_UNREAL_SHARP_INTEROP_API(bool, IsSoftObjectPtrValid, (const FSoftObjectP
 DECLARE_UNREAL_SHARP_INTEROP_API(bool, IsSoftObjectPtrStale, (const FSoftObjectPtr* InSoftObjectPtr));
 DECLARE_UNREAL_SHARP_INTEROP_API(bool, IsSoftObjectPtrNull, (const FSoftObjectPtr* InSoftObjectPtr));
 DECLARE_UNREAL_SHARP_INTEROP_API(UObject*, GetUnrealObjectPointerOfSoftObjectPtr, (FSoftObjectPtr* InSoftObjectPtr));
-DECLARE_UNREAL_SHARP_INTEROP_API(UObject*, GetUnrealObjectPointerOfSoftObjectPtrEx, (FSoftObjectPtr* InSoftObjectPtr, bool evenIfPendingKill));
+DECLARE_UNREAL_SHARP_INTEROP_API(UObject*, GetUnrealObjectPointerOfSoftObjectPtrEx, (FSoftObjectPtr* InSoftObjectPtr, bool bInEvenIfPendingKill));
 DECLARE_UNREAL_SHARP_INTEROP_API(FSoftObjectPath*, GetObjectIdPointerOfSoftObjectPtr, (FSoftObjectPtr* InSoftObjectPtr));
 DECLARE_UNREAL_SHARP_INTEROP_API(UObject*, LoadSynchronousSoftObjectPtr, (FSoftObjectPtr* InSoftObjectPtr));
 DECLARE_UNREAL_SHARP_INTEROP_API(void, CopySoftObjectPtr, (FSoftObjectPtr* InDestination, const FSoftObjectPtr* InSource));

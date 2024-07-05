@@ -25,23 +25,22 @@
 */
 using UnrealSharp.UnrealEngine.InteropService;
 
-namespace UnrealSharp.UnrealEngine
+namespace UnrealSharp.UnrealEngine;
+
+/// <summary>
+/// Class UBlueprintFunctionLibrary.
+/// Implements the <see cref="UnrealSharp.UnrealEngine.UObject" />
+/// </summary>
+/// <seealso cref="UnrealSharp.UnrealEngine.UObject" />
+public partial class UBlueprintFunctionLibrary
 {
     /// <summary>
-    /// Class UBlueprintFunctionLibrary.
-    /// Implements the <see cref="UnrealSharp.UnrealEngine.UObject" />
+    /// Special classes like UBlueprintFunctionLibrary are allowed to have constructors without parameters, 
+    /// and theoretically we will not create object instances of these static classes.
+    /// Initializes a new instance of the <see cref="UBlueprintFunctionLibrary"/> class.
     /// </summary>
-    /// <seealso cref="UnrealSharp.UnrealEngine.UObject" />
-    public partial class UBlueprintFunctionLibrary
+    public UBlueprintFunctionLibrary() :
+        base(ObjectInteropUtils.GetDefaultObjectPointerOfClass(StaticClass().GetNativePtr()))
     {
-        /// <summary>
-        /// Special classes like UBlueprintFunctionLibrary are allowed to have constructors without parameters, 
-        /// and theoretically we will not create object instances of these static classes.
-        /// Initializes a new instance of the <see cref="UBlueprintFunctionLibrary"/> class.
-        /// </summary>
-        public UBlueprintFunctionLibrary() :
-            base(ObjectInteropUtils.GetDefaultObjectPointerOfClass(StaticClass().GetNativePtr()))
-        {
-        }
     }
 }

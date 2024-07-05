@@ -36,8 +36,8 @@ namespace UnrealSharp::Mono
     class FMonoMethodInvocation : public ICSharpMethodInvocation
     {
     public: 
-        FMonoMethodInvocation(TSharedPtr<FMonoMethod> InMethod);
-        ~FMonoMethodInvocation();
+        FMonoMethodInvocation(const TSharedPtr<FMonoMethod>& InMethod);
+        virtual ~FMonoMethodInvocation() override;
 
     public:
         virtual ICSharpMethod* GetMethod() const override;

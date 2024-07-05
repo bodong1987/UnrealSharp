@@ -155,7 +155,7 @@ namespace UnrealSharp
         static int GetPropertyCount(const UStruct* InStruct);
 
         // Get property count witch filter        
-        static int GetPropertyCount(const UStruct* InStruct, TFunction<bool(const FProperty*)> InFilter);
+        static int GetPropertyCount(const UStruct* InStruct, const TFunction<bool(const FProperty*)>& InFilter);
 
         // pickup property name from blueprint struct property name: {propertyName}_{index}_{guid}
         static FName ExtraUserDefinedStructPropertyName(const FProperty* InProperty);

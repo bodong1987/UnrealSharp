@@ -75,10 +75,9 @@ void UCSharpClass::AddCSharpFunction(FName&& InName, FCSharpFunctionData&& InFun
 
 FString UCSharpClass::GetCSharpTypeName() const
 {
-    int index;
-    if (CSharpFullName.FindLastChar(TEXT('.'), index))
+    if (int Index; CSharpFullName.FindLastChar(TEXT('.'), Index))
     {
-        return CSharpFullName.Mid(index + 1);
+        return CSharpFullName.Mid(Index + 1);
     }
 
     return CSharpFullName;
@@ -86,11 +85,9 @@ FString UCSharpClass::GetCSharpTypeName() const
 
 const FString& UCSharpClass::GetCSharpFunctionSignature(const FName& InName) const
 {
-    auto ptr = CSharpFunctions.Find(InName);
-
-    if (ptr != nullptr)
+    if (const auto Ptr = CSharpFunctions.Find(InName); Ptr != nullptr)
     {
-        return ptr->FunctionSignature;
+        return Ptr->FunctionSignature;
     }
 
     static const FString Z_Empty;
@@ -113,7 +110,7 @@ void UCSharpClass::Bind()
     }
 }
 
-void UCSharpClass::StaticClassConstructor(UCSharpClass* InCSharpClass, const FObjectInitializer& ObjectInitializer)
+void UCSharpClass::StaticClassConstructor(UCSharpClass* InCSharpClass, const FObjectInitializer& ObjectInitializer) // NOLINT
 {
     check(InCSharpClass);
 
@@ -129,7 +126,7 @@ void UCSharpClass::StaticClassConstructor(UCSharpClass* InCSharpClass, const FOb
         {
             CSharpObject = UnrealSharp::FInteropUtils::GetCSharpObjectOfUnrealObject(ObjectInitializer.GetObj());
 
-            auto Runtime = UnrealSharp::FCSharpRuntimeFactory::GetInstance();
+            const auto Runtime = UnrealSharp::FCSharpRuntimeFactory::GetInstance();
             check(Runtime);
 
             Runtime->GetCSharpLibraryAccessor()->BeforeObjectConstructor(CSharpObject.ObjectPtr, ObjectInitializer);
@@ -139,7 +136,7 @@ void UCSharpClass::StaticClassConstructor(UCSharpClass* InCSharpClass, const FOb
 
         if (CSharpObject.ObjectPtr != nullptr)
         {
-            auto Runtime = UnrealSharp::FCSharpRuntimeFactory::GetInstance();
+            const auto Runtime = UnrealSharp::FCSharpRuntimeFactory::GetInstance();
             check(Runtime);
 
             Runtime->GetCSharpLibraryAccessor()->PostObjectConstructor(CSharpObject.ObjectPtr);
@@ -149,12 +146,12 @@ void UCSharpClass::StaticClassConstructor(UCSharpClass* InCSharpClass, const FOb
 
 void UCSharpClass::StaticConstructor(const FObjectInitializer& ObjectInitializer)
 {
-    // if you create an object which is inherit from a CSharpClass
+    // if you create an object which is a CSharpClass type
     // we need find the parent CSharpClass here
     UClass* TargetClass = ObjectInitializer.GetClass();
     check(TargetClass != nullptr);
 
-    UCSharpClass* SharpClass = nullptr;
+    UCSharpClass* SharpClass = nullptr; // NOLINT
 
     while ((SharpClass = Cast<UCSharpClass>(TargetClass)) == nullptr)
     {
@@ -173,10 +170,10 @@ void UCSharpClass::StaticConstructor(const FObjectInitializer& ObjectInitializer
 
 void UCSharpClass::RedirectAllCSharpFunctions()
 {
-    for (auto& func : CSharpFunctions)
+    for (auto& Func : CSharpFunctions)
     {
-        UFunction* CSharpFunction = FindFunctionByName(func.Key, EIncludeSuperFlag::ExcludeSuper);
-        checkf(CSharpFunction, TEXT("Failed find %s[%s] on CSharp Class %s"), *func.Key.ToString(), *func.Value.FunctionSignature, *GetCSharpFullName());
+        UFunction* CSharpFunction = FindFunctionByName(Func.Key, EIncludeSuperFlag::ExcludeSuper);
+        checkf(CSharpFunction, TEXT("Failed find %s[%s] on CSharp Class %s"), *Func.Key.ToString(), *Func.Value.FunctionSignature, *GetCSharpFullName());
 
         if (CSharpFunction->HasAnyFunctionFlags(FUNC_Native))
         {
@@ -184,28 +181,28 @@ void UCSharpClass::RedirectAllCSharpFunctions()
             continue;
         }
 
-        FCSharpFunctionRedirectionData RediretionData(CSharpFunction, &func.Value);
+        FCSharpFunctionRedirectionData RedirectionData(CSharpFunction, &Func.Value);
 
         CSharpFunction->FunctionFlags |= FUNC_Native;
         CSharpFunction->SetNativeFunc(&UCSharpClass::CallCSharpFunction);
 
-        RedirectionCaches.Add(CSharpFunction, RediretionData);
+        RedirectionCaches.Add(CSharpFunction, RedirectionData);
     }
 }
 
 void UCSharpClass::RestoreAllCSharpFunctions()
 {
-    for (auto& cache : RedirectionCaches)
+    for (auto& Cache : RedirectionCaches)
     {
-        cache.Value.Function->FunctionFlags = cache.Value.Flags;
-        cache.Value.Function->Script = MoveTemp(cache.Value.Script);
-        cache.Value.Function->SetNativeFunc(cache.Value.FuncPtr);        
+        Cache.Value.Function->FunctionFlags = Cache.Value.Flags;
+        Cache.Value.Function->Script = MoveTemp(Cache.Value.Script);
+        Cache.Value.Function->SetNativeFunc(Cache.Value.FuncPtr);        
     }
 
     RedirectionCaches.Empty();
 }
 
-FCSharpFunctionRedirectionData* UCSharpClass::GetCSharpFunctionRedirection(UFunction* InFunction)
+FCSharpFunctionRedirectionData* UCSharpClass::GetCSharpFunctionRedirection(const UFunction* InFunction)
 {
     return RedirectionCaches.Find(InFunction);
 }
@@ -236,7 +233,7 @@ void UCSharpClass::CallCSharpFunction(UObject* Context, FFrame& TheStack, RESULT
 
         checkf(InvocationPtr, TEXT("Failed create invocation from signature (%s) in %s"), *Signature, *Class->CSharpFullName);
 
-        TSharedPtr<UnrealSharp::FUnrealFunctionInvokeRedirector> Invoker = 
+        const TSharedPtr<UnrealSharp::FUnrealFunctionInvokeRedirector> Invoker = 
             MakeShared<UnrealSharp::FUnrealFunctionInvokeRedirector>(
                 Runtime, 
                 Class, 

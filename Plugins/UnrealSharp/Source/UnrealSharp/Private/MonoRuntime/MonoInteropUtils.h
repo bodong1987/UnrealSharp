@@ -38,7 +38,7 @@ namespace UnrealSharp::Mono
     class FMonoInteropUtils : public FInteropUtils
     {
     public:
-        typedef TMap<uint32, TTuple<FString, void*>> FallbackApiMappingType;
+        typedef TMap<uint32, TTuple<FString, void*>> FFallbackApiMappingType;
 
         static void                         Initialize(FMonoRuntime* InRuntime);
         static void                         Uninitialize();
@@ -50,18 +50,18 @@ namespace UnrealSharp::Mono
 
         static void                         DumpMonoObjectInformation(MonoObject* InMonoObject);        
         static void                         DumpAssemblyClasses(MonoAssembly* InAssembly);
-        static void                         DumpClassInfomration(MonoClass* InClass);
+        static void                         DumpClassInformation(MonoClass* InClass);
 
 
     private:
         static void                         Bind();
-        static void*                        MonoPInvokeLoadLib(const char* name, int flags, char** err, void* InUserData);
-        static void*                        MonoPInvokeGetSymbol(void* handle, const char* name, char** err, void* InUserData);
-        static void*                        MonoPInvokeFallbackClose(void* handle, void* InUserData);
+        static void*                        MonoPInvokeLoadLib(const char* name, int flags, char** err, void* InUserData);  // NOLINT
+        static void*                        MonoPInvokeGetSymbol(void* handle, const char* name, char** err, void* InUserData); // NOLINT
+        static void*                        MonoPInvokeFallbackClose(void* handle, void* InUserData); // NOLINT
 
     public:
         static FMonoRuntime*                Runtime;
-        static FallbackApiMappingType       FallbackApis;
+        static FFallbackApiMappingType      FallbackApis;
     };
 }
 #endif

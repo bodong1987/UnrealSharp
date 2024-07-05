@@ -1,0 +1,59 @@
+[*.cs]
+resharper_check_namespace_highlighting = none
+resharper_member_can_be_private_global_highlighting = none
+resharper_partial_type_with_single_part_highlighting = none
+resharper_unused_member_global_highlighting = none
+resharper_unused_field_compiler_highlighting = none
+resharper_not_accessed_field_global_highlighting = none
+resharper_member_can_be_protected_global_highlighting = none
+resharper_unused_type_global_highlighting = none
+resharper_class_never_instantiated_global_highlighting = none
+resharper_virtual_member_never_overridden_global_highlighting = none
+resharper_virtual_member_never_overridden_local_highlighting = none
+resharper_unused_local_function_return_value_highlighting = none
+resharper_unused_method_return_value_global_highlighting = none
+resharper_unused_member_in_super_global_highlighting = none
+dotnet_diagnostic.CA1051.severity = none
+dotnet_diagnostic.CA1707.severity = none
+dotnet_diagnostic.CA1720.severity = none
+
+[*.def.cs]
+dotnet_diagnostic.CA1822.severity = none
+dotnet_diagnostic.CS0414.severity = none
+dotnet_diagnostic.IDE0005.severity = none
+resharper_redundant_using_directive_highlighting = none
+resharper_redundant_type_declaration_body_highlighting = none
+resharper_unused_parameter_global_highlighting = none
+resharper_inconsistent_naming_highlighting = none
+
+[*.placeholders.*.cs]
+resharper_redundant_using_directive_highlighting = none
+resharper_redundant_type_declaration_body_highlighting = none
+resharper_unused_parameter_global_highlighting = none
+resharper_inconsistent_naming_highlighting = none
+resharper_unused_type_parameter_highlighting = none
+resharper_identifier_typo_highlighting = none
+resharper_redundant_attribute_parentheses_highlighting = none
+resharper_unused_parameter_global_highlighting = none
+resharper_unassigned_field_global_highlighting = none
+
+[*.gen.cs]
+dotnet_diagnostic.CA1069.severity = none
+dotnet_diagnostic.IDE0005.severity = none
+dotnet_diagnostic.IDE0055.severity = none
+resharper_redundant_type_declaration_body_highlighting = none
+resharper_grammar_mistake_in_comment_highlighting = none
+resharper_redundant_using_directive_highlighting = none
+resharper_inconsistent_naming_highlighting = none
+resharper_identifier_typo_highlighting = none
+resharper_redundant_unsafe_context_highlighting = none
+resharper_redundant_argument_default_value_highlighting = none
+resharper_arrange_accessor_owner_body_highlighting = none
+resharper_string_literal_typo_highlighting = none
+resharper_redundant_type_arguments_of_method_highlighting = none
+resharper_redundant_cast_highlighting = none
+resharper_parameter_hides_member_highlighting = none
+resharper_redundant_name_qualifier_highlighting = none
+resharper_use_object_or_collection_initializer_highlighting = none
+resharper_built_in_type_reference_style_highlighting = none
+resharper_built_in_type_reference_style_for_member_access_highlighting = none

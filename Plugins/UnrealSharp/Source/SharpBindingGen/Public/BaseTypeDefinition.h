@@ -57,17 +57,17 @@ namespace UnrealSharp
         // Write this type to JsonDoc
         virtual void                    Write(FJsonObject& InObject);
 
-        static FString                  GetCppTypeName(UField* InField);
+        static FString                  GetCppTypeName(const UField* InField);
         static FString                  GetBlueprintFieldPackageName(const FString& InPath);
 
-        inline EDefinitionType          GetDefinitionType() const { return (EDefinitionType)Type; }
-        inline bool                     IsEnum() const { return (EDefinitionType)Type == EDefinitionType::Enum; }
-        inline bool                     IsStruct() const { return (EDefinitionType)Type == EDefinitionType::Struct; }
-        inline bool                     IsClass() const { return (EDefinitionType)Type == EDefinitionType::Class; }
-        inline bool                     IsFunction() const { return (EDefinitionType)Type == EDefinitionType::Function; }
-        inline bool                     IsInterface() const { return (EDefinitionType)Type == EDefinitionType::Interface; }
+        EDefinitionType                 GetDefinitionType() const { return static_cast<EDefinitionType>(Type); }
+        bool                            IsEnum() const { return static_cast<EDefinitionType>(Type) == EDefinitionType::Enum; }
+        bool                            IsStruct() const { return static_cast<EDefinitionType>(Type) == EDefinitionType::Struct; }
+        bool                            IsClass() const { return static_cast<EDefinitionType>(Type) == EDefinitionType::Class; }
+        bool                            IsFunction() const { return static_cast<EDefinitionType>(Type) == EDefinitionType::Function; }
+        bool                            IsInterface() const { return static_cast<EDefinitionType>(Type) == EDefinitionType::Interface; }
     protected:
-        int                             Type = (int)EDefinitionType::None;
+        int                             Type = static_cast<int>(EDefinitionType::None);
 
     public:        
         FString                         Name;

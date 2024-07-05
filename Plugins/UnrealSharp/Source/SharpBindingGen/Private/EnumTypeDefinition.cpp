@@ -27,13 +27,13 @@
 
 namespace UnrealSharp
 {
-    void FEnumFieldDefinition::Write(FJsonObject& InObject)
+    void FEnumFieldDefinition::Write(FJsonObject& InObject) const
     {        
         InObject.SetStringField(TEXT("Name"), Name);
         InObject.SetNumberField(TEXT("Value"), Value);
     }
 
-    void FEnumFieldDefinition::Read(FJsonObject& InObject)
+    void FEnumFieldDefinition::Read(const FJsonObject& InObject)
     {
         Name = InObject.GetStringField(TEXT("Name"));
         Value = InObject.GetNumberField(TEXT("Value"));
@@ -41,22 +41,22 @@ namespace UnrealSharp
 
     FEnumTypeDefinition::FEnumTypeDefinition()
     {
-        Type = (int)EDefinitionType::Enum;
+        Type = static_cast<int>(EDefinitionType::Enum);
     }
 
     FEnumTypeDefinition::FEnumTypeDefinition(UEnum* InEnum, FTypeValidation* InTypeValidation) :
         FBaseTypeDefinition(InEnum, InTypeValidation)
     {
-        Type = (int)EDefinitionType::Enum;
+        Type = static_cast<int>(EDefinitionType::Enum);
         
         LoadFields(InEnum);
     }
 
-    void FEnumTypeDefinition::LoadFields(UEnum* InEnum)
+    void FEnumTypeDefinition::LoadFields(const UEnum* InEnum)
     {
         Fields.Empty();
 
-        UEnum* Enum = InEnum;
+        const UEnum* Enum = InEnum;
 
         const int NumEnums = Enum->NumEnums();
 
@@ -69,7 +69,7 @@ namespace UnrealSharp
                 continue;
             }
 
-            int64 EnumValue = Enum->GetValueByIndex(i);
+            const int64 EnumValue = Enum->GetValueByIndex(i);
 
             FEnumFieldDefinition Field;
             Field.Name = EnumName;
@@ -102,17 +102,14 @@ namespace UnrealSharp
     {
         Super::Read(InObject);
 
-        const auto& FieldsRef = InObject.GetArrayField(TEXT("Fields"));
-
-        for (auto& FieldObject : FieldsRef)
+        for (const auto& FieldsRef = InObject.GetArrayField(TEXT("Fields")); auto& FieldObject : FieldsRef)
         {
-            TSharedPtr<FJsonObject>* ObjectPtr = nullptr;
-            if (FieldObject->TryGetObject(ObjectPtr) && ObjectPtr != nullptr)
+            if (TSharedPtr<FJsonObject>* ObjectPtr = nullptr; FieldObject->TryGetObject(ObjectPtr) && ObjectPtr != nullptr)
             {
-                FEnumFieldDefinition fd;
-                fd.Read(**ObjectPtr);
+                FEnumFieldDefinition FD;
+                FD.Read(**ObjectPtr);
 
-                Fields.Add(fd);
+                Fields.Add(FD);
             }
         }
     }

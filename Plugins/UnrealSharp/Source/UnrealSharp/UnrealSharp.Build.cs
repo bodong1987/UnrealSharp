@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using System.IO;
 using UnrealBuildTool;
 
+// ReSharper disable all
+
 /// <summary>
 /// This Module is the core of the UnrealSharp runtime. 
 /// It is responsible for starting and managing the C# runtime, 
@@ -316,7 +318,7 @@ public class UnrealSharp : ModuleRules
             System.Console.WriteLine($"Warning: {ManagedDir} is not exists, before running it for the first time, be sure to compile the C# code using build configuration `{ManagedDirectoryName}`.");
         }
 
-        PublicDefinitions.Add($"MANAGED_DIRECTORYNAME=\"{ManagedDirectoryName}\"");
+        PublicDefinitions.Add($"MANAGED_DIRECTORY_NAME=\"{ManagedDirectoryName}\"");
         System.Console.WriteLine($"Managed Directory:{ManagedDirectoryName}");
 
         PublicDefinitions.Add($"MONO_LIBRARY_NAME=\"{GetCoreCLRLibName()}\"");
@@ -334,3 +336,5 @@ public class UnrealSharp : ModuleRules
         }
     }
 }
+
+// ReSharper restore all

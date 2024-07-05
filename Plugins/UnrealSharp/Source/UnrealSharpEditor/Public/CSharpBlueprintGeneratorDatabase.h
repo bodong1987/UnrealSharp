@@ -70,10 +70,10 @@ namespace UnrealSharp
     class UNREALSHARPEDITOR_API FCSharpBlueprintGeneratorDatabase
     {
     public:
-        FCSharpBlueprintGeneratorDatabase(TSharedPtr<FTypeDefinitionDocument> InDocument);
+        FCSharpBlueprintGeneratorDatabase(const TSharedPtr<FTypeDefinitionDocument>& InDocument);
         ~FCSharpBlueprintGeneratorDatabase();
 
-        void                                    Accept(TFunction<void(FCSharpGeneratedTypeInfo&)> InVisitor);
+        void                                    Accept(const TFunction<void(FCSharpGeneratedTypeInfo&)>& InVisitor);
 
         FCSharpGeneratedTypeInfo*               FindTypeByName(const FString& InName);
         const FCSharpGeneratedTypeInfo*         FindTypeByName(const FString& InName) const;
@@ -94,12 +94,12 @@ namespace UnrealSharp
         void                                    LoadExistsInfo();
         void                                    PrepareTypeStates();
         void                                    PrepareTypes();        
-        void                                    CleanCSharpBlueprintType(TSharedPtr<FCSharpGeneratedTypeInfo> InTypeInfo, TSharedPtr<FBaseTypeDefinition> InTypeDefinition);
+        void                                    CleanCSharpBlueprintType(const TSharedPtr<FCSharpGeneratedTypeInfo>& InTypeInfo, const TSharedPtr<FBaseTypeDefinition>& InTypeDefinition);
 
-        void                                    NewCSharpBlueprintClassIfNeed(UPackage* InPackage, TSharedPtr<FClassTypeDefinition> InClassDefinition, TSharedPtr<FCSharpGeneratedTypeInfo> InTypeInfo);
-        void                                    DeleteAsset(TSharedPtr<FCSharpGeneratedTypeInfo> InTypeInfo);
+        void                                    NewCSharpBlueprintClassIfNeed(UPackage* InPackage, const TSharedPtr<FClassTypeDefinition>& InClassDefinition, const TSharedPtr<FCSharpGeneratedTypeInfo>& InTypeInfo);
+        void                                    DeleteAsset(const TSharedPtr<FCSharpGeneratedTypeInfo>& InTypeInfo);
 
-        TSharedPtr<FCSharpGeneratedTypeInfo>    NewCSharpBlueprintType(TSharedPtr<FBaseTypeDefinition> InTypeDefinition);
+        TSharedPtr<FCSharpGeneratedTypeInfo>    NewCSharpBlueprintType(const TSharedPtr<FBaseTypeDefinition>& InTypeDefinition);
     private:
         TSharedPtr<FTypeDefinitionDocument>                   Document;
         TMap<FString, TSharedPtr<FCSharpGeneratedTypeInfo>>   NameToTypeInfoCaches;

@@ -25,50 +25,46 @@
 */
 using System.Diagnostics.CodeAnalysis;
 
-namespace UnrealSharp.UnrealEngine
+namespace UnrealSharp.UnrealEngine;
+
+/// <summary>
+/// Class ULocalPlayer.
+/// Implements the <see cref="UnrealSharp.UnrealEngine.UPlayer" />
+/// </summary>
+/// <seealso cref="UnrealSharp.UnrealEngine.UPlayer" />
+public partial class ULocalPlayer
 {
     /// <summary>
-    /// Class ULocalPlayer.
-    /// Implements the <see cref="UnrealSharp.UnrealEngine.UPlayer" />
+    /// Gets the subsystem.
     /// </summary>
-    /// <seealso cref="UnrealSharp.UnrealEngine.UPlayer" />
-    public partial class ULocalPlayer
+    /// <param name="contextObject">The context object.</param>
+    /// <param name="class">The class.</param>
+    /// <returns>System.Nullable&lt;ULocalPlayerSubsystem&gt;.</returns>
+    public static ULocalPlayerSubsystem? GetSubsystem(UObject? contextObject, TSubclassOf<ULocalPlayerSubsystem> @class)
     {
-        /// <summary>
-        /// Gets the subsystem.
-        /// </summary>
-        /// <param name="ContextObject">The context object.</param>
-        /// <param name="class">The class.</param>
-        /// <returns>System.Nullable&lt;ULocalPlayerSubsystem&gt;.</returns>
-        public static ULocalPlayerSubsystem? GetSubsystem(UObject? ContextObject, TSubclassOf<ULocalPlayerSubsystem> @class)
-        {
-            return USubsystemBlueprintLibrary.GetLocalPlayerSubsystem(ContextObject, @class);
-        }
-
-        /// <summary>
-        /// Gets the subsystem.
-        /// </summary>
-        /// <param name="class">The class.</param>
-        /// <returns>System.Nullable&lt;ULocalPlayerSubsystem&gt;.</returns>
-        public ULocalPlayerSubsystem? GetSubsystem(TSubclassOf<ULocalPlayerSubsystem> @class)
-        {
-            return GetSubsystem(this, @class);
-        }
-
-        /// <summary>
-        /// Gets the subsystem.
-        /// </summary>
-        /// <typeparam name="TLocalPlayerSubsystemType">The type of the t local player subsystem type.</typeparam>
-        /// <returns>System.Nullable&lt;TLocalPlayerSubsystemType&gt;.</returns>
-        public TLocalPlayerSubsystemType? GetSubsystem<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] TLocalPlayerSubsystemType>()
-            where TLocalPlayerSubsystemType : ULocalPlayerSubsystem
-        {
-            var Subsystem = GetSubsystem(new TSubclassOf<ULocalPlayerSubsystem>(UClass.GetClassOf<TLocalPlayerSubsystemType>()));
-
-            return Subsystem as TLocalPlayerSubsystemType;
-        }
+        return USubsystemBlueprintLibrary.GetLocalPlayerSubsystem(contextObject, @class);
     }
 
+    /// <summary>
+    /// Gets the subsystem.
+    /// </summary>
+    /// <param name="class">The class.</param>
+    /// <returns>System.Nullable&lt;ULocalPlayerSubsystem&gt;.</returns>
+    public ULocalPlayerSubsystem? GetSubsystem(TSubclassOf<ULocalPlayerSubsystem> @class)
+    {
+        return GetSubsystem(this, @class);
+    }
+
+    /// <summary>
+    /// Gets the subsystem.
+    /// </summary>
+    /// <typeparam name="TLocalPlayerSubsystemType">The type of the t local player subsystem type.</typeparam>
+    /// <returns>System.Nullable&lt;TLocalPlayerSubsystemType&gt;.</returns>
+    public TLocalPlayerSubsystemType? GetSubsystem<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] TLocalPlayerSubsystemType>()
+        where TLocalPlayerSubsystemType : ULocalPlayerSubsystem
+    {
+        var subsystem = GetSubsystem(new TSubclassOf<ULocalPlayerSubsystem>(UClass.GetClassOf<TLocalPlayerSubsystemType>()));
+
+        return subsystem as TLocalPlayerSubsystemType;
+    }
 }
-
-

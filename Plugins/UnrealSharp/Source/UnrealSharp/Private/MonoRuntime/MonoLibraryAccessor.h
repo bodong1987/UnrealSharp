@@ -36,7 +36,7 @@ namespace UnrealSharp::Mono
         typedef FCSharpLibraryAccessor Super;
 
         FMonoLibraryAccessor(ICSharpRuntime* InRuntime);
-        ~FMonoLibraryAccessor();
+        virtual ~FMonoLibraryAccessor() override;
     };
 }
 

@@ -113,14 +113,14 @@ namespace UnrealSharp
         AllFields.Empty();
     }
 
-    void FCSharpBlueprintGeneratorUtils::RemoveSimpleConstructionScriptRecusivly(USimpleConstructionScript* InSimpleConstructionScript, USCS_Node* InNode)
+    void FCSharpBlueprintGeneratorUtils::RemoveSimpleConstructionScriptRecursively(USimpleConstructionScript* InSimpleConstructionScript, USCS_Node* InNode)
     {
         check(InNode);
 
         auto Children = InNode->GetChildNodes();
-        for (auto n : Children)
+        for (const auto Node : Children)
         {
-            RemoveSimpleConstructionScriptRecusivly(InSimpleConstructionScript, n);
+            RemoveSimpleConstructionScriptRecursively(InSimpleConstructionScript, Node);
         }
 
         InSimpleConstructionScript->RemoveNode(InNode);
@@ -142,9 +142,9 @@ namespace UnrealSharp
                 TArray<UK2Node_Event*> NeedRemoveNodes;
                 Graph->GetNodesOfClass<UK2Node_Event>(NeedRemoveNodes);
 
-                for (auto& node : NeedRemoveNodes)
+                for (const auto& Node : NeedRemoveNodes)
                 {
-                    Graph->RemoveNode(node);
+                    Graph->RemoveNode(Node);
                 }
             }
         }
@@ -185,9 +185,9 @@ namespace UnrealSharp
         if (InBlueprint->SimpleConstructionScript != nullptr)
         {
             auto NeedRemoveNodes = InBlueprint->SimpleConstructionScript->GetAllNodes();
-            for (auto* node : NeedRemoveNodes)
+            for (auto* Node : NeedRemoveNodes)
             {
-                RemoveSimpleConstructionScriptRecusivly(InBlueprint->SimpleConstructionScript, node);
+                RemoveSimpleConstructionScriptRecursively(InBlueprint->SimpleConstructionScript, Node);
             }
         }
 
@@ -378,7 +378,7 @@ namespace UnrealSharp
         return Pin;
     }
 
-    void FCSharpBlueprintGeneratorUtils::UpgradeDisplayNamesFromMetaData(class UUserDefinedEnum* Enum)
+    void FCSharpBlueprintGeneratorUtils::UpgradeDisplayNamesFromMetaData(UUserDefinedEnum* Enum)
     {
         if (Enum)
         {
@@ -403,7 +403,7 @@ namespace UnrealSharp
     // This code is copy from StructureEditorUtils.cpp 
     struct FMemberVariableNameHelper
     {
-        static FName Generate(UUserDefinedStruct* Struct, const FString& NameBase, const FGuid Guid, FString* OutFriendlyName = NULL)
+        static FName Generate(const UUserDefinedStruct* Struct, const FString& NameBase, const FGuid Guid, FString* OutFriendlyName = nullptr)
         {
             check(Struct);
 
@@ -439,11 +439,11 @@ namespace UnrealSharp
         static FGuid GetGuidFromName(const FName Name)
         {
             const FString NameStr = Name.ToString();
-            const int32 GuidStrLen = 32;
-            if (NameStr.Len() > (GuidStrLen + 1))
+            constexpr int32 GuidStrLen = 32;
+            if (NameStr.Len() > GuidStrLen + 1)
             {
                 const int32 UnderscoreIndex = NameStr.Len() - GuidStrLen - 1;
-                if (TCHAR('_') == NameStr[UnderscoreIndex])
+                if (TEXT('_') == NameStr[UnderscoreIndex])
                 {
                     const FString GuidStr = NameStr.Right(GuidStrLen);
                     FGuid Guid;
@@ -460,7 +460,7 @@ namespace UnrealSharp
 
     bool FCSharpBlueprintGeneratorUtils::AddStructVariable(UCSharpStruct* InStruct, const FPropertyDefinition& InPropertyDefinition, const FCSharpBlueprintGeneratorDatabase* InDatabase)
     {
-        FEdGraphPinType VarType = FCSharpBlueprintGeneratorUtils::GetPropertyEdGraphPinType(InPropertyDefinition, InDatabase);
+        const FEdGraphPinType VarType = GetPropertyEdGraphPinType(InPropertyDefinition, InDatabase);
 
         FString ErrorMessage;
         if (!FStructureEditorUtils::CanHaveAMemberVariableOfType(InStruct, VarType, &ErrorMessage))
@@ -471,8 +471,8 @@ namespace UnrealSharp
 
         FString DisplayName;
         InPropertyDefinition.Metas.TryGetMeta(TEXT("DisplayName"), DisplayName);
-        
-        FName VarName = FMemberVariableNameHelper::Generate(InStruct, InPropertyDefinition.Name, InPropertyDefinition.Guid);
+
+        const FName VarName = FMemberVariableNameHelper::Generate(InStruct, InPropertyDefinition.Name, InPropertyDefinition.Guid);
 
         FStructVariableDescription NewVar;
         NewVar.VarName = VarName;
@@ -531,7 +531,7 @@ namespace UnrealSharp
 
     void FCSharpBlueprintGeneratorUtils::ForceResetBlueprintGuid(UBlueprint* InBlueprint, const FGuid& InGuid)
     {
-        FProperty* BlueprintGuidProperty = InBlueprint->GetClass()->FindPropertyByName(TEXT("BlueprintGuid"));
+        const FProperty* BlueprintGuidProperty = InBlueprint->GetClass()->FindPropertyByName(TEXT("BlueprintGuid"));
         check(BlueprintGuidProperty);
 
         BlueprintGuidProperty->ImportText_Direct(*InGuid.ToString(), BlueprintGuidProperty->ContainerPtrToValuePtr<void>(InBlueprint), InBlueprint, PPF_None);
@@ -539,12 +539,14 @@ namespace UnrealSharp
 
     UCSharpBlueprint* FCSharpBlueprintGeneratorUtils::NewCSharpBlueprint(UPackage* InPackage, const FClassTypeDefinition* InTypePtr, UClass* InParentClass, const FCSharpBlueprintGeneratorDatabase* InDatabase)
     {
-        EBlueprintType BaseType = InTypePtr->SuperName == TEXT("UBlueprintFunctionLibrary") ? BPTYPE_FunctionLibrary : BPTYPE_Normal;
+        US_UNREFERENCED_PARAMETER(InDatabase);
+        
+        const EBlueprintType BaseType = InTypePtr->SuperName == TEXT("UBlueprintFunctionLibrary") ? BPTYPE_FunctionLibrary : BPTYPE_Normal;
 
         const FString GeneratedClassNameString = FString::Printf(TEXT("%s_C"), *InTypePtr->Name);
-        FName GeneratedClassName = FName(*GeneratedClassNameString);
+        const FName GeneratedClassName = FName(*GeneratedClassNameString);
         // generate a class here
-        UCSharpClass* NewClass = NewObject<UCSharpClass>(InPackage, GeneratedClassName, RF_Public | RF_Transactional);
+        UCSharpClass* NewClass = NewObject<UCSharpClass>(InPackage, GeneratedClassName, RF_Public | RF_Transactional); // NOLINT
         
         UCSharpBlueprint* Blueprint = Cast<UCSharpBlueprint>(FKismetEditorUtilities::CreateBlueprint(
             InParentClass, 
@@ -582,9 +584,11 @@ namespace UnrealSharp
         InType->SetAssemblyName(InTypeDefinition->AssemblyName);
     }
 
-    bool FCSharpBlueprintGeneratorUtils::AddClassVariable(UCSharpBlueprint* InBlueprint, UCSharpClass* InClass, const FPropertyDefinition& InPropertyDefinition, const FCSharpBlueprintGeneratorDatabase* InDatabase)
+    bool FCSharpBlueprintGeneratorUtils::AddClassVariable(UCSharpBlueprint* InBlueprint, const UCSharpClass* InClass, const FPropertyDefinition& InPropertyDefinition, const FCSharpBlueprintGeneratorDatabase* InDatabase)
     {
-        FEdGraphPinType PinType = GetPropertyEdGraphPinType(InPropertyDefinition, InDatabase);
+        US_UNREFERENCED_PARAMETER(InClass);
+        
+        const FEdGraphPinType PinType = GetPropertyEdGraphPinType(InPropertyDefinition, InDatabase);
 
         const bool bResult = FBlueprintEditorUtils::AddMemberVariable(InBlueprint, *InPropertyDefinition.Name, PinType, InPropertyDefinition.DefaultValue);
 
@@ -624,18 +628,18 @@ namespace UnrealSharp
             InVariable.ReplicationCondition = InPropertyDefinition.ReplicationCondition;
         }        
 
-        for (auto& pair : InPropertyDefinition.Metas.Metas)
+        for (auto& Pair : InPropertyDefinition.Metas.Metas)
         {
-            InVariable.SetMetaData(*pair.Key, pair.Value);
+            InVariable.SetMetaData(*Pair.Key, Pair.Value);
         }
     }
 
-    bool FCSharpBlueprintGeneratorUtils::IsImplementationDesiredAsFunction(UBlueprint* InBlueprint, const UFunction* OverrideFunc)
+    bool FCSharpBlueprintGeneratorUtils::IsImplementationDesiredAsFunction(const UBlueprint* InBlueprint, const UFunction* OverrideFunc)
     {
         // If the original function was created in a parent blueprint, then prefer a BP function
         if (OverrideFunc)
         {
-            FName OverrideName = *OverrideFunc->GetName();
+            const FName OverrideName = *OverrideFunc->GetName();
             TSet<FName> GraphNames;
             FBlueprintEditorUtils::GetAllGraphNames(InBlueprint, GraphNames);
             for (const FName& Name : GraphNames)
@@ -651,8 +655,10 @@ namespace UnrealSharp
         return false;
     }
 
-    void FCSharpBlueprintGeneratorUtils::AddFunctionInputPropertyPins(UK2Node_EditablePinBase* InNode, FCSharpGeneratedTypeInfo* InInfo, const FFunctionTypeDefinition& InFunctionDefinition, const FCSharpBlueprintGeneratorDatabase* InDatabase)
+    void FCSharpBlueprintGeneratorUtils::AddFunctionInputPropertyPins(UK2Node_EditablePinBase* InNode, const FCSharpGeneratedTypeInfo* InInfo, const FFunctionTypeDefinition& InFunctionDefinition, const FCSharpBlueprintGeneratorDatabase* InDatabase)
     {
+        US_UNREFERENCED_PARAMETER(InInfo);
+        
         for (auto& Property : InFunctionDefinition.Properties)
         {
             if (!Property.IsInputProperty())
@@ -670,8 +676,10 @@ namespace UnrealSharp
         }
     }
 
-    void FCSharpBlueprintGeneratorUtils::AddFunctionOutputPropertyPins(UK2Node_FunctionResult* InNode, FCSharpGeneratedTypeInfo* InInfo, const FFunctionTypeDefinition& InFunctionDefinition, const FCSharpBlueprintGeneratorDatabase* InDatabase)
+    void FCSharpBlueprintGeneratorUtils::AddFunctionOutputPropertyPins(UK2Node_FunctionResult* InNode, const FCSharpGeneratedTypeInfo* InInfo, const FFunctionTypeDefinition& InFunctionDefinition, const FCSharpBlueprintGeneratorDatabase* InDatabase)
     {
+        US_UNREFERENCED_PARAMETER(InInfo);
+        
         for (auto& Property : InFunctionDefinition.Properties)
         {
             if (Property.IsInputProperty())
@@ -693,21 +701,21 @@ namespace UnrealSharp
     {
         const auto OldFlag = InFunctionEntry->GetExtraFlags();
 
-        InFunctionEntry->SetExtraFlags(OldFlag|(uint32)InFunctionDefinition.Flags);
+        InFunctionEntry->SetExtraFlags(OldFlag|static_cast<uint32>(InFunctionDefinition.Flags));
         
-        for (auto& pair : InFunctionDefinition.Meta.Metas)
+        for (auto& Pair : InFunctionDefinition.Meta.Metas)
         {
-            InFunctionEntry->MetaData.SetMetaData(*pair.Key, pair.Value);
+            InFunctionEntry->MetaData.SetMetaData(*Pair.Key, Pair.Value);
         }        
     }
 
     void FCSharpBlueprintGeneratorUtils::ApplyCustomEventMetaData(UK2Node_CustomEvent* InCustomEvent, const FFunctionTypeDefinition& InFunctionDefinition)
     {
-        InCustomEvent->FunctionFlags |= (uint32)InFunctionDefinition.Flags;
+        InCustomEvent->FunctionFlags |= static_cast<uint32>(InFunctionDefinition.Flags);
 
-        for (auto& pair : InFunctionDefinition.Meta.Metas)
+        for (auto& Pair : InFunctionDefinition.Meta.Metas)
         {
-            InCustomEvent->GetUserDefinedMetaData().SetMetaData(*pair.Key, pair.Value);
+            InCustomEvent->GetUserDefinedMetaData().SetMetaData(*Pair.Key, Pair.Value);
         }
     }
 }

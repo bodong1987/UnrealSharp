@@ -26,7 +26,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Json.h"
+#include "Json.h" // NOLINT
 
 namespace UnrealSharp
 {
@@ -34,12 +34,12 @@ namespace UnrealSharp
     class SHARPBINDINGGEN_API FMetaDefinition
     {
     public:
-        void                            Read(FJsonObject& InObject);
+        void                            Read(const FJsonObject& InObject);
         void                            Write(FJsonObject& InObject);
 
         void                            Reset();
         void                            Load(UField* InField);
-        void                            Load(FProperty* InProperty);
+        void                            Load(const FProperty* InProperty);
 
         bool                            TryGetMeta(const FString& InKey, FString& OutMeta) const;
         bool                            TryGetMeta(const FString& InKey, bool& OutMeta) const;

@@ -25,72 +25,70 @@
 */
 using System.Collections;
 
-namespace UnrealSharp.UnrealEngine
+namespace UnrealSharp.UnrealEngine;
+
+/// <summary>
+/// Interface IUnrealDataView
+/// </summary>
+public interface IUnrealDataView
 {
     /// <summary>
-    /// Interface IUnrealDataView
+    /// Gets the native PTR.
     /// </summary>
-    public interface IUnrealDataView
-    {
-        /// <summary>
-        /// Gets the native PTR.
-        /// </summary>
-        /// <returns>IntPtr.</returns>
-        IntPtr GetNativePtr();
-
-        /// <summary>
-        /// Disconnects from native.
-        /// </summary>
-        void DisconnectFromNative();
-    }
+    /// <returns>IntPtr.</returns>
+    IntPtr GetNativePtr();
 
     /// <summary>
-    /// Interface IUnrealCollectionDataView
+    /// Disconnects from native.
     /// </summary>
-    public interface IUnrealCollectionDataView : IUnrealDataView
-    {
-        /// <summary>
-        /// Retains this instance.
-        /// </summary>
-        /// <returns>IEnumerable.</returns>
-        IEnumerable Retain();
+    void DisconnectFromNative();
+}
 
-        /// <summary>
-        /// Copies from.
-        /// </summary>
-        /// <param name="enumerable">The enumerable.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        bool CopyFrom(IEnumerable enumerable);
-    }
-
+/// <summary>
+/// Interface IUnrealCollectionDataView
+/// </summary>
+public interface IUnrealCollectionDataView : IUnrealDataView
+{
+    /// <summary>
+    /// Retains this instance.
+    /// </summary>
+    /// <returns>IEnumerable.</returns>
+    IEnumerable Retain();
 
     /// <summary>
-    /// Interface IUnrealCollectionDataView
+    /// Copies from.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IUnrealCollectionDataView<out T> : IUnrealCollectionDataView
-    {
-        /// <summary>
-        /// Retains this instance.
-        /// </summary>
-        /// <returns>IEnumerable&lt;T&gt;.</returns>
-        new IEnumerable<T> Retain();
-    }
+    /// <param name="enumerable">The enumerable.</param>
+    /// <returns><c>true</c> if success, <c>false</c> otherwise.</returns>
+    bool CopyFrom(IEnumerable enumerable);
+}
 
+
+/// <summary>
+/// Interface IUnrealCollectionDataView
+/// </summary>
+/// <typeparam name="T"></typeparam>
+public interface IUnrealCollectionDataView<out T> : IUnrealCollectionDataView
+{
     /// <summary>
-    /// Class UnrealDataViewExtensions.
+    /// Retains this instance.
     /// </summary>
-    public static class UnrealDataViewExtensions
-    {
-        /// <summary>
-        /// Gets the native PTR safe.
-        /// </summary>
-        /// <param name="unrealDataView">The unreal data view.</param>
-        /// <returns>IntPtr.</returns>
-        public static IntPtr GetNativePtrSafe(this IUnrealDataView? unrealDataView)
-        {
-            return unrealDataView != null ? unrealDataView.GetNativePtr() : IntPtr.Zero;
-        }
-    }
+    /// <returns>IEnumerable&lt;T&gt;.</returns>
+    new IEnumerable<T> Retain();
+}
 
+/// <summary>
+/// Class UnrealDataViewExtensions.
+/// </summary>
+public static class UnrealDataViewExtensions
+{
+    /// <summary>
+    /// Gets the native PTR safe.
+    /// </summary>
+    /// <param name="unrealDataView">The unreal data view.</param>
+    /// <returns>IntPtr.</returns>
+    public static IntPtr GetNativePtrSafe(this IUnrealDataView? unrealDataView)
+    {
+        return unrealDataView?.GetNativePtr() ?? IntPtr.Zero;
+    }
 }

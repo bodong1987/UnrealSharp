@@ -23,31 +23,30 @@
 
     Project URL: https://github.com/bodong1987/UnrealSharp
 */
-namespace UnrealSharp.UnrealEngine
+namespace UnrealSharp.UnrealEngine;
+
+/*
+ * Sync with UnrealMathUtility.h
+ */
+/// <summary>
+/// Class UnrealConstants.
+/// </summary>
+public static class UnrealConstants
 {
-    /*
-     * Sync with UnrealMathUtility.h
-    */
     /// <summary>
-    /// Class UnrealConstants.
+    /// The pi
     /// </summary>
-    public static class UnrealConstants
-    {
-        /// <summary>
-        /// The pi
-        /// </summary>
-        public const double PI = 3.141592653589793238462643383279502884197169399;
-        /// <summary>
-        /// The small number
-        /// </summary>
-        public const double SmallNumber = 0.00000001;
-        /// <summary>
-        /// The kinda small number
-        /// </summary>
-        public const double KindaSmallNumber = 0.0001;
-        /// <summary>
-        /// The thresh vector normalized
-        /// </summary>
-        public const double ThreshVectorNormalized = 0.01;
-    }
+    public const double Pi = 3.141592653589793238462643383279502884197169399;
+    /// <summary>
+    /// The small number
+    /// </summary>
+    public const double SmallNumber = 0.00000001;
+    /// <summary>
+    /// The kinda small number
+    /// </summary>
+    public const double KindaSmallNumber = 0.0001;
+    /// <summary>
+    /// The thresh vector normalized
+    /// </summary>
+    public const double ThreshVectorNormalized = 0.01;
 }

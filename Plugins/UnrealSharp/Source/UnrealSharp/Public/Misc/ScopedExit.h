@@ -35,8 +35,8 @@ namespace UnrealSharp
     class TScopedExit
     {
     public:
-        TScopedExit(TCallable func) :
-            Func(func)
+        TScopedExit(TCallable Func) :
+            Func(Func)
         {
         }
 
@@ -53,12 +53,12 @@ namespace UnrealSharp
     };
 }
 
-#define _UNREALSHARP_PP_CAT_IMPL_(a, b ) a ## b
-#define UNREALSHARP_PP_CAT(a, b) _UNREALSHARP_PP_CAT_IMPL_( a, b )
+#define US_PP_CAT_IMPL_(a, b ) a ## b 
+#define US_PP_CAT(a, b) US_PP_CAT_IMPL_( a, b )
 
 // use this macro directly
-#define UNREALSHARP_SCOPED_EXIT(expression) \
-    ::UnrealSharp::TScopedExit<TFunction<void()> > UNREALSHARP_PP_CAT(ScopedExitInstalce_, __COUNTER__)([&]()\
+#define US_SCOPED_EXIT(expression) \
+    ::UnrealSharp::TScopedExit<TFunction<void()> > US_PP_CAT(ScopedExitInstalce_, __COUNTER__)([&]()\
 { \
     expression;\
 })

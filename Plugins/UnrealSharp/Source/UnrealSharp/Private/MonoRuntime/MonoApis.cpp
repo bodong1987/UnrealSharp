@@ -37,7 +37,7 @@
         returnType (*name) params; \
     }
 
-#include "MonoRuntime/MonoApisImport.h"
+#include "MonoRuntime/MonoApisImport.h"  // NOLINT
 
 #undef MONO_API_FUNCTION
 
@@ -67,7 +67,7 @@ namespace UnrealSharp::Mono
 
 #include "MonoRuntime/MonoApisImport.h"
 
-#undef MONO_API_FUNCTIO
+#undef MONO_API_FUNCTION
     }
 }
 

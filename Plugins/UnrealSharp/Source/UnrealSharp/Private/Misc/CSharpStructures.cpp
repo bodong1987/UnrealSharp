@@ -74,15 +74,15 @@ namespace UnrealSharp
     {
         switch (InPlatform)
         {
-        case UnrealSharp::EUnrealSharpPlatform::Windows:
+        case EUnrealSharpPlatform::Windows:
             return TEXT("Windows");
-        case UnrealSharp::EUnrealSharpPlatform::Mac:
+        case EUnrealSharpPlatform::Mac:
             return TEXT("Mac");
-        case UnrealSharp::EUnrealSharpPlatform::Linux:
+        case EUnrealSharpPlatform::Linux:
             return TEXT("Linux");
-        case UnrealSharp::EUnrealSharpPlatform::IOS:
+        case EUnrealSharpPlatform::IOS:
             return TEXT("IOS");
-        case UnrealSharp::EUnrealSharpPlatform::Android:
+        case EUnrealSharpPlatform::Android:
             return TEXT("Android");
         default:
             return TEXT("Unknown");
@@ -93,9 +93,9 @@ namespace UnrealSharp
     {
         switch (InConfiguration)
         {
-        case UnrealSharp::EUnrealSharpBuildConfiguration::Debug:
+        case EUnrealSharpBuildConfiguration::Debug:
             return TEXT("Debug");
-        case UnrealSharp::EUnrealSharpBuildConfiguration::Release:
+        case EUnrealSharpBuildConfiguration::Release:
             return TEXT("Release");
         default:
             return TEXT("Unknown");

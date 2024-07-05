@@ -38,20 +38,20 @@ namespace UnrealSharp
         return InProperty != nullptr ? InProperty->GetSize() : -1;
     }
     
-    void FInteropUtils::InitializePropertyData(const FProperty* InProperty, void* InMemory)
+    void FInteropUtils::InitializePropertyData(const FProperty* InProperty, void* InAddressOfPropertyValue)
     {
         check(InProperty);
-        check(InMemory);
+        check(InAddressOfPropertyValue);
 
-        InProperty->InitializeValue(InMemory);
+        InProperty->InitializeValue(InAddressOfPropertyValue);
     }
 
-    void FInteropUtils::UnInitializePropertyData(const FProperty* InProperty, void* InMemory)
+    void FInteropUtils::UnInitializePropertyData(const FProperty* InProperty, void* InAddressOfPropertyValue)
     {
         check(InProperty);
-        check(InMemory);
+        check(InAddressOfPropertyValue);
 
-        InProperty->DestroyValue(InMemory);
+        InProperty->DestroyValue(InAddressOfPropertyValue);
     }
 
     uint64 FInteropUtils::GetPropertyCastFlags(const FProperty* InProperty)
@@ -85,7 +85,7 @@ namespace UnrealSharp
         InBoolProperty->SetPropertyValue(InTargetAddress, bInValue);
     }
 
-    bool FInteropUtils::GetBoolPropertyValue(const FBoolProperty* InBoolProperty, void* InTargetAddress)
+    bool FInteropUtils::GetBoolPropertyValue(const FBoolProperty* InBoolProperty, void* InTargetAddress) // NOLINT
     {
         check(InBoolProperty && InTargetAddress);
 

@@ -38,7 +38,7 @@ namespace UnrealSharp::Mono
 
     void* FMonoType::NewObject()
     {
-        FMonoRuntime* MonoRuntime = (FMonoRuntime*)FCSharpRuntimeFactory::GetInstance();
+        FMonoRuntime* MonoRuntime = (FMonoRuntime*)FCSharpRuntimeFactory::GetInstance(); // NOLINT
         return mono_object_new(MonoRuntime->GetDomain(), TypeClass);
     }
 

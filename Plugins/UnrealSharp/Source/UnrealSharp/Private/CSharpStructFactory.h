@@ -43,10 +43,10 @@ namespace UnrealSharp
         FCSharpStructFactory(ICSharpRuntime* InRuntime, const FString& InAssemblyName, const FString& InFullName);
 
         // invoke C# Structure.FromNative
-        void*                               FromNative(const void* InUnrealStructPtr);
+        void*                               FromNative(const void* InUnrealStructPtr) const;
 
         // invoke C# Structure.ToNative
-        void                                ToNative(const void* InUnrealStructPtr, const void* InCSharpStructPtr);
+        void                                ToNative(const void* InUnrealStructPtr, const void* InCSharpStructPtr) const;
 
     private:
         // C# struct FullName

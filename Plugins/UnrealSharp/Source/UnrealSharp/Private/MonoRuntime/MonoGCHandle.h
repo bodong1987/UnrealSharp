@@ -34,7 +34,7 @@ namespace UnrealSharp::Mono
     {
     public:
         FMonoGCHandle(void* InCSharpObject, bool bInWeakReference);
-        ~FMonoGCHandle();
+        virtual ~FMonoGCHandle() override;
 
     public:
         virtual bool                IsWeakReference() const override;

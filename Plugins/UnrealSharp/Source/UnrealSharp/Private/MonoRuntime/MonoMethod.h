@@ -47,7 +47,7 @@ namespace UnrealSharp::Mono
 
     public:
         static FString              GetMethodAssemblyName(MonoMethod* InMonoMethod);
-        static FString              GetMethodFullName(MonoMethod* InMonoMethod, bool bSignatrure = false);
+        static FString              GetMethodFullName(MonoMethod* InMonoMethod, bool bSignature = false);
 
 #if UE_BUILD_DEBUG
         const FString&              GetAssemblyName() const { return AssemblyName; }

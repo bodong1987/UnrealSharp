@@ -46,9 +46,9 @@ namespace UnrealSharp
     {
     }
 
-    FUnrealFunctionInvocation::FUnrealFunctionInvocation(const FDelegateProperty* InDelegateProeprty) :
-        Function(InDelegateProeprty->SignatureFunction),
-        DelegateProperty(InDelegateProeprty)
+    FUnrealFunctionInvocation::FUnrealFunctionInvocation(const FDelegateProperty* InDelegateProperty) :
+        Function(InDelegateProperty->SignatureFunction),
+        DelegateProperty(InDelegateProperty)
     {        
     }
 
@@ -79,14 +79,14 @@ namespace UnrealSharp
         checkf(Function != nullptr, TEXT("Failed bind function %s in class %s"), InFunctionName, *InClass->GetPathName());
     }
 
-    void FUnrealFunctionInvocation::InitializeParameterBuffer(void* InParameterBuffer, int InParameterBufferSize) const
+    void FUnrealFunctionInvocation::InitializeParameterBuffer(void* InParameterBuffer, int /*InParameterBufferSize*/) const
     {
         check(Function);
         check(InParameterBuffer);
 
         for (TFieldIterator<FProperty> PropertyIter(Function, EFieldIterationFlags::IncludeAll); PropertyIter; ++PropertyIter)
         {
-            FProperty* Property = *PropertyIter;
+            const FProperty* Property = *PropertyIter;
 
             checkSlow(Property->GetOffset_ForUFunction() < InParameterBufferSize);
 
@@ -94,14 +94,14 @@ namespace UnrealSharp
         }
     }
 
-    void FUnrealFunctionInvocation::UnInitializeParameterBuffer(void* InParameterBuffer, int InParameterBufferSize) const
+    void FUnrealFunctionInvocation::UnInitializeParameterBuffer(void* InParameterBuffer, int /*InParameterBufferSize*/) const
     {
         check(Function);
         check(InParameterBuffer);
 
         for (TFieldIterator<FProperty> PropertyIter(Function, EFieldIterationFlags::IncludeAll); PropertyIter; ++PropertyIter)
         {
-            FProperty* Property = *PropertyIter;
+            const FProperty* Property = *PropertyIter;
 
             checkSlow(Property->GetOffset_ForUFunction()<InParameterBufferSize);
 
@@ -119,7 +119,7 @@ namespace UnrealSharp
             check(Function->ParmsSize <= InParameterBufferSize);
 
             // is static
-            if ((Function->FunctionFlags & EFunctionFlags::FUNC_Static) != 0)
+            if ((Function->FunctionFlags & FUNC_Static) != 0)
             {
                 if (InObject != nullptr)
                 {

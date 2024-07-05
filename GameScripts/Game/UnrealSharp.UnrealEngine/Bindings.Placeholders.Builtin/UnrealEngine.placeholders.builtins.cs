@@ -23,6 +23,8 @@
 
     Project URL: https://github.com/bodong1987/UnrealSharp
 */
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedTypeParameter
 using UnrealSharp.Utils.UnrealEngine;
 
 namespace UnrealSharp.UnrealEngine.Bindings.Placeholders;

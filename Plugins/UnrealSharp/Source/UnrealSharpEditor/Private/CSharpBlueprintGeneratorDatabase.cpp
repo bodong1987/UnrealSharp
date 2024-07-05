@@ -30,12 +30,10 @@
 #include "Classes/CSharpStruct.h"
 #include "Classes/CSharpClass.h"
 #include "Classes/CSharpBlueprint.h"
-#include "UserDefinedStructure/UserDefinedStructEditorData.h"
 #include "PropertyDefinition.h"
 #include "ObjectTools.h"
 #include "ClassTypeDefinition.h"
 #include "Misc/UnrealSharpLog.h"
-#include "AssetRegistry/AssetRegistryModule.h"
 #include "Misc/ScopedExit.h"
 #include "Misc/UnrealSharpUtils.h"
 
@@ -71,7 +69,7 @@ namespace UnrealSharp
         return Definition != nullptr && Definition->GetDefinitionType() == EDefinitionType::Class;
     }
 
-    FCSharpBlueprintGeneratorDatabase::FCSharpBlueprintGeneratorDatabase(TSharedPtr<FTypeDefinitionDocument> InDocument) :
+    FCSharpBlueprintGeneratorDatabase::FCSharpBlueprintGeneratorDatabase(const TSharedPtr<FTypeDefinitionDocument>& InDocument) :
         Document(InDocument)
     {
         CacheNativeTypes();
@@ -105,7 +103,7 @@ namespace UnrealSharp
     void FCSharpBlueprintGeneratorDatabase::LoadExistsInfo()
     {
         // get directory path
-        FString GeneratedPath = FPaths::Combine(FPaths::ProjectContentDir(), FCSharpBlueprintGeneratorUtils::CSharpBlueprintClassPrefixPath);
+        const FString GeneratedPath = FPaths::Combine(FPaths::ProjectContentDir(), FCSharpBlueprintGeneratorUtils::CSharpBlueprintClassPrefixPath);
 
         TArray<FString> ExistsFiles;
         IFileManager::Get().IterateDirectoryRecursively(*GeneratedPath,
@@ -169,16 +167,15 @@ namespace UnrealSharp
                         TargetField = nullptr;
                     }
 
-                    TSharedPtr<FCSharpGeneratedTypeInfo> InfoPtr = MakeShared<FCSharpGeneratedTypeInfo>();
-                    FCSharpGeneratedTypeInfo& Info = *InfoPtr;
-
-                    Info.Field = TargetField;
-                    Info.Blueprint = Blueprint;
-                    Info.State = ECSharpGeneratedTypeState::Undefined;
-                    Info.Name = Name;
-                    Info.CppName = CppName;
-                    Info.PackagePath = PackagePath;
-                    Info.FilePath = InFileName;
+                    const TSharedPtr<FCSharpGeneratedTypeInfo> InfoPtr = MakeShared<FCSharpGeneratedTypeInfo>();
+                    
+                    InfoPtr->Field = TargetField;
+                    InfoPtr->Blueprint = Blueprint;
+                    InfoPtr->State = ECSharpGeneratedTypeState::Undefined;
+                    InfoPtr->Name = Name;
+                    InfoPtr->CppName = CppName;
+                    InfoPtr->PackagePath = PackagePath;
+                    InfoPtr->FilePath = InFileName;
 
                     NameToTypeInfoCaches.Add(Name, InfoPtr);
                     CppNameToTypeInfoCaches.Add(CppName, InfoPtr);
@@ -191,9 +188,9 @@ namespace UnrealSharp
         check(NameToTypeInfoCaches.Num() == CppNameToTypeInfoCaches.Num());
     }
 
-    void FCSharpBlueprintGeneratorDatabase::DeleteAsset(TSharedPtr<FCSharpGeneratedTypeInfo> InTypeInfo)
+    void FCSharpBlueprintGeneratorDatabase::DeleteAsset(const TSharedPtr<FCSharpGeneratedTypeInfo>& InTypeInfo)
     {
-        UObject* TargetObject = InTypeInfo->Blueprint != nullptr ? (UObject*)InTypeInfo->Blueprint : (UObject*)InTypeInfo->Field;
+        UObject* TargetObject = InTypeInfo->Blueprint != nullptr ? static_cast<UObject*>(InTypeInfo->Blueprint) : static_cast<UObject*>(InTypeInfo->Field);
 
         check(TargetObject!=nullptr);
 
@@ -207,45 +204,44 @@ namespace UnrealSharp
 
     void FCSharpBlueprintGeneratorDatabase::PrepareTypeStates()
     {
-        // try delete outdated assets
+        // try to delete outdated assets
         auto TempCppNameToTypeInfoCaches = CppNameToTypeInfoCaches;
 
-        for (auto& pair : TempCppNameToTypeInfoCaches)
+        for (auto& Pair : TempCppNameToTypeInfoCaches)
         {
-            auto typeDefinition = Document->GetType(pair.Key);
+            const auto TypeDefinition = Document->GetType(Pair.Key);
 
             // this resource it not valid now
-            if (!typeDefinition)
+            if (!TypeDefinition)
             {
-                DeleteAsset(pair.Value);
+                DeleteAsset(Pair.Value);
             }
         }
 
         // try update or create assets
-        for (auto& pair : Document->GetTypes())
+        for (auto& Pair : Document->GetTypes())
         {
-            auto& type = pair.Value;
+            auto& Type = Pair.Value;
 
-            auto* infoPtr = NameToTypeInfoCaches.Find(type->Name);
+            const auto* InfoPtr = NameToTypeInfoCaches.Find(Type->Name);
 
-            if (infoPtr != nullptr) // if this generated type already exists...
+            if (InfoPtr != nullptr) // if this generated type already exists...
             {
-                TSharedPtr<FCSharpGeneratedTypeInfo> info = *infoPtr;
+                const TSharedPtr<FCSharpGeneratedTypeInfo> Info = *InfoPtr;
 
-                check(info->Field); // field must be valid.
+                check(Info->Field); // field must be valid.
 
-                info->Definition = type;  // force reset Definition for it
+                Info->Definition = Type;  // force reset Definition for it
 
-                // check crccode and generator version
-                if (Cast<ICSharpGeneratedType>(info->Field)->GetCrcCode() == type->CrcCode &&
-                    Cast<ICSharpGeneratedType>(info->Field)->GetGeneratorVersion() == FCSharpBlueprintGeneratorUtils::GeneratorVersion)
+                // check crc code and generator version
+                if (Cast<ICSharpGeneratedType>(Info->Field)->GetCrcCode() == Type->CrcCode &&
+                    Cast<ICSharpGeneratedType>(Info->Field)->GetGeneratorVersion() == FCSharpBlueprintGeneratorUtils::GeneratorVersion)
                 {
-                    info->State = ECSharpGeneratedTypeState::Completed;
-                    continue;
+                    Info->State = ECSharpGeneratedTypeState::Completed;                    
                 }
                 else
                 {
-                    info->State = ECSharpGeneratedTypeState::NeedUpdate;
+                    Info->State = ECSharpGeneratedTypeState::NeedUpdate;
                 }
             }
         }
@@ -256,26 +252,26 @@ namespace UnrealSharp
     void FCSharpBlueprintGeneratorDatabase::PrepareTypes()
     {
         // check states
-        for (auto& pair : Document->GetTypes())
+        for (auto& Pair : Document->GetTypes())
         {
-            auto type = pair.Value;
+            auto Type = Pair.Value;
 
-            const auto* Ptr = NameToTypeInfoCaches.Find(type->Name);
+            const auto* Ptr = NameToTypeInfoCaches.Find(Type->Name);
             if (Ptr != nullptr)
             {
                 if ((*Ptr)->State == ECSharpGeneratedTypeState::NeedUpdate)
                 {
-                    CleanCSharpBlueprintType(*Ptr, type);
+                    CleanCSharpBlueprintType(*Ptr, Type);
                 }                
             }
             else
             {
-                NewCSharpBlueprintType(type);
+                NewCSharpBlueprintType(Type);
             }
         }
     }
 
-    void FCSharpBlueprintGeneratorDatabase::CleanCSharpBlueprintType(TSharedPtr<FCSharpGeneratedTypeInfo> InTypeInfo, TSharedPtr<FBaseTypeDefinition> InTypeDefinition)
+    void FCSharpBlueprintGeneratorDatabase::CleanCSharpBlueprintType(const TSharedPtr<FCSharpGeneratedTypeInfo>& InTypeInfo, const TSharedPtr<FBaseTypeDefinition>& InTypeDefinition) // NOLINT
     {
         if (InTypeDefinition->IsEnum())
         {
@@ -303,56 +299,56 @@ namespace UnrealSharp
         }
     }
 
-    TSharedPtr<FCSharpGeneratedTypeInfo> FCSharpBlueprintGeneratorDatabase::NewCSharpBlueprintType(TSharedPtr<FBaseTypeDefinition> InTypeDefinition)
+    TSharedPtr<FCSharpGeneratedTypeInfo> FCSharpBlueprintGeneratorDatabase::NewCSharpBlueprintType(const TSharedPtr<FBaseTypeDefinition>& InTypeDefinition)
     {
         US_LOG(TEXT("Prepare C# type:%s"), *InTypeDefinition->CSharpFullName);
 
-        TSharedPtr<FCSharpGeneratedTypeInfo> typeInfoPtr = MakeShared<FCSharpGeneratedTypeInfo>();
+        TSharedPtr<FCSharpGeneratedTypeInfo> TypeInfoPtr = MakeShared<FCSharpGeneratedTypeInfo>();
 
-        typeInfoPtr->State = ECSharpGeneratedTypeState::NeedUpdate;
-        typeInfoPtr->Name = InTypeDefinition->Name;
-        typeInfoPtr->CppName = InTypeDefinition->CppName;
-        typeInfoPtr->PackagePath = FCSharpBlueprintGeneratorUtils::GetPackagePath(InTypeDefinition);
-        typeInfoPtr->FilePath = FCSharpBlueprintGeneratorUtils::GetPackageFilePath(InTypeDefinition);
-        typeInfoPtr->Definition = InTypeDefinition;
+        TypeInfoPtr->State = ECSharpGeneratedTypeState::NeedUpdate;
+        TypeInfoPtr->Name = InTypeDefinition->Name;
+        TypeInfoPtr->CppName = InTypeDefinition->CppName;
+        TypeInfoPtr->PackagePath = FCSharpBlueprintGeneratorUtils::GetPackagePath(InTypeDefinition);
+        TypeInfoPtr->FilePath = FCSharpBlueprintGeneratorUtils::GetPackageFilePath(InTypeDefinition);
+        TypeInfoPtr->Definition = InTypeDefinition;
 
-        UNREALSHARP_SCOPED_EXIT(
-            if (typeInfoPtr)
+        US_SCOPED_EXIT(
+            if (TypeInfoPtr)
             {
-                CppNameToTypeInfoCaches.Add(typeInfoPtr->CppName, typeInfoPtr);
-                NameToTypeInfoCaches.Add(typeInfoPtr->Name, typeInfoPtr);
+                CppNameToTypeInfoCaches.Add(TypeInfoPtr->CppName, TypeInfoPtr);
+                NameToTypeInfoCaches.Add(TypeInfoPtr->Name, TypeInfoPtr);
                 check(CppNameToTypeInfoCaches.Num() == NameToTypeInfoCaches.Num());
             }            
         );
 
-        UPackage* Package = CreatePackage(*typeInfoPtr->PackagePath);
+        UPackage* Package = CreatePackage(*TypeInfoPtr->PackagePath);
 
-        // create place holder data
+        // create placeholder data
         if (InTypeDefinition->IsEnum())
         {
-            typeInfoPtr->Field = FCSharpBlueprintGeneratorUtils::NewCSharpEnum(Package, (const FEnumTypeDefinition*)InTypeDefinition.Get());
+            TypeInfoPtr->Field = FCSharpBlueprintGeneratorUtils::NewCSharpEnum(Package, (const FEnumTypeDefinition*)InTypeDefinition.Get()); // NOLINT
 
-            return typeInfoPtr;
+            return TypeInfoPtr;
         }
         else if(InTypeDefinition->IsStruct())
         {
-            typeInfoPtr->Field = FCSharpBlueprintGeneratorUtils::NewCSharpStruct(Package, (const FScriptStructTypeDefinition*)InTypeDefinition.Get());
+            TypeInfoPtr->Field = FCSharpBlueprintGeneratorUtils::NewCSharpStruct(Package, (const FScriptStructTypeDefinition*)InTypeDefinition.Get()); // NOLINT
 
-            return typeInfoPtr;
+            return TypeInfoPtr;
         }
 
         checkSlow(!InTypeDefinition->IsFunction());
         
         // class require special handling, because it has base class
-        TSharedPtr<FClassTypeDefinition> ClassPtr = StaticCastSharedPtr<FClassTypeDefinition>(InTypeDefinition);
+        const TSharedPtr<FClassTypeDefinition> ClassPtr = StaticCastSharedPtr<FClassTypeDefinition>(InTypeDefinition);
         checkSlow(ClassPtr);
 
-        NewCSharpBlueprintClassIfNeed(Package, ClassPtr, typeInfoPtr);
+        NewCSharpBlueprintClassIfNeed(Package, ClassPtr, TypeInfoPtr);
 
-        return typeInfoPtr;
+        return TypeInfoPtr;
     }
 
-    void FCSharpBlueprintGeneratorDatabase::NewCSharpBlueprintClassIfNeed(UPackage* InPackage, TSharedPtr<FClassTypeDefinition> InClassDefinition, TSharedPtr<FCSharpGeneratedTypeInfo> InTypeInfo)
+    void FCSharpBlueprintGeneratorDatabase::NewCSharpBlueprintClassIfNeed(UPackage* InPackage, const TSharedPtr<FClassTypeDefinition>& InClassDefinition, const TSharedPtr<FCSharpGeneratedTypeInfo>& InTypeInfo)
     {
         const FString& SuperName = InClassDefinition->SuperName;
 
@@ -361,12 +357,12 @@ namespace UnrealSharp
 
         if (!bIsUnrealSuperClass)
         {
-            // try find in caches
+            // try to find in caches
             auto SuperInfo = FindTypeByCppName(SuperName);
 
             if (SuperInfo == nullptr)
             {
-                auto SuperDefinition = Document->GetType(SuperName);
+                const auto SuperDefinition = Document->GetType(SuperName);
                 checkf(SuperDefinition, TEXT("Failed find super type name:%s, If you refactor your C++ code, you may need to delete $(Project)/Content/CSharpBlueprints and $(Project)/Managed and then re-execute the import process"), *SuperName);
 
                 NewCSharpBlueprintType(SuperDefinition);
@@ -397,50 +393,50 @@ namespace UnrealSharp
         PrepareTypes();
     }
 
-    void FCSharpBlueprintGeneratorDatabase::Accept(TFunction<void(FCSharpGeneratedTypeInfo&)> InVisitor)
+    void FCSharpBlueprintGeneratorDatabase::Accept(const TFunction<void(FCSharpGeneratedTypeInfo&)>& InVisitor)
     {
-        for (auto& pair : NameToTypeInfoCaches)
+        for (auto& Pair : NameToTypeInfoCaches)
         {
-            check(pair.Value->Definition);
-            InVisitor(*pair.Value);
+            check(Pair.Value->Definition);
+            InVisitor(*Pair.Value);
         }
     }
 
     FCSharpGeneratedTypeInfo* FCSharpBlueprintGeneratorDatabase::FindTypeByName(const FString& InName)
     {
-        auto ptr = NameToTypeInfoCaches.Find(InName);
+        const auto Ptr = NameToTypeInfoCaches.Find(InName);
 
-        return ptr != nullptr ? ptr->Get() : nullptr;
+        return Ptr != nullptr ? Ptr->Get() : nullptr;
     }
 
     const FCSharpGeneratedTypeInfo* FCSharpBlueprintGeneratorDatabase::FindTypeByName(const FString& InName) const
     {
-        auto ptr = NameToTypeInfoCaches.Find(InName);
+        const auto Ptr = NameToTypeInfoCaches.Find(InName);
 
-        return ptr != nullptr ? ptr->Get() : nullptr;
+        return Ptr != nullptr ? Ptr->Get() : nullptr;
     }
 
     FCSharpGeneratedTypeInfo* FCSharpBlueprintGeneratorDatabase::FindTypeByCppName(const FString& InCppName)
     {
-        auto ptr = CppNameToTypeInfoCaches.Find(InCppName);
+        const auto Ptr = CppNameToTypeInfoCaches.Find(InCppName);
 
-        return ptr != nullptr ? ptr->Get() : nullptr;
+        return Ptr != nullptr ? Ptr->Get() : nullptr;
     }
 
     const FCSharpGeneratedTypeInfo* FCSharpBlueprintGeneratorDatabase::FindTypeByCppName(const FString& InCppName) const
     {
-        auto ptr = CppNameToTypeInfoCaches.Find(InCppName);
+        const auto Ptr = CppNameToTypeInfoCaches.Find(InCppName);
 
-        return ptr != nullptr ? ptr->Get() : nullptr;
+        return Ptr != nullptr ? Ptr->Get() : nullptr;
     }
 
     UField* FCSharpBlueprintGeneratorDatabase::FindNativeTypeByPath(const FString& InPath) const
     {
-        auto* ptr = PathToFieldNativeCaches.Find(InPath);
+        auto* Ptr = PathToFieldNativeCaches.Find(InPath);
 
-        if (ptr != nullptr)
+        if (Ptr != nullptr)
         {
-            return *ptr;
+            return *Ptr;
         }
 
         return nullptr;
@@ -448,31 +444,31 @@ namespace UnrealSharp
 
     UField* FCSharpBlueprintGeneratorDatabase::FindNativeTypeByName(const FString& InName) const
     {
-        auto* ptr = NameToFieldNativeCaches.Find(InName);
+        auto* Ptr = NameToFieldNativeCaches.Find(InName);
 
-        return ptr != nullptr ? *ptr : nullptr;
+        return Ptr != nullptr ? *Ptr : nullptr;
     }
 
     UField* FCSharpBlueprintGeneratorDatabase::FindNativeTypeByCppName(const FString& InCppName) const
     {
-        auto* ptr = CppNameToFieldNativeCaches.Find(InCppName);
+        auto* Ptr = CppNameToFieldNativeCaches.Find(InCppName);
 
-        return ptr != nullptr ? *ptr : nullptr;
+        return Ptr != nullptr ? *Ptr : nullptr;
     }
 
     UField* FCSharpBlueprintGeneratorDatabase::GetField(const FString& InCppName) const
     {
-        auto Field = FindNativeTypeByCppName(InCppName);
+        const auto Field = FindNativeTypeByCppName(InCppName);
         if (Field != nullptr)
         {
             return Field;
         }
 
-        auto info = FindTypeByCppName(InCppName);
+        const auto Info = FindTypeByCppName(InCppName);
 
-        if (info != nullptr)
+        if (Info != nullptr)
         {
-            return info->Field;
+            return Info->Field;
         }
 
         return nullptr;
@@ -490,11 +486,11 @@ namespace UnrealSharp
             return FindNativeTypeByPath(InPropertyDefinition.ClassPath);
         }
 
-        auto info = FindTypeByName(InPropertyDefinition.TypeName);
+        const auto Info = FindTypeByName(InPropertyDefinition.TypeName);
 
-        if (info != nullptr)
+        if (Info != nullptr)
         {
-            return info->Field;
+            return Info->Field;
         }
 
         return nullptr;

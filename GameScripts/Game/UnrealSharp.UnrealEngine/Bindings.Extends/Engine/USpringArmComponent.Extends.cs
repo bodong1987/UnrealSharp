@@ -23,19 +23,17 @@
 
     Project URL: https://github.com/bodong1987/UnrealSharp
 */
-namespace UnrealSharp.UnrealEngine
+namespace UnrealSharp.UnrealEngine;
+
+/// <summary>
+/// Class USpringArmComponent.
+/// Implements the <see cref="UnrealSharp.UnrealEngine.USceneComponent" />
+/// </summary>
+/// <seealso cref="UnrealSharp.UnrealEngine.USceneComponent" />
+public partial class USpringArmComponent
 {
     /// <summary>
-    /// Class USpringArmComponent.
-    /// Implements the <see cref="UnrealSharp.UnrealEngine.USceneComponent" />
+    /// The socket name
     /// </summary>
-    /// <seealso cref="UnrealSharp.UnrealEngine.USceneComponent" />
-    public partial class USpringArmComponent
-    {
-        /// <summary>
-        /// The socket name
-        /// </summary>
-        public static readonly FName SocketName = new FName("SpringEndpoint");
-    }
+    public static readonly FName SocketName = new("SpringEndpoint");
 }
-

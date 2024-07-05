@@ -29,8 +29,6 @@
 #if WITH_MONO
 #include "MonoRuntime/MonoInteropUtils.h"
 #include "MonoRuntime/MonoMethod.h"
-#include "Misc/CSharpStructures.h"
-#include "MonoRuntime/MonoRuntime.h"
 #include "Misc/StackMemory.h"
 #include "Misc/ScopedCSharpMethodInvocation.h"
 
@@ -69,15 +67,15 @@ namespace UnrealSharp::Mono
                 Message = TEXT("MonoRuntimeException");
             }
 
-            // try get stack trace
-            MonoClass* exceptionClass = mono_object_get_class(InExceptionObject);
+            // get stack trace
+            MonoClass* ExceptionClass = mono_object_get_class(InExceptionObject);
 
-            // FMonoRuntime::DumpClassInfomration(exceptionClass);
-            MonoProperty* stackTraceProperty = mono_class_get_property_from_name(exceptionClass, "StackTrace");
+            // FMonoRuntime::DumpClassInformation(exceptionClass);
+            MonoProperty* StackTraceProperty = mono_class_get_property_from_name(ExceptionClass, "StackTrace");
 
-            if (stackTraceProperty != nullptr)
+            if (StackTraceProperty != nullptr)
             {
-                MonoString* stackTrace = (MonoString*)mono_property_get_value(stackTraceProperty, InExceptionObject, NULL, NULL);
+                MonoString* stackTrace = (MonoString*)mono_property_get_value(StackTraceProperty, InExceptionObject, nullptr, nullptr); // NOLINT
 
                 if (stackTrace != nullptr)
                 {
@@ -97,7 +95,7 @@ namespace UnrealSharp::Mono
         }
     };
     
-    FMonoMethodInvocation::FMonoMethodInvocation(TSharedPtr<FMonoMethod> InMethod) :
+    FMonoMethodInvocation::FMonoMethodInvocation(const TSharedPtr<FMonoMethod>& InMethod) :
         Method(InMethod)
     {        
         
@@ -124,7 +122,7 @@ namespace UnrealSharp::Mono
 
         if (InInstance != nullptr && Method->IsVirtual())
         {
-            ActualMethod = mono_object_get_virtual_method((MonoObject*)InInstance, ActualMethod);
+            ActualMethod = mono_object_get_virtual_method((MonoObject*)InInstance, ActualMethod); // NOLINT
 
 #if UE_BUILD_DEBUG
         //    FString ActualMethodName = FMonoMethod::GetMethodFullName(ActualMethod, true);
@@ -140,7 +138,7 @@ namespace UnrealSharp::Mono
         void* ParamBufferPtr = ParameterBuffer->StackPointer;
 
         MonoObject* Exception = nullptr;
-        MonoObject* ReturnValue = mono_runtime_invoke(ActualMethod, Method->IsStatic() ? nullptr : InInstance, (void**)ParamBufferPtr, &Exception);
+        MonoObject* ReturnValue = mono_runtime_invoke(ActualMethod, Method->IsStatic() ? nullptr : InInstance, (void**)ParamBufferPtr, &Exception);// NOLINT
 
         if (Exception != nullptr)
         {
@@ -174,10 +172,10 @@ namespace UnrealSharp::Mono
             return nullptr;
         }
 
-        MonoObject* ObjectPtr = (MonoObject*)InReturnValue;
-        MonoClass* klass = mono_object_get_class(ObjectPtr);
+        MonoObject* ObjectPtr = (MonoObject*)InReturnValue;// NOLINT
+        MonoClass* Klass = mono_object_get_class(ObjectPtr);
 
-        if (mono_class_is_valuetype(klass))
+        if (mono_class_is_valuetype(Klass))
         {
             return mono_object_unbox(ObjectPtr);
         }
@@ -191,7 +189,7 @@ namespace UnrealSharp::Mono
         check(ParameterBuffer->StackPointer != nullptr);
         check(ParamCount*sizeof(void*) <= ParameterBuffer->Size - sizeof(void*));
 
-        void** ParamBufferPtr = (void**)ParameterBuffer->StackPointer;
+        void** ParamBufferPtr = (void**)ParameterBuffer->StackPointer;// NOLINT
         *(ParamBufferPtr + ParamCount) = InArgumentPtr;
         ++ParamCount;
     }

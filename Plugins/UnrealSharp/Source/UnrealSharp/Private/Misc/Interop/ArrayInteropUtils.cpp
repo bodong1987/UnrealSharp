@@ -36,14 +36,14 @@ namespace UnrealSharp
 
     int FInteropUtils::GetLengthOfArray(const void* InAddressOfArray, const FArrayProperty* InArrayProperty)
     {
-        FScriptArrayHelper Helper(InArrayProperty, InAddressOfArray);
+        const FScriptArrayHelper Helper(InArrayProperty, InAddressOfArray);
 
         return Helper.Num();
     }
 
     const void* FInteropUtils::GetElementAddressOfArray(const void* InAddressOfArray, const FArrayProperty* InArrayProperty, int InIndex)
     {
-        return InArrayProperty->GetValueAddressAtIndex_Direct(InArrayProperty->Inner, (void*)InAddressOfArray, InIndex);
+        return InArrayProperty->GetValueAddressAtIndex_Direct(InArrayProperty->Inner, const_cast<void*>(InAddressOfArray), InIndex);
     }
 
     void FInteropUtils::ClearArray(const void* InAddressOfArray, const FArrayProperty* InArrayProperty)
@@ -66,15 +66,15 @@ namespace UnrealSharp
         return GetElementAddressOfArray(InAddressOfArray, InArrayProperty, InIndex);
     }
 
-    int FInteropUtils::FindIndexOfArrayElement(const void* InAddressOfArray, const FArrayProperty* InArrayProperty, const void* InAddressOfTargetElement)
+    int FInteropUtils::FindIndexOfArrayElement(const void* InAddressOfArray, const FArrayProperty* InArrayProperty, const void* InAddressOfElement)
     {
-        FScriptArrayHelper Helper(InArrayProperty, InAddressOfArray);
+        const FScriptArrayHelper Helper(InArrayProperty, InAddressOfArray);
 
         const int Length = Helper.Num();
 
         for (int i = 0; i < Length; ++i)
         {
-            if (InArrayProperty->Inner->Identical(GetElementAddressOfArray(InAddressOfArray, InArrayProperty, i), InAddressOfTargetElement))
+            if (InArrayProperty->Inner->Identical(GetElementAddressOfArray(InAddressOfArray, InArrayProperty, i), InAddressOfElement))
             {
                 return i;
             }

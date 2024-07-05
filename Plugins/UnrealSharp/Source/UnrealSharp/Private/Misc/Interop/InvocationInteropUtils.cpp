@@ -33,18 +33,18 @@ namespace UnrealSharp
         checkSlow(InClass);
         checkSlow(InCSharpFunctionName);
 
-        FUnrealFunctionInvocation* Invocation = new FUnrealFunctionInvocation(InClass, UNREALSHARP_STRING_TO_TCHAR(InCSharpFunctionName));
+        FUnrealFunctionInvocation* Invocation = new FUnrealFunctionInvocation(InClass, US_STRING_TO_TCHAR(InCSharpFunctionName));
 
         return Invocation;
     }
 
-    FUnrealFunctionInvocation* FInteropUtils::CreateUnrealInvocationFromDelegateProperty(const FProperty* InProperty)
+    FUnrealFunctionInvocation* FInteropUtils::CreateUnrealInvocationFromDelegateProperty(const FProperty* InDelegateProperty)
     {
-        if (const FMulticastDelegateProperty* MulticastDelegateProperty = CastField<FMulticastDelegateProperty>(InProperty))
+        if (const FMulticastDelegateProperty* MulticastDelegateProperty = CastField<FMulticastDelegateProperty>(InDelegateProperty))
         {
             return new FUnrealFunctionInvocation(MulticastDelegateProperty);
         }
-        else if (const FDelegateProperty* DelegateProperty = CastField<FDelegateProperty>(InProperty))
+        else if (const FDelegateProperty* DelegateProperty = CastField<FDelegateProperty>(InDelegateProperty))
         {
             return new FUnrealFunctionInvocation(DelegateProperty);
         }
@@ -54,7 +54,7 @@ namespace UnrealSharp
         return nullptr;
     }
 
-    void FInteropUtils::DestroyUnrealInvocation(FUnrealFunctionInvocation* InInvocation)
+    void FInteropUtils::DestroyUnrealInvocation(FUnrealFunctionInvocation* InInvocation) // NOLINT
     {
         if (InInvocation != nullptr)
         {
@@ -62,19 +62,19 @@ namespace UnrealSharp
         }
     }
 
-    void FInteropUtils::InvokeUnrealInvocation(FUnrealFunctionInvocation* InInvocation, UObject* InObject, void* InParameterBuffer, int InParameterBufferSize)
+    void FInteropUtils::InvokeUnrealInvocation(FUnrealFunctionInvocation* InInvocation, UObject* InObject, void* InParameterBuffer, int InParameterBufferSize) // NOLINT
     {
         checkSlow(InInvocation);
 
         InInvocation->Invoke(InObject, InParameterBuffer, InParameterBufferSize);
     }
 
-    UFunction* FInteropUtils::GetUnrealInvocationFunction(FUnrealFunctionInvocation* InInvocation)
+    UFunction* FInteropUtils::GetUnrealInvocationFunction(FUnrealFunctionInvocation* InInvocation) // NOLINT
     {
         return InInvocation->GetFunction();
     }
 
-    int FInteropUtils::GetUnrealInvocationParameterSize(FUnrealFunctionInvocation* InInvocation)
+    int FInteropUtils::GetUnrealInvocationParameterSize(FUnrealFunctionInvocation* InInvocation) // NOLINT
     {
         check(InInvocation);
         check(InInvocation->GetFunction());
@@ -82,14 +82,14 @@ namespace UnrealSharp
         return InInvocation->GetFunction()->ParmsSize;
     }
 
-    void FInteropUtils::InitializeUnrealInvocationParameters(FUnrealFunctionInvocation* InInvocation, void* InParameterBuffer, int InParameterBufferSize)
+    void FInteropUtils::InitializeUnrealInvocationParameters(FUnrealFunctionInvocation* InInvocation, void* InParameterBuffer, int InParameterBufferSize) // NOLINT
     {
         check(InInvocation);
 
         InInvocation->InitializeParameterBuffer(InParameterBuffer, InParameterBufferSize);
     }
 
-    void FInteropUtils::UnInitializeUnrealInvocationParameters(FUnrealFunctionInvocation* InInvocation, void* InParameterBuffer, int InParameterBufferSize)
+    void FInteropUtils::UnInitializeUnrealInvocationParameters(FUnrealFunctionInvocation* InInvocation, void* InParameterBuffer, int InParameterBufferSize) // NOLINT
     {
         check(InInvocation);
 
