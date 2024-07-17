@@ -25,6 +25,8 @@
 */
 #include "Misc/UnrealFunctionInvocation.h"
 
+#include "Misc/UnrealSharpLog.h"
+
 namespace UnrealSharp
 {
     FUnrealFunctionInvocation::FUnrealFunctionInvocation()
@@ -79,8 +81,10 @@ namespace UnrealSharp
         checkf(Function != nullptr, TEXT("Failed bind function %s in class %s"), InFunctionName, *InClass->GetPathName());
     }
 
-    void FUnrealFunctionInvocation::InitializeParameterBuffer(void* InParameterBuffer, int /*InParameterBufferSize*/) const
+    void FUnrealFunctionInvocation::InitializeParameterBuffer(void* InParameterBuffer, int InParameterBufferSize) const
     {
+        US_UNREFERENCED_PARAMETER(InParameterBufferSize);
+        
         check(Function);
         check(InParameterBuffer);
 
@@ -94,8 +98,10 @@ namespace UnrealSharp
         }
     }
 
-    void FUnrealFunctionInvocation::UnInitializeParameterBuffer(void* InParameterBuffer, int /*InParameterBufferSize*/) const
+    void FUnrealFunctionInvocation::UnInitializeParameterBuffer(void* InParameterBuffer, int InParameterBufferSize) const
     {
+        US_UNREFERENCED_PARAMETER(InParameterBufferSize);
+        
         check(Function);
         check(InParameterBuffer);
 

@@ -32,6 +32,7 @@
 
 namespace UnrealSharp::Mono
 {
+    class FMonoProfilerService;
     class FMonoObjectTable;
     class FPropertyMarshallerCollection;
 
@@ -107,6 +108,7 @@ namespace UnrealSharp::Mono
         TMap<FString, FMonoAssemblyCache>               AssemblyCaches;
         
         TUniquePtr<FPropertyMarshallerCollection>       MarshallerCollectionPtr;
+        TUniquePtr<FMonoProfilerService>                MonoProfiler;
 
         bool                                            bUseTempCoreClrLibrary = false;
         static bool                                     bIsDebuggerAvailable;    

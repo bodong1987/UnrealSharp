@@ -76,7 +76,9 @@ public class UnrealSharp : ModuleRules
                 "Core",
                 "CoreUObject",
                 "Engine",
-                "DeveloperSettings"
+                "DeveloperSettings",
+                "Sockets",
+                "Networking"
                 // ... add other public dependencies that you statically link with here ...
             }
         );

@@ -195,7 +195,7 @@ namespace UnrealSharp
         {
             if (const auto& [Property, MarshallerPtr] = PropertyQueue[Index]; MarshallerPtr && MarshallerPtr->bPassByReference)
             {
-                checkSlow(MarshallerPtr->Property == PropertyInfo.Property);
+                checkSlow(MarshallerPtr->Property == Property);
 
                 void** UnrealInternalDataPointerAddress = GetUnrealParameterReferencePointerAddress(InUnrealParameterReferencePointers, Index);
                 void** InteropTempDataPointerAddress = GetTempParameterPointerAddress(InTempInteropParameterPointers, MarshallerPtr->OffsetInTempParameterBuffer);

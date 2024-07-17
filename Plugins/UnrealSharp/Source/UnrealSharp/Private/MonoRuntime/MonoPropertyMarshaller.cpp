@@ -273,7 +273,7 @@ namespace UnrealSharp::Mono
         const FName* NamePtr = (const FName*)InParameters.InputAddress; // NOLINT
         FName* TempBuffer = (FName*)(InParameters.InputReferenceAddress + 1); // NOLINT
 
-        checkSlow((SIZE_T)(void*)TempBuffer - (SIZE_T)(void*)InParameters.InputReferenceAddress == sizeof(void*));
+        checkSlow(reinterpret_cast<SIZE_T>(static_cast<void*>(TempBuffer)) - reinterpret_cast<SIZE_T>(static_cast<void*>(InParameters.InputReferenceAddress)) == sizeof(void*));
 
         // For special processing of this type, we obtain more temporary space through GetTempParameterBufferSize, 
         // and then store the data in the extra space. 
@@ -316,7 +316,7 @@ namespace UnrealSharp::Mono
         const FString Text = TextPtr->ToString();
 
         FCSharpText* TempBuffer = (FCSharpText*)(InParameters.InputReferenceAddress + 1); // NOLINT
-        checkSlow((SIZE_T)(void*)TempBuffer - (SIZE_T)(void*)InParameters.InputReferenceAddress == sizeof(void*));
+        checkSlow(reinterpret_cast<SIZE_T>(TempBuffer) - reinterpret_cast<SIZE_T>(InParameters.InputReferenceAddress) == sizeof(void*));
 
         // For special processing of this type, we obtain more temporary space through GetTempParameterBufferSize, 
         // and then store the data in the extra space. 
@@ -420,7 +420,7 @@ namespace UnrealSharp::Mono
         const UClass** AddressOfClassPointer = (const UClass**)InParameters.InputAddress; // NOLINT
         FCSharpSubclassOf* TempBuffer = (FCSharpSubclassOf*)(InParameters.InputReferenceAddress + 1); // NOLINT
 
-        checkSlow((SIZE_T)(void*)TempBuffer - (SIZE_T)(void*)InParameters.InputReferenceAddress == sizeof(void*));
+        checkSlow(reinterpret_cast<SIZE_T>(TempBuffer) - reinterpret_cast<SIZE_T>(InParameters.InputReferenceAddress) == sizeof(void*));
 
         // For special processing of this type, we obtain more temporary space through GetTempParameterBufferSize, 
         // and then store the data in the extra space. 

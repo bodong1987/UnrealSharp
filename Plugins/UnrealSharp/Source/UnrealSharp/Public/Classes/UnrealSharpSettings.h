@@ -78,6 +78,14 @@ public:
     float DelayMonoStartTimeWhenWaitDebugger = 1.0f;
 
     /*
+     * After a certain updated version of Visual Studio for Unity, a Profiler port must exist to support debugging using Visual Studio.
+     * Therefore, this port is used to fake a Mono Profiler listening port.
+     * @reference https://www.cnblogs.com/bodong/p/17962564
+    */
+    UPROPERTY(EditAnywhere, config, Category = "Debugger|Mono")
+    int FakedMonoProfilerPort = 55987;
+
+    /*
     * If this option is turned on, when using the mono runtime, 
     * it will try to output some information inside the mono debugger to the specified file, 
     * located in $(UnrealProjectDirectory)Intermediate/UnrealSharp/mono.log.

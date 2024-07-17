@@ -24,13 +24,14 @@
     Project URL: https://github.com/bodong1987/UnrealSharp
 */
 #include "MonoRuntime/MonoRuntime.h"
-#include "MonoRuntime/MonoInteropUtils.h"
 #include "Classes/UnrealSharpSettings.h"
 #include "Misc/UnrealSharpLog.h"
 #include "Misc/ScopedExit.h"
 #include "Misc/UnrealSharpPaths.h"
 
 #if WITH_MONO
+#include "MonoProfilerService.h"
+#include "MonoRuntime/MonoInteropUtils.h"
 #include "MonoRuntime/MonoMethod.h"
 #include "MonoRuntime/MonoType.h"
 #include "MonoRuntime/MonoMethodInvocation.h"
@@ -334,6 +335,8 @@ namespace UnrealSharp::Mono
 
             mono_jit_parse_options(sizeof(Options)/sizeof(Options[0]), (char**)Options); // NOLINT
             mono_debug_init(MONO_DEBUG_FORMAT_MONO);
+
+            MonoProfiler.Reset(new FMonoProfilerService(Settings->FakedMonoProfilerPort));
 
             bIsDebuggerAvailable = true;
         }
